@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-测试不同的Box-Counting方法计算Takagi曲面
-比较6种方法的准确性
+Test Different Box-Counting Methods on Takagi Surface
+======================================================
+
+This example tests and compares 6 different box-counting methods
+for calculating the fractal dimension of Takagi surfaces.
+
+The Takagi surface is a theoretical fractal surface with known
+fractal dimension, making it ideal for method validation.
 """
 
 import numpy as np

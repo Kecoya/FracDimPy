@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
- - 
-========================
+Box-counting Method for Porous Media (3D) Test Example
+=======================================================
 
+This example demonstrates how to use the box-counting method to calculate
+the fractal dimension of 3D porous media data.
 
+Porous media data is typically represented as a 3D binary array where
+1 represents pore space and 0 represents solid material.
 """
 
 import numpy as np

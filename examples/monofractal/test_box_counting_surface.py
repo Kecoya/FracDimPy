@@ -1,29 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
- - 
-================
+Box-counting Method for Surface Data Test Example
+==================================================
 
+This example demonstrates how to use the box-counting method to calculate
+the fractal dimension of 2D surface data (height field).
 
+The example supports 6 different box-counting methods:
 
-6
+- method=0: RDCCM - Relative Differential Cubic Cover Method
+- method=1: DCCM  - Differential Cubic Cover Method
+- method=2: CCM   - Cubic Cover Method (standard)
+- method=3: ICCM  - Interpolated Cubic Cover Method
 
+For simplified methods:
+- method=5: SCCM  - Simplified Cubic Cover Method
+- method=6: SDCCM - Simplified Differential Cubic Cover Method
 
-- method=0: RDCCM - 
-- method=1: DCCM  - 
-- method=2: CCM   -  
-- method=3: ICCM  - 
-
-/
-- method=5: SCCM  - /
-- method=6: SDCCM - /
-
-
-- 
-- 
-- 
-- 
-- /
+The surface data can be provided as:
+- Coordinate points (X, Y, Z)
+- Matrix/array format (2D height field)
+- CSV file with coordinates
+- Interpolated grid
 """
 
 import numpy as np
