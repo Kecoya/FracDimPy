@@ -46,7 +46,7 @@ def generate_figure3_combined_compact():
     matplotlib.figure.Figure
         The generated figure.
     """
-    print("\n正在生成 Figure 3: 紧凑型综合图...")
+    print("\nGenerating Figure 3: Compact comprehensive figure...")
     
     from fracDimPy import (
         generate_sierpinski,
@@ -93,7 +93,7 @@ def generate_figure3_combined_compact():
     colors = ['#E63946', '#F77F00', '#06A77D']
     
     for idx, config in enumerate(fractals_config):
-        print(f"  处理 {config['full_name']}...")
+        print(f"  Processing {config['full_name']}...")
         
         # Generate and calculate
         fractal_data = config['generator']()
@@ -177,19 +177,19 @@ def generate_figure3_combined_compact():
     output_png = os.path.join(current_dir, "Figure_Compact_Overview.png")
     plt.savefig(output_png, dpi=300, bbox_inches='tight',
                 facecolor='white', edgecolor='none')
-    print(f"✓ Figure 3 (PNG) 已保存: {output_png}")
+    print(f"✓ Figure 3 (PNG) saved: {output_png}")
     
     # Save as PDF (vector graphics, recommended)
     output_pdf = os.path.join(current_dir, "Figure_Compact_Overview.pdf")
     plt.savefig(output_pdf, format='pdf', bbox_inches='tight',
                 facecolor='white', edgecolor='none')
-    print(f"✓ Figure 3 (PDF) 已保存: {output_pdf}")
+    print(f"✓ Figure 3 (PDF) saved: {output_pdf}")
     
     # Save as EPS (required by some journals)
     output_eps = os.path.join(current_dir, "Figure_Compact_Overview.eps")
     plt.savefig(output_eps, format='eps', bbox_inches='tight',
                 facecolor='white', edgecolor='none')
-    print(f"✓ Figure 3 (EPS) 已保存: {output_eps}")
+    print(f"✓ Figure 3 (EPS) saved: {output_eps}")
     
     return fig
 
@@ -199,29 +199,29 @@ def main():
     Main function to generate publication-quality box-counting validation figures.
     """
     print("="*70)
-    print("生成期刊论文级别的Box-counting验证图像")
+    print("Generating Publication-Quality Box-Counting Validation Figures")
     print("="*70)
-    print("\n图像特点:")
-    print("  - 分辨率: 300 DPI")
-    print("  - 格式: PNG（无损压缩）")
-    print("  - 配色: 专业期刊配色方案")
-    print("  - 字体: Arial + STIX数学字体")
+    print("\nFigure features:")
+    print("  - Resolution: 300 DPI")
+    print("  - Format: PNG (lossless compression)")
+    print("  - Color scheme: Professional journal color scheme")
+    print("  - Font: Arial + STIX math font")
     print("="*70)
     
     # Generate Figure 3
     fig3 = generate_figure3_combined_compact()
     
     print("\n" + "="*70)
-    print("✓✓✓ 图像生成完成！")
+    print("✓✓✓ Figure generation completed!")
     print("="*70)
-    print("\n生成的文件:")
-    print("  PNG格式（用于预览和演示）:")
+    print("\nGenerated files:")
+    print("  PNG format (for preview and presentation):")
     print("    - Figure_Compact_Overview.png")
-    print("\n  PDF格式（矢量图，推荐投稿使用）:")
+    print("\n  PDF format (vector graphics, recommended for submission):")
     print("    - Figure_Compact_Overview.pdf")
-    print("\n  EPS格式（部分传统期刊要求）:")
+    print("\n  EPS format (required by some traditional journals):")
     print("    - Figure_Compact_Overview.eps")
-    print("\n✨ 矢量图格式可无限放大而不失真，最适合期刊出版！")
+    print("\n✨ Vector graphics can be zoomed infinitely without distortion, perfect for journal publication!")
     print("="*70)
     
     plt.show()

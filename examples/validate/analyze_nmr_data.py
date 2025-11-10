@@ -35,17 +35,17 @@ def load_nmr_data(file_path):
     y : np.ndarray
         Second column data (porosity increment).
     """
-    print(f"正在读取: {file_path}")
+    print(f"Loading: {file_path}")
     df = pd.read_excel(file_path)
-    print(f"  数据形状: {df.shape}")
-    print(f"  列名: {df.columns.tolist()}")
+    print(f"  Data shape: {df.shape}")
+    print(f"  Column names: {df.columns.tolist()}")
     
     # Read first and second columns as X and Y
     x = df.iloc[:, 0].values
     y = df.iloc[:, 1].values
     
-    print(f"  X范围: {x.min():.4f} ~ {x.max():.4f}")
-    print(f"  Y范围: {y.min():.4f} ~ {y.max():.4f}")
+    print(f"  X range: {x.min():.4f} ~ {x.max():.4f}")
+    print(f"  Y range: {y.min():.4f} ~ {y.max():.4f}")
     
     return x, y
 
@@ -74,14 +74,14 @@ def analyze_single_file(file_path, file_name):
         File name identifier.
     """
     print("="*60)
-    print(f"分析文件: {file_name}")
+    print(f"Analyzing file: {file_name}")
     print("="*60)
     
     # Load data
     x, y = load_nmr_data(file_path)
     
     # Perform multifractal analysis
-    print("\n执行多重分形分析...")
+    print("\nPerforming multifractal analysis...")
     metrics, figure_data = multifractal_curve(
         (x, y),
         use_multiprocessing=False,
@@ -89,12 +89,12 @@ def analyze_single_file(file_path, file_name):
     )
     
     # Print key metrics
-    print("\n关键指标:")
-    print(f"  容量维数 D(0): {metrics[' D(0)'][0]:.4f}")
-    print(f"  信息维数 D(1): {metrics[' D(1)'][0]:.4f}")
-    print(f"  关联维数 D(2): {metrics[' D(2)'][0]:.4f}")
-    print(f"  Hurst指数 H: {metrics['H'][0]:.4f}")
-    print(f"  多重分形强度: {metrics[''][0]:.4f}")
+    print("\nKey metrics:")
+    print(f"  Capacity dimension D(0): {metrics[' D(0)'][0]:.4f}")
+    print(f"  Information dimension D(1): {metrics[' D(1)'][0]:.4f}")
+    print(f"  Correlation dimension D(2): {metrics[' D(2)'][0]:.4f}")
+    print(f"  Hurst exponent H: {metrics['H'][0]:.4f}")
+    print(f"  Multifractal strength: {metrics[''][0]:.4f}")
     
     return x, y, metrics, figure_data, file_name
 
@@ -218,7 +218,7 @@ def create_comprehensive_figure(results_list, output_dir):
     for ext in ['eps', 'pdf', 'png']:
         output_file = os.path.join(output_dir, f"nmr_multifractal_analysis.{ext}")
         fig.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"已保存: nmr_multifractal_analysis.{ext}")
+        print(f"Saved: nmr_multifractal_analysis.{ext}")
     
     plt.close(fig)
 
@@ -226,7 +226,10 @@ def main():
     """
     Main function to perform multifractal analysis on NMR data files.
     """
-    data_files=[('nmr.xlsx','sample')]
+    # Data file path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_file = os.path.join(current_dir, "nmr.xlsx")
+    data_files=[(data_file,'sample')]
     
     # Analyze all files
     results_list = []
@@ -236,23 +239,23 @@ def main():
             results_list.append(result)
             print()
         else:
-            print(f"警告: 文件不存在 - {file_path}")
+            print(f"Warning: File does not exist - {file_path}")
     
     if not results_list:
-        print("错误: 没有找到可分析的数据文件！")
+        print("Error: No data files found for analysis!")
         return
     
     print("="*60)
-    print("生成综合分析图像")
+    print("Generating comprehensive analysis figure")
     print("="*60)
     
     # Generate comprehensive comparison figure
     create_comprehensive_figure(results_list, current_dir)
     
     # Generate metrics summary table
-    print("\n指标汇总表:")
+    print("\nMetrics summary table:")
     print("-"*80)
-    print(f"{'样本':<15} {'D(0)':<10} {'D(1)':<10} {'D(2)':<10} {'Hurst':<10} {'强度':<10}")
+    print(f"{'Sample':<15} {'D(0)':<10} {'D(1)':<10} {'D(2)':<10} {'Hurst':<10} {'Strength':<10}")
     print("-"*80)
     for x, y, metrics, figure_data, file_name in results_list:
         print(f"{file_name:<15} "
@@ -263,9 +266,9 @@ def main():
               f"{metrics[''][0]:<10.4f}")
     print("-"*80)
     
-    print("\n所有分析完成！")
-    print("生成的文件:")
-    print("  - nmr_multifractal_analysis.eps/pdf/png (综合分析图)")
+    print("\nAll analysis completed!")
+    print("Generated files:")
+    print("  - nmr_multifractal_analysis.eps/pdf/png (comprehensive analysis figure)")
 
 if __name__ == '__main__':
     main()

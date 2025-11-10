@@ -107,7 +107,7 @@ def generate_fgn(H, n=10000):
         fgn_values = f.fgn()
         return fgn_values
     except ImportError:
-        print("  警告: fbm库未安装，使用fracDimPy的FBM生成器")
+        print("  Warning: fbm library not installed, using fracDimPy's FBM generator")
         from fracDimPy import generate_fbm_curve
         # For FGN, we need the increments of FBM
         _, fbm_curve = generate_fbm_curve(hurst=H, length=1.0, n_points=n+1)
@@ -181,12 +181,12 @@ class DFA_RS_Validator:
         from fracDimPy import dfa, hurst_dimension
         
         print("="*70)
-        print("DFA和RS算法验证")
+        print("DFA and RS Algorithm Validation")
         print("="*70)
         
         for idx, case in enumerate(self.test_cases):
-            print(f"\n[{idx+1}/{len(self.test_cases)}] 验证 {case['name']}...")
-            print(f"  理论Hurst指数: H = {case['theoretical_H']:.2f}")
+            print(f"\n[{idx+1}/{len(self.test_cases)}] Validating {case['name']}...")
+            print(f"  Theoretical Hurst exponent: H = {case['theoretical_H']:.2f}")
             
             # Generate data
             data = case['generator']()
@@ -202,7 +202,7 @@ class DFA_RS_Validator:
                 )
                 print(f"  DFA: α = {alpha_dfa:.4f}, R² = {result_dfa['r_squared']:.4f}")
             except Exception as e:
-                print(f"  DFA失败: {e}")
+                print(f"  DFA failed: {e}")
                 alpha_dfa = np.nan
                 result_dfa = None
             
@@ -212,7 +212,7 @@ class DFA_RS_Validator:
                 H_rs = result_rs['hurst']
                 print(f"  RS:  H = {H_rs:.4f}, R² = {result_rs['R2']:.4f}")
             except Exception as e:
-                print(f"  RS失败: {e}")
+                print(f"  RS failed: {e}")
                 H_rs = np.nan
                 result_rs = None
             
@@ -244,7 +244,7 @@ class DFA_RS_Validator:
         """
         from matplotlib.gridspec import GridSpec
         
-        print("\n生成期刊论文级别图像...")
+        print("\nGenerating publication-quality figure...")
         
         # Create large figure (3 rows)
         fig = plt.figure(figsize=(10, 8))
@@ -329,17 +329,17 @@ class DFA_RS_Validator:
         # PNG
         output_png = os.path.join(current_dir, "Figure_DFA_RS_Validation.png")
         plt.savefig(output_png, dpi=300, bbox_inches='tight', facecolor='white')
-        print(f"✓ PNG已保存: {output_png}")
+        print(f"✓ PNG saved: {output_png}")
         
         # PDF (vector graphics)
         output_pdf = os.path.join(current_dir, "Figure_DFA_RS_Validation.pdf")
         plt.savefig(output_pdf, format='pdf', bbox_inches='tight', facecolor='white')
-        print(f"✓ PDF已保存: {output_pdf}")
+        print(f"✓ PDF saved: {output_pdf}")
         
         # EPS
         output_eps = os.path.join(current_dir, "Figure_DFA_RS_Validation.eps")
         plt.savefig(output_eps, format='eps', bbox_inches='tight', facecolor='white')
-        print(f"✓ EPS已保存: {output_eps}")
+        print(f"✓ EPS saved: {output_eps}")
         
         return fig
     
@@ -351,11 +351,11 @@ class DFA_RS_Validator:
         errors, and R² values for both DFA and R/S methods.
         """
         print("\n" + "="*80)
-        print("验证结果汇总")
+        print("Validation Results Summary")
         print("="*80)
         
         print("\n{:<15} {:<10} {:<10} {:<10} {:<10} {:<10}".format(
-            "序列类型", "理论H", "DFA α", "DFA误差", "RS H", "RS误差"
+            "Series Type", "Theo. H", "DFA α", "DFA Error", "RS H", "RS Error"
         ))
         print("-"*80)
         
@@ -382,8 +382,8 @@ class DFA_RS_Validator:
         rs_r2s = [r['rs_result']['R2'] if r['rs_result'] else 0 for r in self.results]
         
         print("-"*80)
-        print(f"DFA平均误差: {np.mean(dfa_errors):.2f}%  |  平均R²: {np.mean(dfa_r2s):.4f}")
-        print(f"RS平均误差:  {np.mean(rs_errors):.2f}%  |  平均R²: {np.mean(rs_r2s):.4f}")
+        print(f"DFA average error: {np.mean(dfa_errors):.2f}%  |  Average R²: {np.mean(dfa_r2s):.4f}")
+        print(f"RS average error:  {np.mean(rs_errors):.2f}%  |  Average R²: {np.mean(rs_r2s):.4f}")
         print("="*80)
 
 
@@ -392,17 +392,17 @@ def main():
     Main function to run DFA and R/S algorithm validation.
     """
     print("╔" + "="*78 + "╗")
-    print("║" + " "*20 + "DFA和RS算法验证系统" + " "*37 + "║")
+    print("║" + " "*20 + "DFA and RS Algorithm Validation System" + " "*25 + "║")
     print("╚" + "="*78 + "╝")
     
-    print("\n验证算法:")
-    print("  - DFA: Detrended Fluctuation Analysis (去趋势波动分析)")
-    print("  - R/S: Rescaled Range Analysis (重标极差分析)")
+    print("\nValidation algorithms:")
+    print("  - DFA: Detrended Fluctuation Analysis")
+    print("  - R/S: Rescaled Range Analysis")
     
-    print("\n测试时间序列:")
-    print("  1. 白噪声 (H=0.5)")
-    print("  2. 粉红噪声 (H≈1.0)")
-    print("  3. FGN H=0.7 (持续)")
+    print("\nTest time series:")
+    print("  1. White noise (H=0.5)")
+    print("  2. Pink noise (H≈1.0)")
+    print("  3. FGN H=0.7 (persistent)")
     
     # Create validator
     validator = DFA_RS_Validator()
@@ -417,7 +417,7 @@ def main():
     validator.print_summary()
     
     print("\n" + "="*80)
-    print("✓✓✓ 验证完成！期刊论文级别图像已生成！")
+    print("✓✓✓ Validation completed! Publication-quality figures have been generated!")
     print("="*80)
     
     plt.show()

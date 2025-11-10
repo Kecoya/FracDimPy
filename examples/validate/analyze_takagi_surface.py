@@ -29,54 +29,54 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 
 def analyze_takagi_surface(dimension=2.5, level=12, size=256, method=2):
     """
-    分析单个Takagi曲面
+    Analyze a single Takagi surface
     
     Parameters
     ----------
     dimension : float
-        理论分形维数 (2, 3)
+        Theoretical fractal dimension (2, 3)
     level : int
-        迭代层数
+        Iteration level
     size : int
-        曲面尺寸
+        Surface size
     method : int
-        box-counting方法 (0-6)
+        Box-counting method (0-6)
         
     Returns
     -------
     surface : np.ndarray
-        生成的Takagi曲面
+        Generated Takagi surface
     D : float
-        计算得到的分形维数
+        Calculated fractal dimension
     result : dict
-        分析结果
+        Analysis results
     """
     print("="*70)
-    print(f"分析Takagi曲面 (理论维数 D={dimension})")
+    print(f"Analyzing Takagi surface (theoretical dimension D={dimension})")
     print("="*70)
     
     # 1. Generate Takagi surface
-    print(f"\n1. 生成Takagi曲面...")
-    print(f"   参数: 尺寸={size}x{size}, 迭代层数={level}")
+    print(f"\n1. Generating Takagi surface...")
+    print(f"   Parameters: size={size}x{size}, iteration level={level}")
     surface = generate_takagi_surface(dimension=dimension, level=level, size=size)
     
     b = 2 ** dimension / 8
-    print(f"   理论分形维数: D = {dimension}")
-    print(f"   参数 b = {b:.4f}")
-    print(f"   高度范围: {surface.min():.4f} ~ {surface.max():.4f}")
-    print(f"   标准差: {surface.std():.4f}")
+    print(f"   Theoretical fractal dimension: D = {dimension}")
+    print(f"   Parameter b = {b:.4f}")
+    print(f"   Height range: {surface.min():.4f} ~ {surface.max():.4f}")
+    print(f"   Standard deviation: {surface.std():.4f}")
     
     # 2. Calculate fractal dimension
-    print(f"\n2. 使用Box-Counting方法计算分形维数...")
-    print(f"   计算方法: method={method}")
+    print(f"\n2. Calculating fractal dimension using Box-Counting method...")
+    print(f"   Calculation method: method={method}")
     
     D, result = box_counting(surface, data_type='surface', method=method)
     
     # 3. Display results
-    print(f"\n3. 计算结果:")
-    print(f"   测量分形维数: D = {D:.4f}")
-    print(f"   拟合优度: R² = {result['R2']:.6f}")
-    print(f"   相对误差: {abs(D - dimension) / dimension * 100:.2f}%")
+    print(f"\n3. Calculation results:")
+    print(f"   Measured fractal dimension: D = {D:.4f}")
+    print(f"   Goodness of fit: R² = {result['R2']:.6f}")
+    print(f"   Relative error: {abs(D - dimension) / dimension * 100:.2f}%")
     
     return surface, D, result
 
@@ -96,7 +96,7 @@ def create_publication_figure(surface, dimension, D, result):
     result : dict
         Box-counting analysis results.
     """
-    print("\n4. 生成期刊级别矢量图...")
+    print("\n4. Generating publication-quality vector graphics...")
     
     # Create 2x2 layout
     fig = plt.figure(figsize=(16, 14))
@@ -220,7 +220,7 @@ def create_publication_figure(surface, dimension, D, result):
             fig.savefig(output_file, format='eps', dpi=300, bbox_inches='tight')
         else:
             fig.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"   已保存: takagi_surface_boxcounting.{ext}")
+        print(f"   Saved: takagi_surface_boxcounting.{ext}")
     
     plt.close(fig)
 
@@ -230,7 +230,7 @@ def main():
     Main function to perform Takagi surface box-counting fractal dimension analysis.
     """
     print("="*70)
-    print("Takagi曲面 Box-Counting 分形维数分析")
+    print("Takagi Surface Box-Counting Fractal Dimension Analysis")
     print("="*70)
     
     # ==========  Parameter settings  ==========
@@ -240,11 +240,11 @@ def main():
     CALCULATION_METHOD = 2       # Box-counting method (SCCM - best method)
     # ===========================================
     
-    print(f"\n>>> 参数设置:")
-    print(f">>> 理论分形维数: D = {THEORETICAL_DIMENSION}")
-    print(f">>> 曲面尺寸: {SURFACE_SIZE} × {SURFACE_SIZE}")
-    print(f">>> 迭代层数: {ITERATION_LEVEL}")
-    print(f">>> 计算方法: method={CALCULATION_METHOD} (SCCM - Simplified Cubic Cover)")
+    print(f"\n>>> Parameter settings:")
+    print(f">>> Theoretical fractal dimension: D = {THEORETICAL_DIMENSION}")
+    print(f">>> Surface size: {SURFACE_SIZE} × {SURFACE_SIZE}")
+    print(f">>> Iteration level: {ITERATION_LEVEL}")
+    print(f">>> Calculation method: method={CALCULATION_METHOD} (SCCM - Simplified Cubic Cover)")
     
     # Analyze Takagi surface
     surface, D, result = analyze_takagi_surface(
@@ -258,19 +258,19 @@ def main():
     create_publication_figure(surface, THEORETICAL_DIMENSION, D, result)
     
     print("\n" + "="*70)
-    print("分析完成！")
+    print("Analysis completed!")
     print("="*70)
-    print(f"理论分形维数: D = {THEORETICAL_DIMENSION}")
-    print(f"测量分形维数: D = {D:.4f}")
-    print(f"绝对误差: ΔD = {abs(D - THEORETICAL_DIMENSION):.4f}")
-    print(f"相对误差: {abs(D - THEORETICAL_DIMENSION) / THEORETICAL_DIMENSION * 100:.2f}%")
-    print(f"拟合优度: R² = {result['R2']:.6f}")
+    print(f"Theoretical fractal dimension: D = {THEORETICAL_DIMENSION}")
+    print(f"Measured fractal dimension: D = {D:.4f}")
+    print(f"Absolute error: ΔD = {abs(D - THEORETICAL_DIMENSION):.4f}")
+    print(f"Relative error: {abs(D - THEORETICAL_DIMENSION) / THEORETICAL_DIMENSION * 100:.2f}%")
+    print(f"Goodness of fit: R² = {result['R2']:.6f}")
     print("="*70)
-    print("\n生成的文件:")
-    print("  - takagi_surface_boxcounting.eps (矢量图)")
-    print("  - takagi_surface_boxcounting.pdf (矢量图)")
-    print("  - takagi_surface_boxcounting.png (位图)")
-    print("\n期刊论文可用级别的矢量图已生成！")
+    print("\nGenerated files:")
+    print("  - takagi_surface_boxcounting.eps (vector graphics)")
+    print("  - takagi_surface_boxcounting.pdf (vector graphics)")
+    print("  - takagi_surface_boxcounting.png (raster graphics)")
+    print("\nPublication-quality vector graphics have been generated!")
 
 
 if __name__ == '__main__':
