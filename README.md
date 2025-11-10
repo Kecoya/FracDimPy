@@ -21,6 +21,7 @@ FracDimPy 是一个功能强大、易于使用的Python软件包，专门用于�
 ### ✨ 主要特性
 
 - **🔢 多种单分形方法**
+
   - Hurst指数法 (R/S分析)
   - 盒计数法 (Box-counting)
   - 信息维数法 (Information Dimension)
@@ -29,26 +30,26 @@ FracDimPy 是一个功能强大、易于使用的Python软件包，专门用于�
   - 变差函数法 (Variogram)
   - 沙盒法 (Sandbox)
   - 去趋势波动分析 (DFA)
-
 - **📊 多重分形分析**
+
   - 一维曲线多重分形分析
   - 二维图像多重分形分析
   - 多重分形去趋势波动分析 (MF-DFA)
   - 自定义尺度序列
-
 - **🎨 分形生成器**
+
   - 经典分形：Cantor集、Sierpinski三角形/地毯、Koch曲线、Menger海绵等
   - 随机分形：布朗运动、Lévy飞行、自回避行走、扩散限制聚集(DLA)
   - 分形曲线：FBM曲线、Weierstrass-Mandelbrot函数、Takagi曲线
   - 分形曲面：FBM曲面、Weierstrass-Mandelbrot曲面、Takagi曲面
-
 - **📈 丰富的可视化**
+
   - 自动生成专业图表
   - 双对数图拟合
   - 多重分形谱展示
   - 可定制的绘图选项
-
 - **💾 灵活的数据处理**
+
   - 支持多种数据格式 (CSV, Excel, TXT, NPY, 图像等)
   - 自动数据预处理
   - 结果导出功能
@@ -178,32 +179,33 @@ plt.show()
 
 提供多种单分形维数计算方法：
 
-| 方法 | 函数名 | 适用数据类型 | 说明 |
-|------|--------|--------------|------|
-| Hurst指数 | `hurst_dimension()` | 1D时间序列 | R/S分析、修正R/S、DFA |
-| 盒计数法 | `box_counting()` | 1D/2D/3D | 最常用的分形维数计算方法 |
-| 信息维数 | `information_dimension()` | 点集数据 | 基于信息熵的维数 |
-| 关联维数 | `correlation_dimension()` | 点集数据 | 基于关联积分 |
-| 结构函数 | `structural_function()` | 1D曲线 | 适用于自仿射曲线 |
-| 变差函数 | `variogram_method()` | 1D/2D | 地统计学方法 |
-| 沙盒法 | `sandbox_method()` | 点集/图像 | 局部尺度分析 |
-| DFA | `dfa()` | 1D时间序列 | 去趋势波动分析 |
+| 方法      | 函数名                      | 适用数据类型 | 说明                     |
+| --------- | --------------------------- | ------------ | ------------------------ |
+| Hurst指数 | `hurst_dimension()`       | 1D时间序列   | R/S分析、修正R/S、DFA    |
+| 盒计数法  | `box_counting()`          | 1D/2D/3D     | 最常用的分形维数计算方法 |
+| 信息维数  | `information_dimension()` | 点集数据     | 基于信息熵的维数         |
+| 关联维数  | `correlation_dimension()` | 点集数据     | 基于关联积分             |
+| 结构函数  | `structural_function()`   | 1D曲线       | 适用于自仿射曲线         |
+| 变差函数  | `variogram_method()`      | 1D/2D        | 地统计学方法             |
+| 沙盒法    | `sandbox_method()`        | 点集/图像    | 局部尺度分析             |
+| DFA       | `dfa()`                   | 1D时间序列   | 去趋势波动分析           |
 
 ### 2. 多重分形模块 (`multifractal`)
 
 提供多重分形分析工具：
 
-| 函数 | 说明 | 输出 |
-|------|------|------|
+| 函数                     | 说明                 | 输出                           |
+| ------------------------ | -------------------- | ------------------------------ |
 | `multifractal_curve()` | 一维曲线多重分形分析 | 配分函数、广义维数、多重分形谱 |
-| `multifractal_image()` | 二维图像多重分形分析 | 奇异性指数、多重分形特征 |
-| `mf_dfa()` | 多重分形DFA | 波动函数、Hurst指数谱 |
+| `multifractal_image()` | 二维图像多重分形分析 | 奇异性指数、多重分形特征       |
+| `mf_dfa()`             | 多重分形DFA          | 波动函数、Hurst指数谱          |
 
 ### 3. 分形生成器 (`generator`)
 
 生成各种理论和随机分形：
 
 **曲线类** (1D):
+
 - `generate_fbm_curve()` - 分数布朗运动曲线
 - `generate_wm_curve()` - Weierstrass-Mandelbrot函数
 - `generate_takagi_curve()` - Takagi曲线
@@ -212,11 +214,13 @@ plt.show()
 - `generate_levy_flight()` - Lévy飞行
 
 **曲面类** (2D):
+
 - `generate_fbm_surface()` - 分数布朗运动曲面
 - `generate_wm_surface()` - WM曲面
 - `generate_takagi_surface()` - Takagi曲面
 
 **图案类** (几何分形):
+
 - `generate_cantor_set()` - Cantor集
 - `generate_sierpinski()` - Sierpinski三角形
 - `generate_sierpinski_carpet()` - Sierpinski地毯
@@ -280,6 +284,7 @@ python test_hurst.py
 ## 🛠️ 依赖项
 
 ### 核心依赖
+
 - Python >= 3.8
 - NumPy >= 1.20.0
 - SciPy >= 1.7.0
@@ -287,6 +292,7 @@ python test_hurst.py
 - Pandas >= 1.3.0
 
 ### 可选依赖
+
 - `opencv-python` - 高级图像处理
 - `Pillow` - 图像读写
 
@@ -302,7 +308,7 @@ python test_hurst.py
 
 ### 贡献者
 
-- **SONG-LE** - *主要开发者* - [知乎主页](https://www.zhihu.com/people/xiao-xue-sheng-ye-xiang-xie-shu/posts)
+- **Zhile Han** - *主要开发者* - [知乎主页](https://www.zhihu.com/people/xiao-xue-sheng-ye-xiang-xie-shu/posts)
 
 ---
 
@@ -314,10 +320,11 @@ python test_hurst.py
 
 ## 📮 联系方式
 
-- **作者**: SONG-LE
-- **邮箱**: 3590453833@qq.com
+- **作者**: Zhile Han
+- **邮箱**: 2667032759@qq.com
+- **地址**: 油气藏地质及开发工程全国重点实验室，西南石油大学，成都610500，中国
 - **知乎**: [小学生也想写书](https://www.zhihu.com/people/xiao-xue-sheng-ye-xiang-xie-shu/posts)
-- **GitHub**: [https://github.com/songLe/FracDimPy](https://github.com/songLe/FracDimPy)
+- **GitHub**: [https://github.com/Kecoya/FracDimPy](https://github.com/Kecoya/FracDimPy)
 
 ---
 
@@ -327,10 +334,10 @@ python test_hurst.py
 
 ```bibtex
 @software{fracdimpy2024,
-  author = {SONG-LE},
+  author = {Zhile Han},
   title = {FracDimPy: A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis},
   year = {2024},
-  url = {https://github.com/songLe/FracDimPy},
+  url = {https://github.com/Kecoya/FracDimPy},
   version = {0.1.0}
 }
 ```
@@ -361,7 +368,6 @@ python test_hurst.py
 
 **[⬆ 返回顶部](#fracdimpy)**
 
-Made with ❤️ by SONG-LE
+Made with ❤️ by Zhile Han
 
 </div>
-

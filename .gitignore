@@ -1,0 +1,135 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+fracdim_env/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Documentation
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Data files (忽略根目录和临时目录的数据文件)
+/*.npy
+/*.npz
+/*.mat
+/*.h5
+/*.hdf5
+
+# Images (忽略根目录的图片，但保留 examples 中的)
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.bmp
+/*.tif
+/*.tiff
+/*.eps
+/*.pdf
+
+# 保留 examples 目录中的所有测试数据和结果
+!examples/**/*.png
+!examples/**/*.jpg
+!examples/**/*.jpeg
+!examples/**/*.gif
+!examples/**/*.tif
+!examples/**/*.tiff
+!examples/**/*.eps
+!examples/**/*.pdf
+!examples/**/*.npy
+!examples/**/*.npz
+!examples/**/*.csv
+!examples/**/*.txt
+!examples/**/*.xlsx
+!examples/**/*.xls
+
+# Excel files (只忽略根目录的)
+/*.xlsx
+/*.xls
+/*.csv
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# PyPI 和敏感信息
+.pypirc
+*.token
+*.key
+secrets.yml
+
+# 日志文件
+*.log
+
+# 临时生成的文档
+TODO.txt
+NOTES.md
+scratch/
+temp/
+
+# 编辑器备份文件
+*~
+.*.swp
+.*.swo
+
+# Git 相关
+*.orig
+*.rej
+
+# 系统文件
+*.lnk
+
