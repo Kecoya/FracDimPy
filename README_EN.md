@@ -8,7 +8,7 @@
 
 **A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis**
 
-[English](README_EN.md) | 简体中文
+English | [简体中文](https://github.com/Kecoya/FracDimPy/blob/main/README.md)
 
 </div>
 
@@ -69,107 +69,6 @@ pip install FracDimPy
 # Full installation (with all optional dependencies)
 pip install FracDimPy[full]
 ```
-
-#### Install from Source
-
-```bash
-git clone https://github.com/songLe/FracDimPy.git
-cd FracDimPy
-pip install -e .
-```
-
-For detailed installation instructions, please refer to [INSTALLATION.md](INSTALLATION.md)
-
-### Basic Usage
-
-#### Example 1: Calculate Hurst Exponent of Time Series
-
-```python
-import numpy as np
-from fracDimPy import hurst_dimension
-
-# Generate test data
-data = np.random.randn(1000).cumsum()
-
-# Calculate Hurst exponent
-D, result = hurst_dimension(data, method='RS', show_plot=True)
-
-print(f"Fractal dimension: {D:.4f}")
-print(f"Hurst exponent: {result['H']:.4f}")
-```
-
-#### Example 2: Box-counting Analysis of Images
-
-```python
-from fracDimPy import box_counting
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
-# Read image
-img = mpimg.imread('fractal_image.png')
-
-# Calculate fractal dimension
-D, result = box_counting(img, show_plot=True)
-
-print(f"Box-counting dimension: {D:.4f}")
-print(f"Goodness of fit R²: {result['r_squared']:.4f}")
-```
-
-#### Example 3: Multifractal Analysis
-
-```python
-from fracDimPy import multifractal_curve
-import numpy as np
-
-# Read data
-data = np.loadtxt('curve_data.txt')
-
-# Multifractal analysis
-result = multifractal_curve(
-    data,
-    q_range=(-10, 10),
-    show_plot=True,
-    save_path='mf_result.png'
-)
-
-print(f"Multifractal spectrum width Δα: {result['delta_alpha']:.4f}")
-print(f"Singularity strength Δf: {result['delta_f']:.4f}")
-```
-
-#### Example 4: Generate Fractal Patterns
-
-```python
-from fracDimPy import generate_sierpinski, generate_koch_snowflake
-import matplotlib.pyplot as plt
-
-# Generate Sierpinski triangle
-sierpinski = generate_sierpinski(level=6)
-
-# Generate Koch snowflake
-snowflake = generate_koch_snowflake(level=5)
-
-# Visualize
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-ax1.scatter(sierpinski[:, 0], sierpinski[:, 1], s=1, c='blue')
-ax1.set_title('Sierpinski Triangle')
-ax1.axis('equal')
-
-ax2.plot(snowflake[:, 0], snowflake[:, 1], 'r-', linewidth=0.5)
-ax2.set_title('Koch Snowflake')
-ax2.axis('equal')
-
-plt.show()
-```
-
----
-
-## 📚 Documentation
-
-- [Installation Guide](INSTALLATION.md) - Detailed installation instructions
-- [Build Guide](BUILD.md) - Instructions for building from source
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute to the project
-- [Changelog](CHANGELOG.md) - Version update records
-- [Example Code](examples/) - Rich usage examples
 
 ---
 
@@ -338,7 +237,7 @@ If you use FracDimPy in your research, please cite:
   title = {FracDimPy: A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis},
   year = {2024},
   url = {https://github.com/Kecoya/FracDimPy},
-  version = {0.1.0}
+  version = {0.1.2}
 }
 ```
 

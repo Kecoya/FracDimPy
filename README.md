@@ -8,7 +8,7 @@
 
 **一个全面的Python分形维数计算与多重分形分析工具包**
 
-[English](README_EN.md) | 简体中文
+[English](https://github.com/Kecoya/FracDimPy/blob/main/README_EN.md) | 简体中文
 
 </div>
 
@@ -69,109 +69,6 @@ pip install FracDimPy
 # 完整安装（包含所有可选依赖）
 pip install FracDimPy[full]
 ```
-
-#### 从源码安装
-
-```bash
-git clone https://github.com/songLe/FracDimPy.git
-cd FracDimPy
-pip install -e .
-```
-
-详细安装说明请参阅 [INSTALLATION.md](INSTALLATION.md)
-
-### 基本使用
-
-#### 示例1：计算时间序列的Hurst指数
-
-```python
-import numpy as np
-from fracDimPy import hurst_dimension
-
-# 生成测试数据
-data = np.random.randn(1000).cumsum()
-
-# 计算Hurst指数
-D, result = hurst_dimension(data, method='RS', show_plot=True)
-
-print(f"分形维数: {D:.4f}")
-print(f"Hurst指数: {result['H']:.4f}")
-```
-
-#### 示例2：盒计数法分析图像
-
-```python
-from fracDimPy import box_counting
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
-# 读取图像
-img = mpimg.imread('fractal_image.png')
-
-# 计算分形维数
-D, result = box_counting(img, show_plot=True)
-
-print(f"盒计数维数: {D:.4f}")
-print(f"拟合优度 R²: {result['r_squared']:.4f}")
-```
-
-#### 示例3：多重分形分析
-
-```python
-from fracDimPy import multifractal_curve
-import numpy as np
-
-# 读取数据
-data = np.loadtxt('curve_data.txt')
-
-# 多重分形分析
-result = multifractal_curve(
-    data,
-    q_range=(-10, 10),
-    show_plot=True,
-    save_path='mf_result.png'
-)
-
-print(f"多重分形谱宽度 Δα: {result['delta_alpha']:.4f}")
-print(f"奇异性强度 Δf: {result['delta_f']:.4f}")
-```
-
-#### 示例4：生成分形图案
-
-```python
-from fracDimPy import generate_sierpinski, generate_koch_snowflake
-import matplotlib.pyplot as plt
-
-# 生成Sierpinski三角形
-sierpinski = generate_sierpinski(level=6)
-
-# 生成Koch雪花
-snowflake = generate_koch_snowflake(level=5)
-
-# 可视化
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-ax1.scatter(sierpinski[:, 0], sierpinski[:, 1], s=1, c='blue')
-ax1.set_title('Sierpinski Triangle')
-ax1.axis('equal')
-
-ax2.plot(snowflake[:, 0], snowflake[:, 1], 'r-', linewidth=0.5)
-ax2.set_title('Koch Snowflake')
-ax2.axis('equal')
-
-plt.show()
-```
-
----
-
-## 📚 文档目录
-
-- [安装指南](INSTALLATION.md) - 详细的安装说明
-- [构建指南](BUILD.md) - 从源码构建的说明
-- [贡献指南](CONTRIBUTING.md) - 如何为项目做贡献
-- [更新日志](CHANGELOG.md) - 版本更新记录
-- [示例代码](examples/) - 丰富的使用示例
-
----
 
 ## 📦 模块说明
 
@@ -338,7 +235,7 @@ python test_hurst.py
   title = {FracDimPy: A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis},
   year = {2024},
   url = {https://github.com/Kecoya/FracDimPy},
-  version = {0.1.0}
+  version = {0.1.2}
 }
 ```
 

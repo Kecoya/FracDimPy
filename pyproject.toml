@@ -9,7 +9,7 @@ authors = [
     {name = "Zhile Han", email = "2667032759@qq.com"},
 ]
 description = "A comprehensive Python package for fractal dimension calculation and multifractal analysis"
-readme = "README.md"
+readme = "README_EN.md"
 requires-python = ">=3.8"
 keywords = ["fractal", "fractal dimension", "multifractal", "box-counting", "Hurst", "R/S analysis"]
 license = {text = "GPL-3.0-or-later"}
