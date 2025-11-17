@@ -4,7 +4,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/songLe/FracDimPy)
+[![Version](https://img.shields.io/badge/version-0.1.3-green.svg)](https://github.com/songLe/FracDimPy)
 
 **一个全面的Python分形维数计算与多重分形分析工具包**
 
@@ -63,12 +63,42 @@ FracDimPy 是一个功能强大、易于使用的Python软件包，专门用于�
 #### 从PyPI安装（推荐）
 
 ```bash
-# 基础安装
+# 安装完整包（包含所有依赖）
 pip install FracDimPy
-
-# 完整安装（包含所有可选依赖）
-pip install FracDimPy[full]
 ```
+
+#### 🇨🇳 中国用户镜像安装（推荐，速度更快）
+
+对于中国大陆用户，建议使用清华大学镜像源进行安装，速度会更快：
+
+```bash
+# 使用清华镜像安装
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple FracDimPy
+
+# 或者永久配置镜像源
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+pip install FracDimPy
+```
+
+**常用镜像源**：
+- 清华大学：`https://pypi.tuna.tsinghua.edu.cn/simple`
+- 阿里云：`https://mirrors.aliyun.com/pypi/simple`
+- 中科大：`https://pypi.mirrors.ustc.edu.cn/simple`
+- 豆瓣：`https://pypi.douban.com/simple`
+
+#### 正确引用方式
+
+```python
+# 注意：包名为首字母小写
+import fracDimPy
+
+# 从子模块导入具体功能
+from fracDimPy.monofractal import *
+from fracDimPy.multifractal import *
+from fracDimPy.generator import *
+```
+
+**重要说明**：虽然PyPI包名为`FracDimPy`（大写F），但在Python代码中需要使用`import fracDimPy`（小写f）进行导入。
 
 ## 📦 模块说明
 
@@ -188,10 +218,16 @@ python test_hurst.py
 - Matplotlib >= 3.3.0
 - Pandas >= 1.3.0
 
-### 可选依赖
+### 包含的所有依赖
 
-- `opencv-python` - 高级图像处理
-- `Pillow` - 图像读写
+- NumPy >= 1.20.0 - 数值计算基础
+- SciPy >= 1.7.0 - 科学计算工具
+- Matplotlib >= 3.3.0 - 数据可视化
+- Pandas >= 1.3.0 - 数据处理
+- OpenCV >= 4.5.0 - 图像处理（作为cv2导入）
+- Pillow >= 9.0.0 - 图像读写
+
+**所有依赖已自动安装，无需手动安装额外库即可使用全部功能。**
 
 完整依赖列表请参阅 [pyproject.toml](pyproject.toml)
 
@@ -235,7 +271,7 @@ python test_hurst.py
   title = {FracDimPy: A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis},
   year = {2024},
   url = {https://github.com/Kecoya/FracDimPy},
-  version = {0.1.2}
+  version = {0.1.3}
 }
 ```
 

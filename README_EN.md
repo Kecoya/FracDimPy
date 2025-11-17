@@ -4,7 +4,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/songLe/FracDimPy)
+[![Version](https://img.shields.io/badge/version-0.1.3-green.svg)](https://github.com/songLe/FracDimPy)
 
 **A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis**
 
@@ -63,12 +63,42 @@ FracDimPy is a powerful and easy-to-use Python package designed for fractal dime
 #### Install from PyPI (Recommended)
 
 ```bash
-# Basic installation
+# Install complete package (with all dependencies)
 pip install FracDimPy
-
-# Full installation (with all optional dependencies)
-pip install FracDimPy[full]
 ```
+
+#### 🇨🇳 Mirror Installation for Chinese Users (Faster Speed)
+
+For users in mainland China, we recommend using mirror sources for faster installation speed:
+
+```bash
+# Install using Tsinghua University mirror
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple FracDimPy
+
+# Or permanently configure mirror source
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+pip install FracDimPy
+```
+
+**Common Mirror Sources**:
+- Tsinghua University: `https://pypi.tuna.tsinghua.edu.cn/simple`
+- Alibaba Cloud: `https://mirrors.aliyun.com/pypi/simple`
+- USTC: `https://pypi.mirrors.ustc.edu.cn/simple`
+- Douban: `https://pypi.douban.com/simple`
+
+#### Correct Package Import
+
+```python
+# Note: Package name starts with lowercase letter
+import fracDimPy
+
+# Import specific functions from submodules
+from fracDimPy.monofractal import *
+from fracDimPy.multifractal import *
+from fracDimPy.generator import *
+```
+
+**Important Note**: Although the PyPI package name is `FracDimPy` (uppercase F), you need to use `import fracDimPy` (lowercase f) in your Python code.
 
 ---
 
@@ -190,10 +220,16 @@ For more details, see [examples/README.md](examples/README.md)
 - Matplotlib >= 3.3.0
 - Pandas >= 1.3.0
 
-### Optional Dependencies
+### All Dependencies Included
 
-- `opencv-python` - Advanced image processing
-- `Pillow` - Image I/O
+- NumPy >= 1.20.0 - Numerical computing foundation
+- SciPy >= 1.7.0 - Scientific computing tools
+- Matplotlib >= 3.3.0 - Data visualization
+- Pandas >= 1.3.0 - Data processing
+- OpenCV >= 4.5.0 - Image processing (imported as cv2)
+- Pillow >= 9.0.0 - Image I/O
+
+**All dependencies are automatically installed. No manual installation needed for full functionality.**
 
 For the complete dependency list, please refer to [pyproject.toml](pyproject.toml)
 
@@ -237,7 +273,7 @@ If you use FracDimPy in your research, please cite:
   title = {FracDimPy: A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis},
   year = {2024},
   url = {https://github.com/Kecoya/FracDimPy},
-  version = {0.1.2}
+  version = {0.1.3}
 }
 ```
 
