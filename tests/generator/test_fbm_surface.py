@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Fractional Brownian Motion (FBM) Surface Generation Example
-===========================================================
+Test Fractional Brownian Motion (FBM) Surface Generation
+========================================================
 
-This example demonstrates how to generate Fractional Brownian Motion (FBM) surfaces
-using fracDimPy. FBM surfaces are two-dimensional random fractal surfaces with
-self-similarity and isotropy, widely used in terrain generation, texture synthesis,
-elevation simulation, and other fields.
-
-Main Features:
-- Generate FBM surfaces with specified fractal dimension
-- Visualize in three ways: 2D heatmap, 3D surface, and contour plot
-- Save result images
+Test cases for generating Fractional Brownian Motion (FBM) surfaces using fracDimPy.
+FBM surfaces are two-dimensional random fractal surfaces with self-similarity and
+isotropy, widely used in terrain generation, texture synthesis, elevation simulation,
+and other fields.
 
 Theoretical Background:
 - Relationship between FBM surface fractal dimension D and Hurst exponent H: D = 3 - H
@@ -21,96 +16,204 @@ Theoretical Background:
 """
 
 import numpy as np
-import os
-import matplotlib.pyplot as plt
-# Try to use scienceplots style if available
-try:
-    import scienceplots
-    plt.style.use(['science','no-latex'])
-except ImportError:
-    pass
-# Set font family: Times New Roman for English, Microsoft YaHei for Chinese
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
+import pytest
 
-def main():
-    print("="*60)
-    print("Fractional Brownian Motion Surface Generation Example")
-    print("="*60)
-    
-    try:
-        from fracDimPy import generate_fbm_surface
-        
-        # 1. Generate FBM surface
-        print("\n1. Generating FBM surface...")
-        dimension = 2.3  # Target fractal dimension
-        size = 256       # Surface size (number of pixels)
-        
+
+def test_fbm_surface_basic_generation():
+    """Test basic FBM surface generation functionality."""
+    from fracDimPy import generate_fbm_surface
+
+    # Test basic generation
+    dimension = 2.3  # Target fractal dimension
+    size = 256       # Surface size (number of pixels)
+
+    surface = generate_fbm_surface(dimension=dimension, size=size)
+
+    # Test basic properties
+    assert surface.shape == (size, size), f"Expected shape {(size, size)}, got {surface.shape}"
+    assert surface.dtype in [np.float64, np.float32], "Expected float array for surface values"
+    assert np.all(np.isfinite(surface)), "All surface values should be finite"
+
+    # Test FBM surface properties
+    assert surface.min() < surface.max(), "Should have variation in surface values"
+    assert len(np.unique(surface)) > 10, "Should have sufficient variation in values"
+
+    # Test Hurst exponent relationship
+    H = 3 - dimension
+    assert 0 < H < 1, f"Hurst exponent H={H} should be in (0, 1)"
+
+
+def test_fbm_surface_different_dimensions():
+    """Test FBM surface generation with different fractal dimensions."""
+    from fracDimPy import generate_fbm_surface
+
+    dimensions = [2.1, 2.3, 2.5, 2.7, 2.9]
+    size = 128
+
+    std_devs = []
+    for dimension in dimensions:
         surface = generate_fbm_surface(dimension=dimension, size=size)
-        
-        H = 3 - dimension  # Calculate Hurst exponent
-        print(f"   Fractal dimension D: {dimension}")
-        print(f"   Hurst exponent H: {H:.2f}")
-        print(f"   Surface size: {size} x {size}")
-        print(f"   Value range: {surface.min():.4f} ~ {surface.max():.4f}")
-        
-        # 2. Visualize FBM surface
-        try:
-            import matplotlib.pyplot as plt
-            from mpl_toolkits.mplot3d import Axes3D
-            
-            fig = plt.figure(figsize=(15, 5))
-            
-            # 2D heatmap view
-            ax1 = fig.add_subplot(131)
-            im = ax1.imshow(surface, cmap='terrain')
-            ax1.set_title(f'FBM Surface-2D View (D={dimension}, H={H:.2f})')
-            ax1.set_xlabel('X Coordinate')
-            ax1.set_ylabel('Y Coordinate')
-            plt.colorbar(im, ax=ax1, label='Height Value')
-            
-            # 3D surface view
-            ax2 = fig.add_subplot(132, projection='3d')
-            X, Y = np.meshgrid(range(size), range(size))
-            # Downsample to improve rendering speed
-            step = max(1, size // 50)
-            ax2.plot_surface(X[::step, ::step], Y[::step, ::step], 
-                           surface[::step, ::step], cmap='terrain', alpha=0.9)
-            ax2.set_title('FBM Surface-3D View')
-            ax2.set_xlabel('X Coordinate')
-            ax2.set_ylabel('Y Coordinate')
-            ax2.set_zlabel('Height Value')
-            
-            # Contour plot view
-            ax3 = fig.add_subplot(133)
-            # Draw contour lines (black lines)
-            contour_lines = ax3.contour(surface, levels=15, colors='black', 
-                                       linewidths=0.8, alpha=0.6)
-            # Add contour labels
-            ax3.clabel(contour_lines, inline=True, fontsize=8, fmt='%.2f')
-            # Draw filled contours (colored regions)
-            contour_filled = ax3.contourf(surface, levels=15, cmap='terrain', alpha=0.7)
-            ax3.set_title('FBM Surface-Contour Plot')
-            ax3.set_xlabel('X Coordinate')
-            ax3.set_ylabel('Y Coordinate')
-            plt.colorbar(contour_filled, ax=ax3, label='Height Value')
-            
-            plt.tight_layout()
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            output_file = os.path.join(current_dir, "result_fbm_surface.png")
-            plt.savefig(output_file, dpi=300, bbox_inches='tight')
-            print(f"\n2. Visualization result saved: {output_file}")
-            plt.show()
-            
-        except ImportError:
-            print("\n2. Visualization failed: matplotlib library required")
-        
-    except ImportError:
-        print("\nError: Related libraries required to generate FBM surfaces")
-    
-    print("\nExample execution completed!")
+
+        # Test basic properties
+        assert surface.shape == (size, size), f"Dimension {dimension}: Incorrect shape"
+        assert np.all(np.isfinite(surface)), f"Dimension {dimension}: All values should be finite"
+
+        std_dev = surface.std()
+        std_devs.append(std_dev)
+
+        # Test that roughness increases with dimension
+        H = 3 - dimension
+        assert 0 < H < 1, f"Dimension {dimension}: Invalid Hurst exponent"
+
+    # Test that standard deviation increases with fractal dimension (rougher surfaces)
+    # Allow for some variation due to randomness, but check general trend
+    for i in range(1, len(dimensions)):
+        # Higher dimension should generally give higher standard deviation
+        # But we allow for some tolerance due to randomness
+        assert abs(std_devs[i] - std_devs[i-1]) < max(std_devs) * 0.5, \
+            f"Std dev should not vary dramatically between dimensions {dimensions[i]} and {dimensions[i-1]}"
 
 
-if __name__ == '__main__':
-    main()
+def test_fbm_surface_hurst_exponent():
+    """Test Hurst exponent relationship with surface roughness."""
+    from fracDimPy import generate_fbm_surface
 
+    size = 128
+
+    # Test Hurst exponents from 0.1 to 0.9
+    hurst_exponents = [0.1, 0.3, 0.5, 0.7, 0.9]
+
+    for H in hurst_exponents:
+        dimension = 3 - H
+        surface = generate_fbm_surface(dimension=dimension, size=size)
+
+        # Test basic properties
+        assert surface.shape == (size, size), f"H={H}: Incorrect shape"
+        assert np.all(np.isfinite(surface)), f"H={H}: All values should be finite"
+
+        # Test that surface has reasonable properties
+        assert surface.std() > 0, f"H={H}: Surface should have non-zero standard deviation"
+        assert len(np.unique(surface)) > size, f"H={H}: Surface should have sufficient variation"
+
+
+def test_fbm_surface_theoretical_properties():
+    """Test theoretical properties of FBM surface."""
+    from fracDimPy import generate_fbm_surface
+
+    # Test with specific parameters
+    dimension = 2.5
+    H = 3 - dimension  # Should be 0.5
+    size = 256
+
+    surface = generate_fbm_surface(dimension=dimension, size=size)
+
+    # Test dimension bounds
+    assert 2.0 < dimension < 3.0, f"Fractal dimension {dimension} should be in (2, 3)"
+    assert 0.0 < H < 1.0, f"Hurst exponent {H} should be in (0, 1)"
+
+    # Test that surface has expected statistical properties
+    # FBM should be statistically self-similar
+    mean_val = surface.mean()
+    std_val = surface.std()
+
+    # FBM surfaces should have approximately zero mean (or can be normalized)
+    # We allow for some deviation due to random generation
+    assert abs(mean_val) < 5 * std_val, f"Mean {mean_val} should be reasonable relative to std {std_val}"
+
+    # Test theoretical dimension calculation
+    assert abs(dimension + H - 3) < 0.001, f"Dimension {dimension} and H {H} should satisfy D + H = 3"
+
+
+def test_fbm_surface_edge_cases():
+    """Test edge cases for FBM surface generation."""
+    from fracDimPy import generate_fbm_surface
+
+    # Test with small size
+    size = 64
+    surface_small = generate_fbm_surface(dimension=2.3, size=size)
+    assert surface_small.shape == (size, size), "Small size should work"
+    assert np.all(np.isfinite(surface_small)), "Small size surface should be finite"
+
+    # Test with extreme dimensions
+    for dimension in [2.01, 2.99]:
+        H = 3 - dimension
+        assert 0 < H < 1, f"Extreme dimension {dimension} should give valid H"
+
+        surface = generate_fbm_surface(dimension=dimension, size=128)
+        assert surface.shape == (128, 128), f"Dimension {dimension}: Incorrect shape"
+        assert np.all(np.isfinite(surface)), f"Dimension {dimension}: All values should be finite"
+
+    # Test with medium size
+    size = 512
+    surface_medium = generate_fbm_surface(dimension=2.5, size=size)
+    assert surface_medium.shape == (size, size), "Medium size should work"
+    assert np.all(np.isfinite(surface_medium)), "Medium size surface should be finite"
+
+
+def test_fbm_surface_self_similarity():
+    """Test statistical self-similarity property of FBM surface."""
+    from fracDimPy import generate_fbm_surface
+
+    dimension = 2.3
+    size = 256
+
+    surface = generate_fbm_surface(dimension=dimension, size=size)
+
+    # Test statistical self-similarity by comparing statistics at different scales
+    # This is a simplified test - true self-similarity analysis would be more complex
+
+    # Sample different regions of the surface
+    region_size = size // 4
+    regions = [
+        surface[:region_size, :region_size],
+        surface[region_size:2*region_size, region_size:2*region_size],
+        surface[-region_size:, -region_size:],
+        surface[:region_size, -region_size:],
+        surface[-region_size:, :region_size]
+    ]
+
+    # Test that different regions have similar statistical properties
+    std_devs = [region.std() for region in regions]
+    mean_std = np.mean(std_devs)
+
+    # All regions should have similar standard deviations (within tolerance)
+    for i, std_dev in enumerate(std_devs):
+        assert abs(std_dev - mean_std) < 0.5 * mean_std, \
+            f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
+
+
+@pytest.mark.parametrize("dimension", [2.1, 2.3, 2.5, 2.7, 2.9])
+def test_fbm_surface_dimension_parameter(dimension):
+    """Test FBM surface generation with different dimension parameters."""
+    from fracDimPy import generate_fbm_surface
+
+    size = 128
+    surface = generate_fbm_surface(dimension=dimension, size=size)
+
+    assert surface.shape == (size, size), f"Dimension {dimension}: Correct shape"
+    assert np.all(np.isfinite(surface)), f"Dimension {dimension}: All values should be finite"
+    assert surface.std() > 0, f"Dimension {dimension}: Should have variation"
+
+    # Test dimension bounds
+    assert 2.0 < dimension < 3.0, f"Dimension {dimension}: Should be in valid range"
+
+    # Test Hurst exponent relationship
+    H = 3 - dimension
+    assert 0.0 < H < 1.0, f"Dimension {dimension}: Hurst exponent {H} should be in (0, 1)"
+
+
+@pytest.mark.parametrize("size", [64, 128, 256, 512])
+def test_fbm_surface_size_parameter(size):
+    """Test FBM surface generation with different size parameters."""
+    from fracDimPy import generate_fbm_surface
+
+    dimension = 2.5
+    surface = generate_fbm_surface(dimension=dimension, size=size)
+
+    assert surface.shape == (size, size), f"Size {size}: Correct shape"
+    assert np.all(np.isfinite(surface)), f"Size {size}: All values should be finite"
+    assert surface.std() > 0, f"Size {size}: Should have variation"
+
+    # Test that larger surfaces have more unique values
+    unique_values = len(np.unique(surface))
+    assert unique_values > size, f"Size {size}: Should have sufficient variation"

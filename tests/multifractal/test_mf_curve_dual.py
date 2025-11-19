@@ -1,202 +1,309 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Multifractal Analysis - X-Y Curve Data
-========================================
+Test Multifractal Analysis - X-Y Curve Data
+===========================================
 
-This example demonstrates how to use fracDimPy to perform multifractal analysis 
-on X-Y curve data (dual column data). This is useful for analyzing spatial curves, 
-trajectories, and other two-dimensional data where both X and Y coordinates are 
-meaningful.
+Tests for multifractal analysis on dual column X-Y curve data using
+the multifractal_curve function from fracDimPy.
 
-Main Features:
-- Load X-Y curve data from Excel files
-- Calculate partition function and multifractal spectrum
-- Generate comprehensive visualization with 6 subplots
-- Extract and display key multifractal parameters
-
-Theoretical Background:
-- Multifractal analysis for curves uses box-counting method on the curve
-- Partition function X(epsilon,q) describes scaling behavior at different scales
-- Mass exponent tau(q) characterizes the scaling of q-order moments
-- Hölder exponent alpha(q) describes local singularity strength
-- Multifractal spectrum f(alpha) shows the distribution of singularities
-- Generalized dimension D(q) extends fractal dimension to different moments
+Test Coverage:
+- X-Y coordinate data loading and validation
+- Multifractal curve analysis for spatial data
+- Key multifractal dimensions for 2D curves
+- Hölder exponent and spectrum properties for spatial data
+- Data integrity and error handling
 """
 
 import numpy as np
 import pandas as pd
 import os
+import pytest
 from fracDimPy import multifractal_curve
-import random
-from matplotlib.lines import Line2D
-
-import matplotlib.pyplot as plt
-# SciencePlots
-import scienceplots 
-plt.style.use(['science', 'no-latex'])
-# scienceplots
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False
-
-# Get available markers for plotting
-mkl = [mk[0] for mk in Line2D.filled_markers]
-
-# Get current directory and data file path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-data_file = os.path.join(current_dir, "mf_curve_dual_1.xlsx")
-
-def main():
-    print("="*60)
-    print("Multifractal Analysis - X-Y Curve Data")
-    print("="*60)
-    
-    # 1. Load data
-    print(f"\n1. Loading data: {data_file}")
-    df = pd.read_excel(data_file)
-    print(f"   Data shape: {df.shape}")
-    print(f"   Column names: {df.columns.tolist()}")
-    
-    # Extract X and Y coordinates
-    x = df.iloc[:, 0].values
-    y = df.iloc[:, 1].values
-    
-    print(f"   X range: {x.min():.4f} ~ {x.max():.4f}")
-    print(f"   Y range: {y.min():.4f} ~ {y.max():.4f}")
-    
-    # 2. Perform multifractal analysis
-    print("\n2. Performing multifractal analysis...")
-    metrics, figure_data = multifractal_curve(
-        (x, y),
-        use_multiprocessing=False,
-        data_type='dual'
-    )
-    
-    # 3. Display results
-    print("\n3. Multifractal parameters:")
-    print(f"    Capacity dimension D(0): {metrics[' D(0)'][0]:.4f}")
-    print(f"    Information dimension D(1): {metrics[' D(1)'][0]:.4f}")
-    print(f"    Correlation dimension D(2): {metrics[' D(2)'][0]:.4f}")
-    print(f"    Hurst exponent H: {metrics['H'][0]:.4f}")
-    print(f"    Spectrum width: {metrics[''][0]:.4f}")
-    
-    # 4. Visualize results
-    try:
-        print("\n4. Generating visualization plots...")
-        
-        # Extract analysis results
-        ql = figure_data['q']
-        tau_q = figure_data['(q)']
-        alpha_q = figure_data['(q)']
-        f_alpha = figure_data['f()']
-        D_q = figure_data['D(q)']
-        
-        # Create comprehensive figure with 2 rows and 3 columns
-        fig = plt.figure(figsize=(18, 12))
-        
-        # ========== Subplot 1: Original curve ==========
-        ax1 = plt.subplot(2, 3, 1)
-        ax1.plot(x, y, linewidth=1, color='steelblue')
-        ax1.set_xlabel('X', fontsize=11)
-        ax1.set_ylabel('Y', fontsize=11)
-        ax1.set_title('(a) Original Curve', fontsize=12, fontweight='bold')
-        ax1.grid(True, alpha=0.3)
-        
-        # ========== Subplot 2: Partition function X vs ln(epsilon) ==========
-        ax2 = plt.subplot(2, 3, 2)
-        temp_q_n = max(1, int(len(ql) / 20))  # Select 1 out of every 20 q values
-        plotted_count = 0
-        for i, q_val in enumerate(ql):
-            key = f'q={q_val}_X'
-            key_r = f'q={q_val}_r'
-            
-            if key in figure_data and key_r in figure_data:
-                if i % temp_q_n == 0:
-                    colors = np.random.rand(3,)
-                    log_r = figure_data[key_r]
-                    log_X = figure_data[key]
-                    
-                    ax2.plot(log_r, log_X, 
-                            marker=random.choice(mkl),
-                            label=f'$q={q_val:.2f}$',
-                            linestyle='none',
-                            color=colors,
-                            markersize=6)
-                    
-                    # Plot fitted line
-                    coeffs = np.polyfit(log_r, log_X, 1)
-                    fit_line = np.poly1d(coeffs)
-                    ax2.plot(log_r, fit_line(log_r), color=colors, linewidth=1.5)
-                    
-                    plotted_count += 1
-        
-        if plotted_count > 0:
-            ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8, ncol=2)
-        ax2.set_xlabel(r'$\ln(\epsilon)$', fontsize=11)
-        ax2.set_ylabel(r'$\ln(X)$', fontsize=11)
-        ax2.set_title('(b) Partition Function', fontsize=12, fontweight='bold')
-        ax2.grid(True, alpha=0.3)
-        
-        # ========== Subplot 3: Mass exponent tau(q) vs q ==========
-        ax3 = plt.subplot(2, 3, 3)
-        ax3.plot(ql, tau_q, 'o-', color='darkgreen', linewidth=2, markersize=4)
-        ax3.set_xlabel(r'$q$', fontsize=11)
-        ax3.set_ylabel(r'$\tau(q)$', fontsize=11)
-        ax3.set_title('(c) Mass Exponent', fontsize=12, fontweight='bold')
-        ax3.grid(True, alpha=0.3)
-        
-        # ========== Subplot 4: Hölder exponent alpha(q) vs q ==========
-        ax4 = plt.subplot(2, 3, 4)
-        ax4.plot(ql, alpha_q, 's-', color='crimson', linewidth=2, markersize=4)
-        ax4.set_xlabel(r'$q$', fontsize=11)
-        ax4.set_ylabel(r'$\alpha(q)$', fontsize=11)
-        ax4.set_title(r'(d) Hölder Exponent', fontsize=12, fontweight='bold')
-        ax4.grid(True, alpha=0.3)
-        
-        # ========== Subplot 5: Multifractal spectrum f(alpha) vs alpha ==========
-        ax5 = plt.subplot(2, 3, 5)
-        ax5.plot(alpha_q, f_alpha, '^-', color='darkorange', linewidth=2, markersize=4)
-        ax5.set_xlabel(r'$\alpha$', fontsize=11)
-        ax5.set_ylabel(r'$f(\alpha)$', fontsize=11)
-        ax5.set_title('(e) Multifractal Spectrum', fontsize=12, fontweight='bold')
-        ax5.grid(True, alpha=0.3)
-        
-        # Mark q=0 point
-        idx_0 = ql.index(0) if 0 in ql else len(ql)//2
-        if idx_0 < len(alpha_q):
-            ax5.plot(alpha_q[idx_0], f_alpha[idx_0], 'ro', markersize=8, label='q=0')
-            ax5.legend(fontsize=9)
-        
-        # ========== Subplot 6: Generalized dimension D(q) vs q ==========
-        ax6 = plt.subplot(2, 3, 6)
-        ax6.plot(ql, D_q, 'd-', color='mediumpurple', linewidth=2, markersize=4)
-        ax6.set_xlabel(r'$q$', fontsize=11)
-        ax6.set_ylabel(r'$D(q)$', fontsize=11)
-        ax6.set_title('(f) Generalized Dimension', fontsize=12, fontweight='bold')
-        ax6.grid(True, alpha=0.3)
-        
-        # Annotate key points: D(0), D(1), D(2)
-        for q_val in [0, 1, 2]:
-            if q_val in ql:
-                idx = ql.index(q_val)
-                ax6.plot(q_val, D_q[idx], 'o', markersize=8)
-                ax6.text(q_val, D_q[idx], f'  D({q_val})={D_q[idx]:.3f}', 
-                        fontsize=8, verticalalignment='bottom')
-        
-        plt.tight_layout()
-        output_file = os.path.join(current_dir, "result_mf_comprehensive.png")
-        fig.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"\n   Visualization results saved: result_mf_comprehensive.png")
-        plt.close(fig)
-        
-    except Exception as e:
-        print(f"\n4. Visualization failed: {e}")
-        import traceback
-        traceback.print_exc()
-    
-    print("\nExample completed!")
 
 
-if __name__ == '__main__':
-    main()
+class TestMultifractalCurveDual:
+    """Test suite for multifractal analysis of dual column X-Y curve data."""
+
+    @pytest.fixture
+    def sample_data_path(self):
+        """Path to the sample dual column data file."""
+        return os.path.join(os.path.dirname(__file__), 'mf_curve_dual_1.xlsx')
+
+    @pytest.fixture
+    def load_sample_data(self, sample_data_path):
+        """Load the sample X-Y curve data."""
+        df = pd.read_excel(sample_data_path)
+        x = df.iloc[:, 0].values
+        y = df.iloc[:, 1].values
+        return (x, y), df
+
+    def test_data_loading(self, load_sample_data):
+        """Test that sample X-Y data loads correctly."""
+        (x, y), df = load_sample_data
+
+        # Check DataFrame
+        assert len(df) > 0, "DataFrame should not be empty"
+        assert df.shape[1] >= 2, "DataFrame should have at least 2 columns"
+
+        # Check coordinate arrays
+        assert len(x) > 0, "X coordinates should not be empty"
+        assert len(y) > 0, "Y coordinates should not be empty"
+        assert len(x) == len(y), "X and Y should have same length"
+
+        # Check data validity
+        assert np.isfinite(x).all(), "All X values should be finite"
+        assert np.isfinite(y).all(), "All Y values should be finite"
+
+    def test_multifractal_curve_dual_basic(self, load_sample_data):
+        """Test basic multifractal analysis for dual column data."""
+        (x, y), _ = load_sample_data
+
+        # Perform multifractal analysis on X-Y curve
+        metrics, figure_data = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Check that metrics and figure data are returned
+        assert metrics is not None, "Metrics should be returned"
+        assert figure_data is not None, "Figure data should be returned"
+        assert isinstance(metrics, dict), "Metrics should be a dictionary"
+        assert isinstance(figure_data, dict), "Figure data should be a dictionary"
+
+    def test_multifractal_dimensions_dual(self, load_sample_data):
+        """Test that key multifractal dimensions are calculated correctly for curves."""
+        (x, y), _ = load_sample_data
+
+        metrics, figure_data = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Check that key dimensions are present (keys might have different names for dual data)
+        dimension_keys = [key for key in metrics.keys() if 'D(' in key]
+        assert len(dimension_keys) > 0, "At least one dimension should be calculated"
+
+        # Extract dimension values (try different possible key formats)
+        d0 = d1 = d2 = None
+        for key, value in metrics.items():
+            if 'D(0)' in key or '0' in key:
+                d0 = value[0]
+            elif 'D(1)' in key or '1' in key:
+                d1 = value[0]
+            elif 'D(2)' in key or '2' in key:
+                d2 = value[0]
+
+        # For curve data, dimensions should be between 1 and 2
+        if d0 is not None:
+            assert 1 <= d0 <= 2, f"Capacity dimension D(0)={d0} should be in [1, 2] for curves"
+        if d1 is not None:
+            assert 1 <= d1 <= 2, f"Information dimension D(1)={d1} should be in [1, 2] for curves"
+        if d2 is not None:
+            assert 1 <= d2 <= 2, f"Correlation dimension D(2)={d2} should be in [1, 2] for curves"
+
+        # D(0) >= D(1) >= D(2) for multifractal data (if all available)
+        if d0 is not None and d1 is not None and d2 is not None:
+            assert d0 >= d1 >= d2, f"Dimensions should decrease: D(0)={d0} >= D(1)={d1} >= D(2)={d2}"
+
+    def test_hurst_exponent_dual(self, load_sample_data):
+        """Test Hurst exponent calculation for dual column data."""
+        (x, y), _ = load_sample_data
+
+        metrics, figure_data = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Check for Hurst exponent (key might vary)
+        h_keys = [key for key in metrics.keys() if 'H' in key.lower() or 'hurst' in key.lower()]
+        if h_keys:
+            h = metrics[h_keys[0]][0]
+            # Hurst exponent should be in [0, 1]
+            assert 0 <= h <= 1, f"Hurst exponent H={h} should be in [0, 1]"
+
+    def test_spectrum_properties_dual(self, load_sample_data):
+        """Test multifractal spectrum properties for curve data."""
+        (x, y), _ = load_sample_data
+
+        metrics, figure_data = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Check for spectrum-related keys
+        spectrum_keys = [key for key in metrics.keys() if 'width' in key.lower() or '谱' in key or 'alpha' in key.lower()]
+        if spectrum_keys:
+            # Should have at least some spectrum information
+            assert len(spectrum_keys) > 0, "Spectrum information should be calculated"
+
+        # Check figure data contains essential curves
+        # Keys might vary in format, so look for key patterns
+        q_keys = [key for key in figure_data.keys() if 'q' in key.lower() and len(figure_data[key]) > 0]
+        alpha_keys = [key for key in figure_data.keys() if 'alpha' in key.lower()]
+        f_keys = [key for key in figure_data.keys() if 'f(' in key or 'f_alpha' in key]
+
+        assert len(q_keys) > 0, "q values should be in figure data"
+        assert len(alpha_keys) > 0, "Alpha values should be in figure data"
+
+        # Get actual data
+        q_key = q_keys[0]  # Use first available q key
+        q_values = figure_data[q_key]
+        assert len(q_values) > 0, "Q values should not be empty"
+
+        # Check that typical q values are included
+        assert 0 in q_values or any(abs(q - 0) < 1e-10 for q in q_values), "q=0 should be included"
+        assert 1 in q_values or any(abs(q - 1) < 1e-10 for q in q_values), "q=1 should be included"
+        assert 2 in q_values or any(abs(q - 2) < 1e-10 for q in q_values), "q=2 should be included"
+
+    def test_curve_data_specific_properties(self, load_sample_data):
+        """Test properties specific to X-Y curve multifractal analysis."""
+        (x, y), _ = load_sample_data
+
+        metrics, figure_data = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # For curve data, the analysis should treat the 2D coordinates as a single curve
+        # The dimensions should be consistent with a 1D curve embedded in 2D space
+
+        # Get available dimension keys
+        dim_keys = [key for key in metrics.keys() if 'D(' in key]
+        assert len(dim_keys) > 0, "Should calculate fractal dimensions for curve"
+
+        # Test data format consistency
+        q_keys = [key for key in figure_data.keys() if 'q' in key.lower() and len(figure_data[key]) > 0]
+        tau_keys = [key for key in figure_data.keys() if 'tau' in key.lower()]
+        d_keys = [key for key in figure_data.keys() if 'd(' in key.lower() or 'd(q)' in key.lower()]
+
+        if len(q_keys) > 0:
+            q_key = q_keys[0]
+            q_values = figure_data[q_key]
+
+            # All curve arrays should have same length
+            if len(tau_keys) > 0:
+                tau_key = tau_keys[0]
+                assert len(q_values) == len(figure_data[tau_key]), \
+                    "q and tau(q) should have same length"
+
+            if len(d_keys) > 0:
+                d_key = d_keys[0]
+                assert len(q_values) == len(figure_data[d_key]), \
+                    "q and D(q) should have same length"
+
+    def test_data_integrity_preservation_dual(self, load_sample_data):
+        """Test that input curve data is not modified during analysis."""
+        (x, y), _ = load_sample_data
+        original_x = x.copy()
+        original_y = y.copy()
+
+        # Perform analysis
+        metrics, figure_data = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Check that original data is unchanged
+        np.testing.assert_array_equal(original_x, x, "Input X data should not be modified")
+        np.testing.assert_array_equal(original_y, y, "Input Y data should not be modified")
+
+    def test_different_data_formats(self, load_sample_data):
+        """Test multifractal analysis with different input data formats."""
+        (x, y), _ = load_sample_data
+
+        # Test with tuple format
+        metrics1, figure_data1 = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Test with numpy array format
+        xy_array = np.column_stack([x, y])
+        metrics2, figure_data2 = multifractal_curve(
+            xy_array,
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Both should work and produce results
+        assert metrics1 is not None, "Tuple format should work"
+        assert metrics2 is not None, "Array format should work"
+
+        # Results should be consistent
+        # Compare available dimension keys
+        dim_keys1 = [key for key in metrics1.keys() if 'D(' in key]
+        dim_keys2 = [key for key in metrics2.keys() if 'D(' in key]
+
+        assert len(dim_keys1) > 0, "First format should produce dimensions"
+        assert len(dim_keys2) > 0, "Second format should produce dimensions"
+
+    def test_curve_vs_time_series_properties(self, load_sample_data):
+        """Test differences between curve data and time series data analysis."""
+        (x, y), _ = load_sample_data
+
+        # Analyze as curve data (dual)
+        metrics_dual, figure_data_dual = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Analyze as time series (using only x component)
+        metrics_single, figure_data_single = multifractal_curve(
+            x,
+            use_multiprocessing=False,
+            data_type='single'
+        )
+
+        # Both should produce results
+        assert metrics_dual is not None, "Dual analysis should work"
+        assert metrics_single is not None, "Single analysis should work"
+
+        # Check that we get meaningful results from both
+        dim_keys_dual = [key for key in metrics_dual.keys() if 'D(' in key]
+        dim_keys_single = [key for key in metrics_single.keys() if 'D(' in key]
+
+        assert len(dim_keys_dual) > 0, "Dual should produce dimensions"
+        assert len(dim_keys_single) > 0, "Single should produce dimensions"
+
+    def test_figure_data_completeness_dual(self, load_sample_data):
+        """Test that all required figure data is generated for curve analysis."""
+        (x, y), _ = load_sample_data
+
+        metrics, figure_data = multifractal_curve(
+            (x, y),
+            use_multiprocessing=False,
+            data_type='dual'
+        )
+
+        # Should have essential multifractal analysis data
+        # Keys might vary, so check for patterns
+        q_keys = [key for key in figure_data.keys() if 'q' in key.lower() and len(figure_data[key]) > 0]
+        tau_keys = [key for key in figure_data.keys() if 'tau' in key.lower()]
+        alpha_keys = [key for key in figure_data.keys() if 'alpha' in key.lower()]
+        f_keys = [key for key in figure_data.keys() if 'f(' in key or 'f_alpha' in key]
+        d_keys = [key for key in figure_data.keys() if 'd(' in key.lower() or 'd(q)' in key.lower()]
+
+        assert len(q_keys) > 0, "q values should be in figure data"
+        assert len(tau_keys) > 0, "tau(q) should be in figure data"
+        assert len(alpha_keys) > 0, "alpha(q) should be in figure data"
+        assert len(f_keys) > 0, "f(alpha) should be in figure data"
+        assert len(d_keys) > 0, "D(q) should be in figure data"
+
+        # Check data consistency
+        q_key = q_keys[0]
+        q_values = figure_data[q_key]
+
+        # All arrays should have same length as q_values
+        for key in tau_keys + alpha_keys + f_keys + d_keys:
+            assert len(figure_data[key]) == len(q_values), \
+                f"{key} should have same length as q values"
 

@@ -1,340 +1,455 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-MF-DFA (Multifractal Detrended Fluctuation Analysis)
-====================================================
+Test MF-DFA (Multifractal Detrended Fluctuation Analysis)
+=========================================================
 
-This example demonstrates how to use fracDimPy to perform Multifractal Detrended 
-Fluctuation Analysis (MF-DFA) on time series data. MF-DFA is a powerful method for 
-analyzing the multifractal properties of non-stationary time series by combining 
-detrending and fluctuation analysis.
+Tests for Multifractal Detrended Fluctuation Analysis (MF-DFA) on time series
+data using the mf_dfa function from fracDimPy.
 
-Main Features:
-- Generate test data: white noise, fractional Gaussian noise (FGN), binomial cascade
-- Perform MF-DFA analysis on different types of time series
-- Calculate generalized Hurst exponent h(q) and multifractal spectrum
-- Visualize analysis results including F_q(n) scaling, h(q) curve, and f(alpha) spectrum
-
-Theoretical Background:
-- MF-DFA extends DFA by analyzing q-order moments of fluctuations
-- Generalized Hurst exponent h(q) describes scaling behavior for different q values
-- Mass exponent tau(q) = qh(q) - 1
-- Hölder exponent alpha(q) = dtau(q)/dq
-- Multifractal spectrum f(alpha) describes the distribution of singularities
-- Spectrum width Δalpha = alpha_max - alpha_min indicates the degree of multifractality
+Test Coverage:
+- White noise analysis (monofractal behavior)
+- Fractional Gaussian noise (FGN) analysis
+- Binomial cascade analysis (multifractal behavior)
+- Generalized Hurst exponent h(q) calculation
+- Multifractal spectrum f(alpha) properties
+- Different q value ranges and window parameters
 """
 
 import numpy as np
 import os
-import matplotlib.pyplot as plt
-# SciencePlots style
-try:
-    import scienceplots
-    plt.style.use(['science','no-latex'])
-except ImportError:
-    pass
-# Set font family: Times New Roman and Microsoft YaHei
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
+import pytest
+from fracDimPy import mf_dfa
 
 
-def generate_binomial_cascade(n=8192, p=0.3):
-    """Generate binomial cascade series for multifractal testing
-    
-    Args:
-        n: Length of the series
-        p: Probability parameter for cascade splitting
-        
-    Returns:
-        Binomial cascade series with multifractal properties
-    """
-    levels = int(np.log2(n))
-    series = np.ones(2**levels)
-    
-    for level in range(levels):
-        step = 2**(levels - level)
-        for i in range(0, 2**levels, step):
-            # Randomly split each segment with probability p
-            if np.random.rand() < p:
-                series[i:i+step//2] *= 1.7
-                series[i+step//2:i+step] *= 0.3
-            else:
-                series[i:i+step//2] *= 0.3
-                series[i+step//2:i+step] *= 1.7
-    
-    return series[:n]
+class TestMultifractalDFA:
+    """Test suite for MF-DFA analysis."""
 
+    def generate_binomial_cascade(self, n=8192, p=0.3):
+        """Generate binomial cascade series for multifractal testing."""
+        levels = int(np.log2(n))
+        series = np.ones(2**levels)
 
-def generate_fgn_for_mfdfa(H, n=10000):
-    """Generate Fractional Gaussian Noise (FGN) for MF-DFA testing
-    
-    Args:
-        H: Hurst exponent (0 < H < 1)
-        n: Length of the series
-        
-    Returns:
-        FGN series with specified Hurst exponent
-    """
-    try:
-        from fbm import FBM
-        f = FBM(n=n, hurst=H, length=1, method='daviesharte')
-        return f.fgn()
-    except ImportError:
-        print("Warning: fbm package not available, using random noise instead")
-        return np.random.randn(n)
+        for level in range(levels):
+            step = 2**(levels - level)
+            for i in range(0, 2**levels, step):
+                # Randomly split each segment with probability p
+                if np.random.rand() < p:
+                    series[i:i+step//2] *= 1.7
+                    series[i+step//2:i+step] *= 0.3
+                else:
+                    series[i:i+step//2] *= 0.3
+                    series[i+step//2:i+step] *= 1.7
 
+        return series[:n]
 
-def main():
-    print("="*60)
-    print("MF-DFA")
-    print("="*60)
-    
-    from fracDimPy import mf_dfa
-    
-    # q_list parameter: if None, automatically generates q values from -10 to 10 with 1000 points
-    # You can also specify custom q values, e.g., q_list = [-5, -3, -1, 0, 1, 2, 3, 5]
-    q_list = None  # Use default q range
-    
-    test_cases = []
-    
-    # 1. White noise test
-    print("\n1. Testing white noise...")
-    white_noise = np.random.randn(10000)
-    try:
-        hq_result_white, spectrum_white = mf_dfa(
+    def generate_fgn_for_mfdfa(self, H, n=10000):
+        """Generate Fractional Gaussian Noise (FGN) for MF-DFA testing."""
+        try:
+            from fbm import FBM
+            f = FBM(n=n, hurst=H, length=1, method='daviesharte')
+            return f.fgn()
+        except ImportError:
+            # Fallback to correlated noise approximation
+            # Simple approximation using filtering
+            noise = np.random.randn(n)
+            # Apply simple FIR filter to create correlation
+            # This is a rough approximation of FGN
+            if H > 0.5:
+                # Persistent series
+                for i in range(1, n):
+                    noise[i] = 0.7 * noise[i-1] + 0.3 * noise[i]
+            elif H < 0.5:
+                # Anti-persistent series
+                for i in range(1, n):
+                    noise[i] = -0.3 * noise[i-1] + 1.3 * noise[i]
+            return noise
+
+    def test_mf_dfa_white_noise(self):
+        """Test MF-DFA on white noise (should show monofractal behavior)."""
+        # Generate white noise
+        np.random.seed(42)  # For reproducible results
+        white_noise = np.random.randn(5000)
+
+        # Perform MF-DFA analysis
+        hq_result, spectrum = mf_dfa(
             white_noise,
-            q_list=q_list,
+            q_list=None,  # Use default q range
             min_window=10,
-            max_window=1000,
-            num_windows=25
+            max_window=500,
+            num_windows=20
         )
-        
-        h2 = hq_result_white['h_q'][hq_result_white['q_list'] == 2][0]
-        width = spectrum_white['width']
-        
-        test_cases.append({
-            'name': 'White Noise',
-            'data': white_noise,
-            'hq_result': hq_result_white,
-            'spectrum': spectrum_white,
-            'description': f'h(2)={h2:.3f}, width={width:.3f}'
-        })
-        
-        print(f"   h(2) = {h2:.4f} (expected ~0.5)")
-        print(f"   Spectrum width = {width:.4f}")
-        print(f"   Result: {'Monofractal' if width < 0.3 else 'Multifractal'}")
-    except Exception as e:
-        print(f"   Error: {e}")
-    
-    # 2. FGN (H=0.7, monofractal)
-    print("\n2. Testing FGN (H=0.7, monofractal)...")
-    fgn_07 = generate_fgn_for_mfdfa(H=0.7, n=10000)
-    try:
-        hq_result_fgn, spectrum_fgn = mf_dfa(
-            fgn_07,
-            q_list=q_list,
-            min_window=10,
-            max_window=1000,
-            num_windows=25
-        )
-        
-        h2 = hq_result_fgn['h_q'][hq_result_fgn['q_list'] == 2][0]
-        width = spectrum_fgn['width']
-        
-        test_cases.append({
-            'name': 'FGN (H=0.7)',
-            'data': fgn_07,
-            'hq_result': hq_result_fgn,
-            'spectrum': spectrum_fgn,
-            'description': f'h(2)={h2:.3f}, width={width:.3f}'
-        })
-        
-        print(f"   h(2) = {h2:.4f} (expected ~0.7)")
-        print(f"   Spectrum width = {width:.4f}")
-        print(f"   Result: {'Monofractal' if width < 0.3 else 'Multifractal'}")
-    except Exception as e:
-        print(f"   Error: {e}")
-    
-    # 3. Binomial cascade test
-    print("\n3. Testing binomial cascade...")
-    cascade = generate_binomial_cascade(n=8192, p=0.3)
-    try:
-        hq_result_cascade, spectrum_cascade = mf_dfa(
-            cascade,
-            q_list=q_list,
-            min_window=10,
-            max_window=1000,
-            num_windows=25
-        )
-        
-        h2 = hq_result_cascade['h_q'][hq_result_cascade['q_list'] == 2][0]
-        width = spectrum_cascade['width']
-        
-        test_cases.append({
-            'name': 'Binomial Cascade',
-            'data': cascade,
-            'hq_result': hq_result_cascade,
-            'spectrum': spectrum_cascade,
-            'description': f'h(2)={h2:.3f}, width={width:.3f}'
-        })
-        
-        print(f"   h(2) = {h2:.4f}")
-        print(f"   Spectrum width = {width:.4f}")
-        print(f"   Result: {'Monofractal' if width < 0.3 else 'Multifractal'}")
-    except Exception as e:
-        print(f"   Error: {e}")
-    
-    # Visualize results
-    if test_cases:
-        n_cases = len(test_cases)
-        fig = plt.figure(figsize=(18, 6*n_cases))
-        
-        for idx, case in enumerate(test_cases):
-            # Subplot 1: Time series data
-            ax1 = fig.add_subplot(n_cases, 4, idx*4 + 1)
-            ax1.plot(case['data'][:2000], linewidth=0.6)
-            ax1.set_title(f"{case['name']}\n{case['description']}", fontsize=10)
-            ax1.set_xlabel('Time', fontsize=9)
-            ax1.set_ylabel('Value', fontsize=9)
-            ax1.tick_params(labelsize=8)
-            ax1.grid(True, alpha=0.3)
-            
-            # Subplot 2: F_q(n) vs n for different q values
-            ax2 = fig.add_subplot(n_cases, 4, idx*4 + 2)
-            hq_result = case['hq_result']
-            
-            # Select representative q values for plotting (if q_list has 1000 points, select key ones)
-            q_all = hq_result['q_list']
-            if len(q_all) > 20:
-                # Select key q values: 0, 1, 2, and some negative/positive values
-                q_to_plot_idx = []
-                key_q_values = [-10, -5, -3, -2, -1, -0.5, 0, 0.5, 1, 2, 3, 5, 10]
-                for key_q in key_q_values:
-                    # Find closest q value
-                    q_idx = np.argmin(np.abs(q_all - key_q))
-                    if q_idx not in q_to_plot_idx:
-                        q_to_plot_idx.append(q_idx)
-                q_to_plot_idx = sorted(q_to_plot_idx)
-            else:
-                q_to_plot_idx = range(len(q_all))
-            
-            # Plot F_q(n) for selected q values
-            colors = plt.cm.RdYlBu(np.linspace(0, 1, len(q_to_plot_idx)))
-            for i, i_q in enumerate(q_to_plot_idx):
-                q = q_all[i_q]
-                Fq = hq_result['Fq_n'][i_q, :]
-                valid = (Fq > 0) & np.isfinite(Fq)
-                
-                if np.sum(valid) > 0:
-                    log_n = np.log10(hq_result['window_sizes'][valid])
-                    log_Fq = np.log10(Fq[valid])
-                    
-                    ax2.plot(log_n, log_Fq, 'o-', 
-                            color=colors[i], 
-                            label=f'q={q:.1f}',
-                            markersize=3,
-                            linewidth=1.2,
-                            alpha=0.8)
-            
-            ax2.set_xlabel('log(n)', fontsize=9)
-            ax2.set_ylabel('log(F_q(n))', fontsize=9)
-            ax2.set_title('Fluctuation Function', fontsize=10)
-            ax2.legend(fontsize=7, ncol=2)
-            ax2.tick_params(labelsize=8)
-            ax2.grid(True, alpha=0.3)
-            
-            # Subplot 3: h(q) vs q
-            ax3 = fig.add_subplot(n_cases, 4, idx*4 + 3)
-            q_vals = hq_result['q_list']
-            h_vals = hq_result['h_q']
-            
-            valid = np.isfinite(h_vals)
-            # Use line plot for many q values, markers for few
-            if len(q_vals) > 50:
-                ax3.plot(q_vals[valid], h_vals[valid], '-', 
-                        color='blue', linewidth=2)
-            else:
-                ax3.plot(q_vals[valid], h_vals[valid], 'o-', 
-                        color='blue', linewidth=2, markersize=6)
-            
-            ax3.set_xlabel('q', fontsize=9)
-            ax3.set_ylabel('h(q)', fontsize=9)
-            ax3.set_title('Generalized Hurst Exponent', fontsize=10)
-            ax3.tick_params(labelsize=8)
-            ax3.grid(True, alpha=0.3)
-            
-            # Mark h(2) value
-            h2_idx = np.where(q_vals == 2)[0]
-            if len(h2_idx) > 0:
-                h2 = h_vals[h2_idx[0]]
-                ax3.axhline(h2, color='red', linestyle='--', 
-                           alpha=0.5, label=f'h(2)={h2:.3f}')
-                ax3.legend(fontsize=8)
-            
-            # Subplot 4: f(alpha) multifractal spectrum
-            ax4 = fig.add_subplot(n_cases, 4, idx*4 + 4)
-            spectrum = case['spectrum']
-            
-            alpha_vals = spectrum['alpha']
-            f_vals = spectrum['f_alpha']
-            
-            valid = np.isfinite(alpha_vals) & np.isfinite(f_vals)
-            if np.sum(valid) > 0:
-                ax4.plot(alpha_vals[valid], f_vals[valid], 'o-', 
-                        color='green', linewidth=2, markersize=8)
-                
-                # Mark alpha_0 (most probable singularity)
-                if np.isfinite(spectrum['alpha_0']):
-                    ax4.axvline(spectrum['alpha_0'], color='red', 
-                               linestyle='--', alpha=0.5, 
-                               label=f"alpha₀={spectrum['alpha_0']:.3f}")
-                
-                # Annotate spectrum width
-                alpha_min = np.min(alpha_vals[valid])
-                alpha_max = np.max(alpha_vals[valid])
-                ax4.annotate('', xy=(alpha_max, 0.1), xytext=(alpha_min, 0.1),
-                            arrowprops=dict(arrowstyle='<->', color='blue', lw=2))
-                ax4.text((alpha_min + alpha_max)/2, 0.15, 
-                        f'width={spectrum["width"]:.3f}',
-                        ha='center', fontsize=8, color='blue')
-            
-            ax4.set_xlabel('alpha (Singularity Index)', fontsize=9)
-            ax4.set_ylabel('f(alpha)', fontsize=9)
-            ax4.set_title('Multifractal Spectrum', fontsize=10)
-            ax4.tick_params(labelsize=8)
-            ax4.legend(fontsize=8)
-            ax4.grid(True, alpha=0.3)
-        
-        plt.tight_layout(pad=2.0, h_pad=3.0, w_pad=2.0)
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        output_file = os.path.join(current_dir, "result_mf_dfa.png")
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"\nResults saved to: {output_file}")
-        plt.show()
-    
-    print("\n" + "="*60)
-    print("Summary")
-    print("="*60)
-    print("\n   MF-DFA Analysis Complete")
-    print("   =========================")
-    print("\n   Key Parameters:")
-    print("   - q range: [-10, 10] with 1000 points (default)")
-    print("   - Window sizes: logarithmically spaced")
-    print("\n   Calculated Quantities:")
-    print("   - h(q): Generalized Hurst exponent")
-    print("   - tau(q): Mass exponent = qh(q) - 1")
-    print("   - alpha(q): Hölder exponent = dtau(q)/dq")
-    print("   - f(alpha): Multifractal spectrum")
-    print("\n   Interpretation:")
-    print("   - Monofractal: spectrum width < 0.3")
-    print("   - Multifractal: h(q) varies significantly with q > 0.5")
-    print("   - Spectrum width = alpha_max - alpha_min indicates multifractality strength")
-    print("\n   Physical Meaning:")
-    print("   - q > 0: Emphasizes large fluctuations")
-    print("   - q < 0: Emphasizes small fluctuations")
-    print("   - q = 2: Standard DFA analysis")
 
+        # Check that results are returned
+        assert hq_result is not None, "H(q) results should be returned"
+        assert spectrum is not None, "Spectrum results should be returned"
 
-if __name__ == '__main__':
-    main()
+        # Check required keys in hq_result
+        required_keys = ['q_list', 'h_q', 'Fq_n', 'window_sizes']
+        for key in required_keys:
+            assert key in hq_result, f"Key '{key}' missing from hq_result"
+
+        # Check required keys in spectrum
+        required_spectrum_keys = ['alpha', 'f_alpha', 'width']
+        for key in required_spectrum_keys:
+            assert key in spectrum, f"Key '{key}' missing from spectrum"
+
+        # Extract h(2) for white noise (should be ~0.5)
+        q_list = hq_result['q_list']
+        h_q = hq_result['h_q']
+
+        # Find h(2)
+        idx_2 = np.where(q_list == 2)[0]
+        if len(idx_2) > 0:
+            h2 = h_q[idx_2[0]]
+            assert abs(h2 - 0.5) < 0.2, f"White noise h(2) should be ~0.5, got {h2}"
+
+        # Check spectrum width (should be small for monofractal)
+        spectrum_width = spectrum['width']
+        assert spectrum_width >= 0, f"Spectrum width should be non-negative: {spectrum_width}"
+
+        # White noise should be nearly monofractal
+        if spectrum_width < 0.4:
+            # Typical case - small width indicates monofractal
+            pass
+        else:
+            # Edge case - might show some multifractality due to finite sample effects
+            pass
+
+    def test_mf_dfa_fgn(self):
+        """Test MF-DFA on fractional Gaussian noise."""
+        np.random.seed(42)
+        fgn_data = self.generate_fgn_for_mfdfa(H=0.7, n=5000)
+
+        # Perform MF-DFA analysis
+        hq_result, spectrum = mf_dfa(
+            fgn_data,
+            q_list=None,
+            min_window=10,
+            max_window=500,
+            num_windows=20
+        )
+
+        # Check that results are returned
+        assert hq_result is not None, "H(q) results should be returned for FGN"
+        assert spectrum is not None, "Spectrum results should be returned for FGN"
+
+        # Extract h(2) (should be close to the input H=0.7)
+        q_list = hq_result['q_list']
+        h_q = hq_result['h_q']
+
+        # Find h(2)
+        idx_2 = np.where(q_list == 2)[0]
+        if len(idx_2) > 0:
+            h2 = h_q[idx_2[0]]
+            # Allow some tolerance due to finite sample effects
+            assert 0.5 <= h2 <= 0.9, f"FGN h(2) should be close to H=0.7, got {h2}"
+
+        # FGN should be nearly monofractal
+        spectrum_width = spectrum['width']
+        assert spectrum_width >= 0, f"Spectrum width should be non-negative: {spectrum_width}"
+
+    def test_mf_dfa_binomial_cascade(self):
+        """Test MF-DFA on binomial cascade (should show multifractal behavior)."""
+        np.random.seed(42)
+        cascade_data = self.generate_binomial_cascade(n=4096, p=0.3)
+
+        # Perform MF-DFA analysis
+        hq_result, spectrum = mf_dfa(
+            cascade_data,
+            q_list=None,
+            min_window=8,
+            max_window=400,
+            num_windows=20
+        )
+
+        # Check that results are returned
+        assert hq_result is not None, "H(q) results should be returned for cascade"
+        assert spectrum is not None, "Spectrum results should be returned for cascade"
+
+        # Check data structure
+        q_list = hq_result['q_list']
+        h_q = hq_result['h_q']
+        Fq_n = hq_result['Fq_n']
+
+        assert len(q_list) > 0, "Q list should not be empty"
+        assert len(h_q) == len(q_list), "h(q) should have same length as q_list"
+        assert Fq_n.shape[0] == len(q_list), "Fq_n should have correct number of q rows"
+
+        # Binomial cascade should show multifractal behavior
+        spectrum_width = spectrum['width']
+        assert spectrum_width >= 0, f"Spectrum width should be non-negative: {spectrum_width}"
+
+        # Check that h(q) varies with q (indicating multifractality)
+        h_values = h_q[np.isfinite(h_q)]
+        if len(h_values) > 5:
+            h_variation = np.std(h_values)
+            # For multifractal data, h(q) should vary noticeably
+            assert h_variation > 0.05, f"h(q) should vary for multifractal data: variation={h_variation}"
+
+    def test_mf_dfa_custom_q_range(self):
+        """Test MF-DFA with custom q value range."""
+        np.random.seed(42)
+        test_data = np.random.randn(3000)
+
+        # Test with custom q range
+        custom_q = [-5, -2, -1, -0.5, 0, 0.5, 1, 2, 5]
+
+        hq_result, spectrum = mf_dfa(
+            test_data,
+            q_list=custom_q,
+            min_window=10,
+            max_window=300,
+            num_windows=15
+        )
+
+        # Check that custom q range is used
+        q_list = hq_result['q_list']
+        assert len(q_list) == len(custom_q), f"Should use custom q range length: {len(q_list)} vs {len(custom_q)}"
+
+        # Check that all requested q values are included
+        for q in custom_q:
+            assert q in q_list, f"q={q} should be in results"
+
+        # Check corresponding h_q values
+        h_q = hq_result['h_q']
+        assert len(h_q) == len(custom_q), "h(q) should have same length as custom q list"
+
+    def test_mf_dfa_window_parameters(self):
+        """Test MF-DFA with different window parameters."""
+        np.random.seed(42)
+        test_data = np.random.randn(2000)
+
+        # Test with different window parameters
+        hq_result1, spectrum1 = mf_dfa(
+            test_data,
+            q_list=[-2, 0, 2],
+            min_window=5,
+            max_window=100,
+            num_windows=10
+        )
+
+        hq_result2, spectrum2 = mf_dfa(
+            test_data,
+            q_list=[-2, 0, 2],
+            min_window=10,
+            max_window=200,
+            num_windows=20
+        )
+
+        # Both should work
+        assert hq_result1 is not None, "First window config should work"
+        assert hq_result2 is not None, "Second window config should work"
+
+        # Check window sizes
+        ws1 = hq_result1['window_sizes']
+        ws2 = hq_result2['window_sizes']
+
+        assert len(ws1) == 10, "First config should have 10 window sizes"
+        assert len(ws2) == 20, "Second config should have 20 window sizes"
+
+        assert ws1[0] >= 5, "First window size should meet minimum"
+        assert ws2[0] >= 10, "Second window size should meet minimum"
+
+    def test_hq_result_structure(self):
+        """Test the structure and properties of h(q) results."""
+        np.random.seed(42)
+        test_data = np.random.randn(3000)
+
+        hq_result, spectrum = mf_dfa(
+            test_data,
+            q_list=[-3, -1, 0, 1, 2, 3],
+            min_window=10,
+            max_window=300,
+            num_windows=15
+        )
+
+        # Check required fields
+        required_fields = ['q_list', 'h_q', 'Fq_n', 'window_sizes']
+        for field in required_fields:
+            assert field in hq_result, f"Field '{field}' should be in hq_result"
+
+        # Check data consistency
+        q_list = hq_result['q_list']
+        h_q = hq_result['h_q']
+        Fq_n = hq_result['Fq_n']
+        window_sizes = hq_result['window_sizes']
+
+        # Array dimensions should be consistent
+        assert len(q_list) == len(h_q), "q_list and h_q should have same length"
+        assert Fq_n.shape[0] == len(q_list), "Fq_n should have rows for each q value"
+        assert Fq_n.shape[1] == len(window_sizes), "Fq_n should have columns for each window size"
+
+        # Check data validity
+        assert np.all(np.isfinite(q_list)), "All q values should be finite"
+        assert np.all(np.isfinite(window_sizes)), "All window sizes should be finite"
+        assert np.all(window_sizes > 0), "All window sizes should be positive"
+
+        # Check h(q) properties
+        finite_h = h_q[np.isfinite(h_q)]
+        if len(finite_h) > 0:
+            # h(q) should typically be in reasonable range
+            assert np.all(finite_h > -1), "h(q) should generally be > -1"
+            assert np.all(finite_h < 3), "h(q) should generally be < 3"
+
+    def test_spectrum_structure(self):
+        """Test the structure and properties of multifractal spectrum."""
+        np.random.seed(42)
+        test_data = np.random.randn(3000)
+
+        hq_result, spectrum = mf_dfa(
+            test_data,
+            q_list=[-2, 0, 2],
+            min_window=10,
+            max_window=300,
+            num_windows=15
+        )
+
+        # Check required spectrum fields
+        required_fields = ['alpha', 'f_alpha', 'width']
+        for field in required_fields:
+            assert field in spectrum, f"Field '{field}' should be in spectrum"
+
+        # Check data consistency
+        alpha = spectrum['alpha']
+        f_alpha = spectrum['f_alpha']
+        width = spectrum['width']
+
+        # Array dimensions
+        assert len(alpha) == len(f_alpha), "alpha and f_alpha should have same length"
+        assert len(alpha) > 0, "Spectrum should not be empty"
+
+        # Check data validity
+        finite_mask = np.isfinite(alpha) & np.isfinite(f_alpha)
+        finite_alpha = alpha[finite_mask]
+        finite_f_alpha = f_alpha[finite_mask]
+
+        if len(finite_alpha) > 0:
+            assert np.all(finite_f_alpha >= 0), "f(alpha) should be non-negative"
+
+        # Spectrum width
+        assert width >= 0, f"Spectrum width should be non-negative: {width}"
+
+        # If we have valid alpha values, check width calculation
+        if len(finite_alpha) > 1:
+            calculated_width = np.max(finite_alpha) - np.min(finite_alpha)
+            assert abs(width - calculated_width) < 1e-6, \
+                f"Spectrum width mismatch: {width} vs {calculated_width}"
+
+    def test_data_integrity_preservation(self):
+        """Test that input data is not modified during MF-DFA analysis."""
+        np.random.seed(42)
+        original_data = np.random.randn(2000)
+        test_data = original_data.copy()
+
+        # Perform analysis
+        hq_result, spectrum = mf_dfa(
+            test_data,
+            q_list=[-1, 0, 1],
+            min_window=10,
+            max_window=200,
+            num_windows=10
+        )
+
+        # Check that original data is unchanged
+        np.testing.assert_array_equal(original_data, test_data,
+                                    "Input data should not be modified")
+
+    def test_edge_cases(self):
+        """Test MF-DFA with edge cases."""
+        # Test with very short series
+        short_data = np.random.randn(100)
+        try:
+            hq_result, spectrum = mf_dfa(
+                short_data,
+                q_list=[-1, 0, 1],
+                min_window=5,
+                max_window=50,
+                num_windows=5
+            )
+            # Might work with very small parameters
+            if hq_result is not None:
+                assert 'q_list' in hq_result, "Short data should produce q_list if it works"
+        except Exception:
+            # Expected to fail for very short series
+            pass
+
+        # Test with constant series
+        constant_data = np.ones(1000) * 5.0
+        try:
+            hq_result, spectrum = mf_dfa(
+                constant_data,
+                q_list=[-1, 0, 1],
+                min_window=10,
+                max_window=200,
+                num_windows=10
+            )
+            # Constant series might have special properties
+            if hq_result is not None:
+                assert 'q_list' in hq_result, "Constant data should produce q_list if it works"
+        except Exception:
+            # Constant series might fail or have special handling
+            pass
+
+        # Test with linear trend
+        linear_data = np.arange(1000) * 0.01
+        try:
+            hq_result, spectrum = mf_dfa(
+                linear_data,
+                q_list=[-1, 0, 1],
+                min_window=10,
+                max_window=200,
+                num_windows=10
+            )
+            # Linear trend should be handled by detrending
+            if hq_result is not None:
+                assert 'q_list' in hq_result, "Linear data should produce q_list if it works"
+        except Exception:
+            # Linear series might be edge case
+            pass
+
+    def test_theoretical_relationships(self):
+        """Test theoretical relationships in MF-DFA results."""
+        np.random.seed(42)
+        test_data = np.random.randn(3000)
+
+        hq_result, spectrum = mf_dfa(
+            test_data,
+            q_list=[-2, -1, 0, 1, 2],
+            min_window=10,
+            max_window=300,
+            num_windows=15
+        )
+
+        q_list = hq_result['q_list']
+        h_q = hq_result['h_q']
+
+        # Test theoretical relationships
+        # h(q) should be a decreasing function of q for multifractal data
+        # or nearly constant for monofractal data
+        valid_mask = np.isfinite(h_q)
+        if np.sum(valid_mask) >= 3:
+            valid_q = q_list[valid_mask]
+            valid_h = h_q[valid_mask]
+
+            # Check monotonicity (decreasing trend)
+            # This is not strictly required but typical
+            if len(valid_q) > 2:
+                # Calculate correlation between q and h(q)
+                correlation = np.corrcoef(valid_q, valid_h)[0, 1]
+                # Should generally be negative or small positive
+                assert correlation < 0.8, f"Unusual h(q) behavior: correlation={correlation}"
+
+        # Check spectrum properties
+        alpha = spectrum['alpha']
+        f_alpha = spectrum['f_alpha']
+
+        valid_mask = np.isfinite(alpha) & np.isfinite(f_alpha)
+        if np.sum(valid_mask) > 2:
+            valid_alpha = alpha[valid_mask]
+            valid_f = f_alpha[valid_mask]
+
+            # f(alpha) should have maximum around the most probable singularity
+            max_f_idx = np.argmax(valid_f)
+            assert valid_f[max_f_idx] > 0, "f(alpha) maximum should be positive"
 

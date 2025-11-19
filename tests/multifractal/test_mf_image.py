@@ -1,172 +1,335 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Multifractal Analysis - Image Data
-===================================
+Test Multifractal Analysis - Image Data
+=======================================
 
-This example demonstrates how to use fracDimPy to perform multifractal analysis 
-on 2D image data. The multifractal characteristics of images can reveal the 
-complexity, non-uniformity, and multi-scale properties of textures, with wide 
-applications in medical image analysis, materials science, geological exploration, etc.
+Tests for multifractal analysis on 2D image data using the multifractal_image
+function from fracDimPy.
 
-Main Features:
-- Load and preprocess image data
-- Calculate multifractal spectrum of images
-- Extract multifractal characteristic parameters
-- Visualize analysis results
-
-Theoretical Background:
-- Image multifractal analysis is based on the extension of box-counting method
-- Describe the diversity of image grayscale distribution through different q-order moments
-- Multifractal spectrum width reflects the degree of non-uniformity of the image
-- D(0): Capacity dimension, D(1): Information dimension, D(2): Correlation dimension
+Test Coverage:
+- Image loading and preprocessing (grayscale conversion)
+- Multifractal spectrum calculation for 2D images
+- Key multifractal dimensions for image data
+- Image-specific multifractal properties
+- Different image formats and preprocessing
 """
 
 import numpy as np
 import os
+import pytest
 from fracDimPy import multifractal_image
-import matplotlib.pyplot as plt
 
-# Set Chinese font
-import scienceplots 
-plt.style.use(['science', 'no-latex'])
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False
 
-# Data file path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-data_file = os.path.join(current_dir, "mf_image_shale.png")
+class TestMultifractalImage:
+    """Test suite for multifractal analysis of image data."""
 
-def main():
-    print("="*60)
-    print("Multifractal Analysis - Image Data")
-    print("="*60)
-    
-    # 1. Load image data
-    print(f"\n1. Loading image: {data_file}")
-    try:
-        from PIL import Image
-        img = Image.open(data_file)
-        img_array = np.array(img)
-        
-        # Convert to grayscale if color image
-        if len(img_array.shape) == 3:
-            img_gray = np.mean(img_array, axis=2)
-        else:
-            img_gray = img_array
-        
-        print(f"   Image size: {img_gray.shape}")
-        print(f"   Pixel range: {img_gray.min():.1f} ~ {img_gray.max():.1f}")
-        
-    except Exception as e:
-        print(f"   Loading failed: {e}")
-        return
-    
-    # 2. Multifractal analysis
-    print("\n2. Performing multifractal analysis...")
-    try:
+    @pytest.fixture
+    def sample_image_path(self):
+        """Path to the sample image file."""
+        return os.path.join(os.path.dirname(__file__), 'mf_image_shale.png')
+
+    @pytest.fixture
+    def load_sample_image(self, sample_image_path):
+        """Load and preprocess the sample image."""
+        try:
+            from PIL import Image
+            img = Image.open(sample_image_path)
+            img_array = np.array(img)
+
+            # Convert to grayscale if color image
+            if len(img_array.shape) == 3:
+                img_gray = np.mean(img_array, axis=2)
+            else:
+                img_gray = img_array
+
+            return img_gray, img_array
+        except ImportError:
+            pytest.skip("PIL/Pillow not available for image loading")
+        except Exception as e:
+            pytest.fail(f"Failed to load sample image: {e}")
+
+    def test_image_loading(self, load_sample_image):
+        """Test that sample image loads correctly."""
+        img_gray, img_original = load_sample_image
+
+        # Check image properties
+        assert len(img_gray.shape) == 2, "Processed image should be 2D (grayscale)"
+        assert img_gray.shape[0] > 0, "Image height should be > 0"
+        assert img_gray.shape[1] > 0, "Image width should be > 0"
+        assert np.isfinite(img_gray).all(), "All pixel values should be finite"
+
+    def test_multifractal_image_basic(self, load_sample_image):
+        """Test basic multifractal analysis for image data."""
+        img_gray, _ = load_sample_image
+
+        # Perform multifractal analysis
         metrics, figure_data = multifractal_image(img_gray)
-        
-        # 3. Display calculation results
-        print("\n3. Multifractal characteristic parameters:")
-        print(f"   Capacity dimension D(0): {metrics['容量维数 D(0)'][0]:.4f}")
-        print(f"   Information dimension D(1): {metrics['信息维数 D(1)'][0]:.4f}")
-        print(f"   Correlation dimension D(2): {metrics['关联维数 D(2)'][0]:.4f}")
-        print(f"   Hurst exponent H: {metrics['Hurst指数 H'][0]:.4f}")
-        print(f"   Spectrum width: {metrics['谱宽度'][0]:.4f}")
-        
-    except Exception as e:
-        print(f"\nAnalysis failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return
-    
-    # 4. Visualize results
-    print("\n4. Generating visualization plots...")
-    try:
-        fig = plt.figure(figsize=(16, 10))
-        
-        # Original image
-        ax1 = fig.add_subplot(2, 3, 1)
-        ax1.imshow(img_gray, cmap='gray')
-        ax1.set_title('(a) Original Image')
-        ax1.axis('off')
-        
-        # Extract analysis results
-        ql = figure_data['q值']
+
+        # Check that metrics and figure data are returned
+        assert metrics is not None, "Metrics should be returned"
+        assert figure_data is not None, "Figure data should be returned"
+        assert isinstance(metrics, dict), "Metrics should be a dictionary"
+        assert isinstance(figure_data, dict), "Figure data should be a dictionary"
+
+    def test_multifractal_dimensions_image(self, load_sample_image):
+        """Test that key multifractal dimensions are calculated correctly for images."""
+        img_gray, _ = load_sample_image
+
+        metrics, figure_data = multifractal_image(img_gray)
+
+        # Check that key dimensions are present
+        assert '容量维数 D(0)' in metrics, "Capacity dimension D(0) should be calculated"
+        assert '信息维数 D(1)' in metrics, "Information dimension D(1) should be calculated"
+        assert '关联维数 D(2)' in metrics, "Correlation dimension D(2) should be calculated"
+
+        # Extract dimension values
+        d0 = metrics['容量维数 D(0)'][0]
+        d1 = metrics['信息维数 D(1)'][0]
+        d2 = metrics['关联维数 D(2)'][0]
+
+        # For 2D image data, dimensions should be between 0 and 2
+        assert 0 <= d0 <= 2, f"Capacity dimension D(0)={d0} should be in [0, 2]"
+        assert 0 <= d1 <= 2, f"Information dimension D(1)={d1} should be in [0, 2]"
+        assert 0 <= d2 <= 2, f"Correlation dimension D(2)={d2} should be in [0, 2]"
+
+        # D(0) >= D(1) >= D(2) for multifractal data
+        assert d0 >= d1 >= d2, f"Dimensions should decrease: D(0)={d0} >= D(1)={d1} >= D(2)={d2}"
+
+    def test_hurst_exponent_image(self, load_sample_image):
+        """Test Hurst exponent calculation for image data."""
+        img_gray, _ = load_sample_image
+
+        metrics, figure_data = multifractal_image(img_gray)
+
+        assert 'Hurst指数 H' in metrics, "Hurst exponent should be calculated"
+
+        h = metrics['Hurst指数 H'][0]
+
+        # Hurst exponent should be in [0, 1]
+        assert 0 <= h <= 1, f"Hurst exponent H={h} should be in [0, 1]"
+
+    def test_spectrum_properties_image(self, load_sample_image):
+        """Test multifractal spectrum properties for image data."""
+        img_gray, _ = load_sample_image
+
+        metrics, figure_data = multifractal_image(img_gray)
+
+        # Check spectrum-related metrics
+        assert '谱宽度' in metrics, "Spectrum width should be calculated"
+
+        # Check figure data contains essential curves
+        assert 'q值' in figure_data, "q values should be in figure data"
+        assert '奇异性指数alpha(q)' in figure_data, "Alpha(q) should be in figure data"
+        assert '多重分形谱f(alpha)' in figure_data, "f(alpha) should be in figure data"
+
+        # Extract spectrum properties
+        spectrum_width = metrics['谱宽度'][0]
+
+        # Validate spectrum properties
+        assert spectrum_width >= 0, f"Spectrum width should be non-negative: {spectrum_width}"
+
+        # Check alpha and f(alpha) arrays
+        alpha_q = figure_data['奇异性指数alpha(q)']
+        f_alpha = figure_data['多重分形谱f(alpha)']
+
+        assert len(alpha_q) > 0, "Alpha array should not be empty"
+        assert len(f_alpha) > 0, "f(alpha) array should not be empty"
+        assert len(alpha_q) == len(f_alpha), "Alpha and f(alpha) should have same length"
+
+    def test_image_specific_properties(self, load_sample_image):
+        """Test properties specific to image multifractal analysis."""
+        img_gray, img_original = load_sample_image
+
+        metrics, figure_data = multifractal_image(img_gray)
+
+        # Get image dimensions
+        height, width = img_gray.shape
+
+        # For image data, the dimensions should be consistent with 2D structures
+        d0 = metrics['容量维数 D(0)'][0]
+        d1 = metrics['信息维数 D(1)'][0]
+        d2 = metrics['关联维数 D(2)'][0]
+
+        # Image multifractal dimensions should be reasonable for 2D data
+        # D(0) should typically be between 1.5 and 2.5 for natural images
+        assert 1.0 <= d0 <= 3.0, f"Image D(0)={d0} should be in reasonable range"
+
+        # Spectrum properties for images
+        spectrum_width = metrics['谱宽度'][0]
+        assert spectrum_width >= 0, f"Spectrum width should be non-negative: {spectrum_width}"
+
+        # Check that analysis handles different image sizes
+        q_values = figure_data['q值']
+        assert len(q_values) > 0, "Q values should not be empty"
+
+        # Images typically show multifractal behavior
+        dimension_spread = max(d0, d1, d2) - min(d0, d1, d2)
+        if dimension_spread < 0.1:
+            # If it appears monofractal, spectrum width should be small
+            assert spectrum_width < 0.3, \
+                f"Small dimension spread ({dimension_spread}) should correspond to small spectrum width ({spectrum_width})"
+
+    def test_different_image_sizes(self):
+        """Test multifractal analysis with different image sizes."""
+        # Create test images of different sizes
+        test_sizes = [(32, 32), (64, 64), (128, 128)]
+
+        for height, width in test_sizes:
+            # Create a test image with some structure
+            img = np.random.rand(height, width)
+            # Add some structure
+            for i in range(0, height, 8):
+                for j in range(0, width, 8):
+                    img[i:i+4, j:j+4] += 0.3
+
+            # Normalize to [0, 1]
+            img = (img - img.min()) / (img.max() - img.min())
+
+            try:
+                metrics, figure_data = multifractal_image(img)
+
+                # Should produce results for any reasonable image size
+                assert metrics is not None, f"Should work for image size {height}x{width}"
+                assert '容量维数 D(0)' in metrics, f"Should calculate D(0) for size {height}x{width}"
+
+                d0 = metrics['容量维数 D(0)'][0]
+                assert 0 <= d0 <= 3, f"D(0) should be reasonable for size {height}x{width}"
+
+            except Exception as e:
+                # Some image sizes might fail due to computational constraints
+                # but we expect reasonable sizes to work
+                if height >= 64 and width >= 64:
+                    pytest.fail(f"Analysis should work for size {height}x{width}: {e}")
+
+    def test_color_image_processing(self):
+        """Test processing of color images."""
+        # Create a color test image
+        height, width = 64, 64
+        color_img = np.random.rand(height, width, 3)
+
+        try:
+            metrics, figure_data = multifractal_image(color_img)
+
+            # Should handle color images (typically by converting to grayscale)
+            assert metrics is not None, "Should handle color images"
+            assert '容量维数 D(0)' in metrics, "Should calculate dimensions for color images"
+
+        except Exception as e:
+            pytest.fail(f"Should handle color images: {e}")
+
+    def test_data_integrity_preservation_image(self, load_sample_image):
+        """Test that input image data is not modified during analysis."""
+        img_gray, _ = load_sample_image
+        original_img = img_gray.copy()
+
+        # Perform analysis
+        metrics, figure_data = multifractal_image(img_gray)
+
+        # Check that original image is unchanged
+        np.testing.assert_array_equal(original_img, img_gray,
+                                    "Input image data should not be modified")
+
+    def test_image_preprocessing_effects(self):
+        """Test effects of different preprocessing methods."""
+        # Create a test image
+        height, width = 64, 64
+        img = np.random.rand(height, width)
+
+        # Test with original image
+        try:
+            metrics1, figure_data1 = multifractal_image(img)
+        except Exception as e:
+            pytest.fail(f"Should handle original image: {e}")
+
+        # Test with normalized image
+        img_normalized = (img - img.min()) / (img.max() - img.min())
+        try:
+            metrics2, figure_data2 = multifractal_image(img_normalized)
+        except Exception as e:
+            pytest.fail(f"Should handle normalized image: {e}")
+
+        # Both should work and produce reasonable results
+        assert metrics1 is not None, "Original image analysis should work"
+        assert metrics2 is not None, "Normalized image analysis should work"
+
+        # Extract D(0) for comparison
+        d0_1 = metrics1['容量维数 D(0)'][0]
+        d0_2 = metrics2['容量维数 D(0)'][0]
+
+        assert 0 <= d0_1 <= 3, "Original image D(0) should be reasonable"
+        assert 0 <= d0_2 <= 3, "Normalized image D(0) should be reasonable"
+
+        # The results should be similar since normalization shouldn't change fractal properties much
+        assert abs(d0_1 - d0_2) < 1.0, \
+            f"Normalization shouldn't dramatically change D(0): {d0_1} vs {d0_2}"
+
+    def test_figure_data_completeness_image(self, load_sample_image):
+        """Test that all required figure data is generated for image analysis."""
+        img_gray, _ = load_sample_image
+
+        metrics, figure_data = multifractal_image(img_gray)
+
+        # Required keys for comprehensive visualization
+        required_keys = [
+            'q值',                    # q values
+            '质量指数tau(q)',         # Mass exponent
+            '奇异性指数alpha(q)',     # Hölder exponent
+            '多重分形谱f(alpha)',      # Multifractal spectrum
+            '广义维数D(q)'            # Generalized dimensions
+        ]
+
+        for key in required_keys:
+            assert key in figure_data, f"Required key '{key}' missing from figure data"
+            assert len(figure_data[key]) > 0, f"Data for '{key}' should not be empty"
+
+        # Check data consistency
+        q_values = figure_data['q值']
         tau_q = figure_data['质量指数tau(q)']
         alpha_q = figure_data['奇异性指数alpha(q)']
         f_alpha = figure_data['多重分形谱f(alpha)']
         D_q = figure_data['广义维数D(q)']
-        
-        # tau(q) curve
-        ax2 = fig.add_subplot(2, 3, 2)
-        ax2.plot(ql, tau_q, 'o-', color='darkgreen', linewidth=2, markersize=4)
-        ax2.set_xlabel(r'$q$ - Statistical Moment Order', fontsize=10)
-        ax2.set_ylabel(r'$\tau(q)$ - Mass Exponent', fontsize=10)
-        ax2.set_title('(b) Mass Exponent Function')
-        ax2.grid(True, alpha=0.3)
-        
-        # alpha(q) curve
-        ax3 = fig.add_subplot(2, 3, 3)
-        ax3.plot(ql, alpha_q, 's-', color='crimson', linewidth=2, markersize=4)
-        ax3.set_xlabel(r'$q$ - Statistical Moment Order', fontsize=10)
-        ax3.set_ylabel(r'$\alpha(q)$ - Hölder Exponent', fontsize=10)
-        ax3.set_title(r'(c) Hölder Exponent Function')
-        ax3.grid(True, alpha=0.3)
-        
-        # f(alpha) multifractal spectrum
-        ax4 = fig.add_subplot(2, 3, 4)
-        ax4.plot(alpha_q, f_alpha, '^-', color='darkorange', linewidth=2, markersize=4)
-        ax4.set_xlabel(r'$\alpha$ - Singularity Index', fontsize=10)
-        ax4.set_ylabel(r'$f(\alpha)$ - Multifractal Spectrum', fontsize=10)
-        ax4.set_title('(d) Multifractal Spectrum')
-        ax4.grid(True, alpha=0.3)
-        
-        # D(q) curve
-        ax5 = fig.add_subplot(2, 3, 5)
-        ax5.plot(ql, D_q, 'd-', color='mediumpurple', linewidth=2, markersize=4)
-        ax5.set_xlabel(r'$q$ - Statistical Moment Order', fontsize=10)
-        ax5.set_ylabel(r'$D(q)$ - Generalized Dimension', fontsize=10)
-        ax5.set_title('(e) Generalized Dimension Spectrum')
-        ax5.grid(True, alpha=0.3)
-        
-        # Key parameters comparison
-        ax6 = fig.add_subplot(2, 3, 6)
-        params = ['D(0)', 'D(1)', 'D(2)', 'H', 'Spectrum Width']
-        values = [
-            metrics['容量维数 D(0)'][0],
-            metrics['信息维数 D(1)'][0],
-            metrics['关联维数 D(2)'][0],
-            metrics['Hurst指数 H'][0],
-            metrics['谱宽度'][0]
-        ]
-        colors = ['green', 'blue', 'red', 'orange', 'purple']
-        bars = ax6.bar(params, values, color=colors, alpha=0.7)
-        
-        for bar, val in zip(bars, values):
-            height = bar.get_height()
-            ax6.text(bar.get_x() + bar.get_width()/2., height,
-                    f'{val:.3f}', ha='center', va='bottom', fontsize=9)
-        
-        ax6.set_ylabel('Parameter Value')
-        ax6.set_title('(f) Multifractal Characteristic Parameters')
-        ax6.tick_params(axis='x', labelsize=8, rotation=15)
-        ax6.grid(True, alpha=0.3, axis='y')
-        
-        plt.tight_layout()
-        output_file = os.path.join(current_dir, "result_mf_image.png")
-        fig.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"\nVisualization results saved: result_mf_image.png")
-        plt.show()
-        
-    except Exception as e:
-        print(f"\nVisualization failed: {e}")
-        import traceback
-        traceback.print_exc()
-    
-    print("\nExample completed!")
 
+        # All arrays should have same length
+        assert len(q_values) == len(tau_q) == len(alpha_q) == len(f_alpha) == len(D_q), \
+            "All multifractal arrays should have same length"
 
-if __name__ == '__main__':
-    main()
+        # Check that typical q values are included
+        assert 0 in q_values, "q=0 should be included"
+        assert 1 in q_values, "q=1 should be included"
+        assert 2 in q_values, "q=2 should be included"
+
+    def test_edge_cases(self):
+        """Test multifractal analysis with edge cases."""
+        # Test with very small image
+        small_img = np.ones((16, 16))
+        try:
+            metrics, figure_data = multifractal_image(small_img)
+            # Should either work or fail gracefully
+            if metrics is not None:
+                assert '容量维数 D(0)' in metrics, "Small image should produce dimensions"
+        except Exception:
+            # Small images might fail due to insufficient data points
+            pass
+
+        # Test with uniform image
+        uniform_img = np.ones((64, 64)) * 0.5
+        try:
+            metrics, figure_data = multifractal_image(uniform_img)
+            # Uniform images might have special multifractal properties
+            if metrics is not None:
+                assert '容量维数 D(0)' in metrics, "Uniform image should produce dimensions"
+        except Exception as e:
+            # Uniform images might be edge cases
+            pass
+
+        # Test with image containing zeros
+        zero_img = np.zeros((64, 64))
+        zero_img[::8, ::8] = 1.0  # Add some structure
+        try:
+            metrics, figure_data = multifractal_image(zero_img)
+            if metrics is not None:
+                assert '容量维数 D(0)' in metrics, "Image with zeros should produce dimensions"
+        except Exception:
+            # Zero images might be edge cases
+            pass

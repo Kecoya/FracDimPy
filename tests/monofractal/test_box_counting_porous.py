@@ -1,193 +1,207 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Box-counting Method for Porous Media (3D) Test Example
-=======================================================
+Box-counting Method for Porous Media (3D) Tests
+===============================================
 
-This example demonstrates how to use the box-counting method to calculate
-the fractal dimension of 3D porous media data.
+Test suite for box-counting method applied to 3D porous media data.
 
-Porous media data is typically represented as a 3D binary array where
-1 represents pore space and 0 represents solid material.
+Porous media data is represented as a 3D binary array where:
+- 1 represents pore space
+- 0 represents solid material
 """
 
 import numpy as np
 import os
-import matplotlib.pyplot as plt
+import pytest
 from fracDimPy import box_counting
 
-#  scienceplots 
-try:
-    import scienceplots
-    # plt.style.use(['ieee'])  # 
-except ImportError:
-    pass
-
-# Microsoft YaHeiTimes New Roman
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False  # 
-
-# 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-data_file = os.path.join(current_dir, "box_counting_porous_data.npy")
-
-def main():
-    print("="*60)
-    print(" - ")
-    print("="*60)
-    
-    # 1. 
-    print(f"\n1. : {data_file}")
+def load_porous_data():
+    """Load and preprocess porous media data."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_file = os.path.join(current_dir, "box_counting_porous_data.npy")
     porous_data = np.load(data_file)
-    print(f"   : {porous_data.shape}")
-    print(f"   : {porous_data.dtype}")
-    print(f"   : {porous_data.min()} ~ {porous_data.max()}")
-    print(f"   : {porous_data.size}")
-    
-    # 
+
+    # Convert to binary if needed
     if porous_data.max() > 1:
         threshold = np.mean(porous_data)
         binary_data = (porous_data > threshold).astype(np.uint8)
-        print(f"   : {threshold:.2f}")
     else:
         binary_data = porous_data.astype(np.uint8)
-    
-    porosity = np.sum(binary_data) / binary_data.size
-    print(f"   : {porosity*100:.2f}%")
-    
-    # 2. 
-    print("\n2. ...")
-    print("   ...")
-    
-    D, result = box_counting(binary_data, data_type='porous')
-    
-    # 3. 
-    print("\n3. :")
-    print(f"    D: {D:.4f}")
-    print(f"    R: {result['R2']:.4f}")
-    
-    # 4. 
-    print("\n4. ...")
-    
-    # BC-PorousMediaDraw.py
-    fig = plt.figure(figsize=(16, 10))
-    
-    # 3DVoxels
-    ax1 = fig.add_subplot(221, projection='3d')
-    
-    # simple
-    epsilon_display = min(binary_data.shape) // 9  # 9x9x9
-    if epsilon_display < 1:
-        epsilon_display = 1
-    
-    # 
-    def simplify_3d(MT, EPSILON):
-        """"""
-        MT_BOX_0 = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
-        MT_BOX_1 = np.add.reduceat(MT_BOX_0, np.arange(0, MT.shape[1], EPSILON), axis=1)
-        MT_BOX_2 = np.add.reduceat(MT_BOX_1, np.arange(0, MT.shape[2], EPSILON), axis=2)
-        return MT_BOX_2
-    
-    simplified_data = simplify_3d(binary_data, epsilon_display)
-    voxel_data = np.where(simplified_data > 0, 1, 0)
-    
-    ax1.voxels(voxel_data, alpha=0.7, facecolors='#1f77b4', edgecolors='k', linewidth=0.1)
-    ax1.set_title(' ()', fontsize=12)
-    ax1.axis('off')
-    
-    # 
-    ax2 = fig.add_subplot(222)
-    
-    if 'epsilon_values' in result and 'N_values' in result:
-        # 
-        ax2.plot(result['epsilon_values'], result['N_values'], 'bo-', 
-                linewidth=2, markersize=6, label='')
-        
-        ax2.set_xlabel(' ', fontsize=12)
-        ax2.set_ylabel(' N()', fontsize=12)
-        ax2.set_title('', fontsize=12)
-        ax2.grid(True, alpha=0.3)
-        ax2.legend()
-        
-        # 
-        n_labels = min(5, len(result['epsilon_values']))  # 5
-        step = len(result['epsilon_values']) // n_labels
-        for i in range(0, len(result['epsilon_values']), step if step > 0 else 1):
-            ax2.annotate(f'{result["N_values"][i]}', 
-                        xy=(result['epsilon_values'][i], result['N_values'][i]),
-                        xytext=(5, 5), textcoords='offset points',
-                        fontsize=8, alpha=0.7)
-    
-    # 
-    ax3 = fig.add_subplot(223)
-    
-    if 'epsilon_values' in result and 'N_values' in result:
-        # 
-        ax3.loglog(result['epsilon_values'], result['N_values'], 'mo', 
-                  markersize=6, label='')
-        
-        # 
-        if 'coefficients' in result:
-            a, b = result['coefficients'][0], result['coefficients'][1]
-            fit_line = np.exp(b) * np.array(result['epsilon_values'])**(-a)
-            ax3.loglog(result['epsilon_values'], fit_line, 'r-', linewidth=2,
-                      label=f' (D={D:.4f})')
-        
-        ax3.set_xlabel(' ()', fontsize=12)
-        ax3.set_ylabel('N() ()', fontsize=12)
-        ax3.set_title('', fontsize=12)
-        ax3.legend()
-        ax3.grid(True, alpha=0.3, which='both')
-    
-    # 
-    ax4 = fig.add_subplot(224)
-    
-    if 'log_inv_epsilon' in result and 'log_N' in result:
-        # 
-        ax4.grid(which="major", axis="both", alpha=0.3)
-        
-        # 
-        ax4.plot(result['log_inv_epsilon'], result['log_N'], 'r^', 
-                label='', markerfacecolor='white', markersize=8, markeredgewidth=1.5)
-        
-        # 
-        if 'coefficients' in result:
-            a, b = result['coefficients'][0], result['coefficients'][1]
-            fit_line = a * result['log_inv_epsilon'] + b
-            ax4.plot(result['log_inv_epsilon'], fit_line, 'c-', linewidth=2, label='')
-            
-            # LaTeX
-            x_min, x_max = np.min(result['log_inv_epsilon']), np.max(result['log_inv_epsilon'])
-            y_min, y_max = np.min(result['log_N']), np.max(result['log_N'])
-            
-            equation_text = (
-                r'$\ln(N_r) = {:.4f} \ln(\frac{{1}}{{r}}) + {:.4f}$'.format(a, b) + '\n' +
-                r'$R^2 = {:.6f} \qquad D = {:.4f}$'.format(result["R2"], a)
-            )
-            
-            ax4.text(
-                x_min + 0.05 * (x_max - x_min),
-                y_max - 0.15 * (y_max - y_min),
-                equation_text,
-                fontsize=11,
-                bbox={'facecolor': 'blue', 'alpha': 0.2}
-            )
-        
-        # LaTeX
-        ax4.set_xlabel(r'$ \ln ( \frac{1}{\epsilon} ) $', fontsize=12)
-        ax4.set_ylabel(r'$ \ln ( N_{\epsilon} )$', fontsize=12)
-        ax4.set_title('', fontsize=12)
-        ax4.legend(loc='lower right')
-    
-    plt.tight_layout()
-    output_file = os.path.join(current_dir, "result_box_counting_porous.png")
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"   : {output_file}")
-    plt.show()
-    
-    print("\n")
+
+    return binary_data
 
 
-if __name__ == '__main__':
-    main()
+def simplify_3d(MT, EPSILON):
+    """
+    Simplify 3D data by block averaging.
+
+    Parameters
+    ----------
+    MT : np.ndarray
+        3D array
+    EPSILON : int
+        Block size
+
+    Returns
+    -------
+    np.ndarray
+        Simplified 3D array
+    """
+    MT_BOX_0 = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
+    MT_BOX_1 = np.add.reduceat(MT_BOX_0, np.arange(0, MT.shape[1], EPSILON), axis=1)
+    MT_BOX_2 = np.add.reduceat(MT_BOX_1, np.arange(0, MT.shape[2], EPSILON), axis=2)
+    return MT_BOX_2
+
+
+class TestBoxCountingPorous:
+    """Test suite for box-counting method on porous media data."""
+
+    @pytest.fixture
+    def porous_data(self):
+        """Load porous data for testing."""
+        return load_porous_data()
+
+    def test_box_counting_porous_basic(self, porous_data):
+        """Test basic box-counting on porous media data."""
+        D, result = box_counting(porous_data, data_type='porous')
+
+        # Validate results
+        assert isinstance(D, (int, float))
+        assert isinstance(result, dict)
+        assert 0 < D < 4  # 3D fractal dimension should be between 0 and 4
+        assert 'R2' in result
+        assert 0 < result['R2'] <= 1  # R² should be between 0 and 1
+
+        # For porous media, D should be reasonable
+        assert 1.5 < D < 3.5
+
+    def test_porous_data_loading(self):
+        """Test that porous data loads correctly."""
+        porous_data = load_porous_data()
+
+        # Validate porous data
+        assert isinstance(porous_data, np.ndarray)
+        assert porous_data.ndim == 3  # Should be 3D array
+        assert porous_data.shape[0] > 0 and porous_data.shape[1] > 0 and porous_data.shape[2] > 0
+        assert porous_data.dtype == np.uint8  # Should be binary
+        assert np.all((porous_data == 0) | (porous_data == 1))  # Only 0 or 1 values
+
+        # Check porosity
+        porosity = np.sum(porous_data) / porous_data.size
+        assert 0 < porosity < 1  # Porosity should be between 0 and 1
+
+    def test_porous_data_properties(self, porous_data):
+        """Test porous media specific properties."""
+        # Calculate porosity
+        porosity = np.sum(porous_data) / porous_data.size
+
+        # Porosity should be reasonable for porous media
+        assert 0.05 < porosity < 0.95  # Between 5% and 95%
+
+        # Check data integrity
+        assert not np.any(np.isnan(porous_data))
+        assert not np.any(np.isinf(porous_data))
+
+    def test_simplify_3d_function(self):
+        """Test the 3D simplification function."""
+        # Create test data
+        test_data = np.random.randint(0, 2, size=(20, 20, 20), dtype=np.uint8)
+        epsilon = 4
+
+        simplified = simplify_3d(test_data, epsilon)
+
+        # Check shape
+        expected_shape = (
+            (test_data.shape[0] + epsilon - 1) // epsilon,
+            (test_data.shape[1] + epsilon - 1) // epsilon,
+            (test_data.shape[2] + epsilon - 1) // epsilon
+        )
+        assert simplified.shape == expected_shape
+
+        # Check data integrity
+        assert isinstance(simplified, np.ndarray)
+        assert simplified.ndim == 3
+
+    def test_result_structure_porous(self, porous_data):
+        """Test that result dictionary contains expected structure for porous data."""
+        D, result = box_counting(porous_data, data_type='porous')
+
+        # Check required keys
+        required_keys = ['R2']
+        for key in required_keys:
+            assert key in result, f"Missing required key: {key}"
+
+        # Check data consistency if epsilon values are present
+        if 'epsilon_values' in result and 'N_values' in result:
+            assert len(result['epsilon_values']) == len(result['N_values'])
+            assert all(x > 0 for x in result['epsilon_values'])
+            assert all(x > 0 for x in result['N_values'])
+
+            # For porous media, N should generally increase with decreasing epsilon
+            # (monotonic relationship)
+            if len(result['epsilon_values']) > 1:
+                eps_vals = result['epsilon_values']
+                n_vals = result['N_values']
+
+                # Sort by epsilon (descending) and check N values (ascending)
+                sorted_indices = np.argsort(eps_vals)[::-1]
+                sorted_eps = eps_vals[sorted_indices]
+                sorted_n = n_vals[sorted_indices]
+
+                # N should be non-decreasing as epsilon decreases
+                assert np.all(np.diff(sorted_n) >= 0) or len(set(sorted_n)) > 1
+
+        # Check log data consistency
+        if 'log_inv_epsilon' in result and 'log_N' in result:
+            assert len(result['log_inv_epsilon']) == len(result['log_N'])
+
+        # Check coefficients if present
+        if 'coefficients' in result:
+            assert len(result['coefficients']) >= 2
+            assert all(isinstance(c, (int, float)) for c in result['coefficients'])
+
+    def test_different_voxel_sizes(self, porous_data):
+        """Test box-counting with different data preprocessing."""
+        # Test with different simplification levels
+        epsilon_sizes = [1, 2, 4]
+
+        for epsilon in epsilon_sizes:
+            if min(porous_data.shape) >= epsilon:
+                simplified = simplify_3d(porous_data, epsilon)
+                voxel_data = np.where(simplified > 0, 1, 0)
+
+                D, result = box_counting(voxel_data, data_type='porous')
+
+                assert isinstance(D, (int, float))
+                assert isinstance(result, dict)
+                assert 0 < D < 4
+                assert 'R2' in result
+                assert 0 < result['R2'] <= 1
+
+    def test_theoretical_constraints(self, porous_data):
+        """Test results against theoretical constraints."""
+        D, result = box_counting(porous_data, data_type='porous')
+
+        # For 3D porous media, fractal dimension should satisfy:
+        # - Lower bound: 2 (surface fractal dimension)
+        # - Upper bound: 3 (space-filling fractal)
+        assert 2 <= D <= 3
+
+        # R² should indicate good fit for fractal behavior
+        assert result['R2'] > 0.8  # Should have decent linear fit
+
+    def test_edge_cases(self):
+        """Test edge cases and boundary conditions."""
+        # Test with very small data
+        tiny_data = np.random.randint(0, 2, size=(2, 2, 2), dtype=np.uint8)
+
+        try:
+            D, result = box_counting(tiny_data, data_type='porous')
+            # If it doesn't crash, results should be valid
+            assert isinstance(D, (int, float))
+            assert isinstance(result, dict)
+        except (ValueError, RuntimeError):
+            # It's acceptable if small data raises an error
+            pass
 

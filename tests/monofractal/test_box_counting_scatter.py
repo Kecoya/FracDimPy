@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Box-counting Method for Scatter Data Test Example
-==================================================
+Box-counting Method for Scatter Data Tests
+==========================================
 
-This example demonstrates how to use the box-counting method to calculate
+Test suite for the box-counting method to calculate
 the fractal dimension of 1D scatter data.
 
 The scatter data can be:
@@ -20,144 +20,176 @@ box size and the number of occupied boxes.
 import numpy as np
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
+import pytest
 from fracDimPy import box_counting
 
-# Try to use scienceplots style
-try:
-    import scienceplots
-except ImportError:
-    pass
-
-# Set font: Times New Roman for English, Microsoft YaHei for Chinese
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False
-
-# Data file path
+# Data file path - use robust path construction
 current_dir = os.path.dirname(os.path.abspath(__file__))
 data_file = os.path.join(current_dir, "box_counting_scatter_data.xlsx")
 
-def main():
-    print("="*60)
-    print("Box-counting Method for Scatter Data Test Example")
-    print("="*60)
-    
-    # 1. Load data
-    print(f"\n1. Loading data: {data_file}")
+
+def test_box_counting_scatter_basic():
+    """Test basic box-counting functionality for scatter data."""
+    # Load data
     df = pd.read_excel(data_file, header=None)
-    print(f"   Data shape: {df.shape}")
-    
+
     # Extract scatter data from first column
     scatter_data = df.iloc[:, 0].values
-    print(f"   Data points: {len(scatter_data)}")
-    print(f"   Value range: {scatter_data.min():.4f} ~ {scatter_data.max():.4f}")
-    
-    # Check if data is binary (0/1) or continuous
-    is_binary = np.all(np.isin(scatter_data, [0, 1]))
-    if is_binary:
-        print(f"   Data type: Binary (0/1)")
-        print(f"   Number of 1s: {np.sum(scatter_data)}")
-    else:
-        print(f"   Data type: Continuous values")
-        print(f"   Mean: {scatter_data.mean():.4f}, Std: {scatter_data.std():.4f}")
-    
-    # 2. Calculate fractal dimension using box-counting
-    print("\n2. Calculating fractal dimension...")
+
+    # Basic data validation
+    assert len(scatter_data) > 0, "Scatter data should not be empty"
+    assert np.isfinite(scatter_data).all(), "Scatter data should contain only finite values"
+
+    # Calculate fractal dimension using box-counting
     D, result = box_counting(scatter_data, data_type='scatter')
-    
-    # 3. Display results
-    print("\n3. Results:")
-    print(f"    Fractal dimension D: {D:.4f}")
-    print(f"    Goodness of fit R^2: {result['R2']:.4f}")
-    
-    # 4. Visualize results
-    print("\n4. Generating visualization...")
-    
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    
-    # Left plot: Scatter plot
-    if is_binary:
-        # Plot positions where value is 1
-        positions = np.where(scatter_data == 1)[0]
-        axes[0].scatter(positions, np.ones_like(positions), s=5, alpha=0.6)
-        axes[0].set_ylim([0.5, 1.5])
-        axes[0].set_title('Binary Scatter Data')
-        axes[0].set_xlabel('Position')
-        axes[0].set_ylabel('Value')
-        axes[0].grid(True, alpha=0.3, axis='x')
-        axes[0].set_yticks([])
-    else:
-        # Plot continuous values
-        axes[0].scatter(scatter_data, np.ones_like(scatter_data), s=5, alpha=0.6)
-        axes[0].set_ylim([0.5, 1.5])
-        axes[0].set_title('Continuous Scatter Data')
-        axes[0].set_xlabel('Value')
-        axes[0].set_ylabel('Position')
-        axes[0].grid(True, alpha=0.3, axis='x')
-        axes[0].set_yticks([])
-    
-    # Middle plot: Log-log plot
-    if 'epsilon_values' in result and 'N_values' in result:
-        axes[1].loglog(result['epsilon_values'], result['N_values'], 'mo', 
-                      markersize=6, label='Data points')
-        
-        # Draw fitting line
-        if 'coefficients' in result:
-            a, b = result['coefficients'][0], result['coefficients'][1]
-            fit_line = np.exp(b) * np.array(result['epsilon_values'])**(-a)
-            axes[1].loglog(result['epsilon_values'], fit_line, 'r-', linewidth=2,
-                          label=f'Fit (D={D:.4f})')
-        
-        axes[1].set_xlabel('epsilon (Box size)', fontsize=12)
-        axes[1].set_ylabel('N(epsilon) (Number of boxes)', fontsize=12)
-        axes[1].set_title('Box-counting Log-Log Plot', fontsize=12)
-        axes[1].legend()
-        axes[1].grid(True, alpha=0.3, which='both')
-    
-    # Right plot: Linear fit in log space
-    if 'log_inv_epsilon' in result and 'log_N' in result:
-        # Plot data points
-        axes[2].plot(result['log_inv_epsilon'], result['log_N'], 'r^', 
-                    label='Data points', markerfacecolor='white', markersize=8, markeredgewidth=1.5)
-        
-        # Draw fitting line
-        if 'coefficients' in result:
-            a, b = result['coefficients'][0], result['coefficients'][1]
-            fit_line = a * result['log_inv_epsilon'] + b
-            axes[2].plot(result['log_inv_epsilon'], fit_line, 'c-', linewidth=2, label='Linear fit')
-            
-            # Display equation
-            x_min, x_max = np.min(result['log_inv_epsilon']), np.max(result['log_inv_epsilon'])
-            y_min, y_max = np.min(result['log_N']), np.max(result['log_N'])
-            
-            equation_text = (
-                r'$\ln(N) = {:.4f} \ln(\frac{{1}}{{r}}) + {:.4f}$'.format(a, b) + '\n' +
-                r'$R^2 = {:.6f} \qquad D = {:.4f}$'.format(result["R2"], a)
-            )
-            
-            axes[2].text(
-                x_min + 0.05 * (x_max - x_min),
-                y_max - 0.15 * (y_max - y_min),
-                equation_text,
-                fontsize=11,
-                bbox={'facecolor': 'blue', 'alpha': 0.2}
-            )
-        
-        # Set labels
-        axes[2].set_xlabel(r'$ \ln ( \frac{1}{\epsilon} ) $', fontsize=12)
-        axes[2].set_ylabel(r'$ \ln ( N_{\epsilon} )$', fontsize=12)
-        axes[2].set_title('Linear Fit in Log Space', fontsize=12)
-        axes[2].legend(loc='lower right')
-        axes[2].grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    output_file = os.path.join(current_dir, "result_box_counting_scatter.png")
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"   Visualization saved: {output_file}")
-    plt.show()
-    
-    print("\nExample completed!")
+
+    # Basic result validation
+    assert isinstance(D, (float, np.floating)), "Fractal dimension should be a number"
+    assert isinstance(result, dict), "Result should be a dictionary"
+    assert 0 < D < 2, f"Fractal dimension {D} should be in reasonable range for 1D scatter data"
+
+    # Check for required result keys
+    required_keys = ['R2']
+    for key in required_keys:
+        assert key in result, f"Result should contain '{key}' key"
 
 
-if __name__ == '__main__':
-    main()
+def test_box_counting_scatter_goodness_of_fit():
+    """Test that the box-counting method provides good fit quality for scatter data."""
+    # Load data
+    df = pd.read_excel(data_file, header=None)
+    scatter_data = df.iloc[:, 0].values
+
+    # Calculate fractal dimension
+    D, result = box_counting(scatter_data, data_type='scatter')
+
+    # Check goodness of fit - should be reasonably high for good data
+    r_squared = result['R2']
+    assert r_squared > 0.7, f"R² should be > 0.7 for good fit, got {r_squared}"
+    assert r_squared <= 1.0, f"R² should not exceed 1.0, got {r_squared}"
+
+
+def test_box_counting_scatter_consistency():
+    """Test that box-counting produces consistent results for scatter data."""
+    # Load data
+    df = pd.read_excel(data_file, header=None)
+    scatter_data = df.iloc[:, 0].values
+
+    # Calculate fractal dimension multiple times
+    results = []
+    for _ in range(3):
+        D, result = box_counting(scatter_data, data_type='scatter')
+        results.append(D)
+
+    # Results should be consistent (small variation due to potential randomness)
+    std_dev = np.std(results)
+    mean_D = np.mean(results)
+
+    # Relative standard deviation should be small
+    relative_std = std_dev / mean_D if mean_D != 0 else std_dev
+    assert relative_std < 0.01, f"Results should be consistent, relative std: {relative_std}"
+
+
+def test_box_counting_scatter_data_types():
+    """Test box-counting with different types of scatter data."""
+    # Load real data first
+    df = pd.read_excel(data_file, header=None)
+    real_data = df.iloc[:, 0].values
+
+    # Test with different data types
+    test_cases = [
+        # Original real data
+        real_data,
+        # Binary data
+        np.random.choice([0, 1], size=1000, p=[0.7, 0.3]),
+        # Continuous random data
+        np.random.randn(1000),
+        # Uniform data
+        np.random.uniform(0, 10, 1000),
+    ]
+
+    results = []
+    for i, test_data in enumerate(test_cases):
+        D, result = box_counting(test_data, data_type='scatter')
+        results.append(D)
+
+        # Each calculation should produce valid results
+        assert isinstance(D, (float, np.floating)), f"Test case {i} should produce numeric result"
+        assert isinstance(result, dict), f"Test case {i} should produce dictionary result"
+        assert 0 < D < 2, f"Test case {i}: Fractal dimension {D} should be between 0 and 2 for 1D data"
+        assert result['R2'] > 0.5, f"Test case {i}: R² should be reasonable"
+
+
+def test_box_counting_scatter_different_parameters():
+    """Test box-counting with different parameter combinations for scatter data."""
+    # Load data
+    df = pd.read_excel(data_file, header=None)
+    scatter_data = df.iloc[:, 0].values
+
+    # Test with different parameter combinations
+    parameter_sets = [
+        {},  # default parameters
+        {'min_box_size': 0.001},
+        {'max_box_size': 1.0},
+        {'num_boxes': 20},
+        {'min_box_size': 0.001, 'max_box_size': 1.0, 'num_boxes': 25}
+    ]
+
+    results = []
+    for params in parameter_sets:
+        D, result = box_counting(scatter_data, data_type='scatter', **params)
+        results.append(D)
+
+        # Each calculation should produce valid results
+        assert isinstance(D, (float, np.floating)), f"Result with params {params} should be numeric"
+        assert 0 < D < 2, f"Fractal dimension {D} should be in reasonable range for 1D scatter data"
+        assert result['R2'] > 0.5, f"R² should be reasonable for params {params}"
+
+    # Results should be relatively consistent across parameter variations
+    mean_D = np.mean(results)
+    std_D = np.std(results)
+
+    # Allow for some variation but not too much
+    assert std_D / mean_D < 0.2, f"Results should be relatively stable across parameters"
+
+
+def test_box_counting_scatter_theoretical_bounds():
+    """Test that fractal dimension is within theoretical bounds for 1D scatter data."""
+    # Load data
+    df = pd.read_excel(data_file, header=None)
+    scatter_data = df.iloc[:, 0].values
+
+    # Calculate fractal dimension
+    D, result = box_counting(scatter_data, data_type='scatter')
+
+    # For 1D scatter data, fractal dimension should be between 0 (isolated points) and 1 (continuous)
+    # We use a slightly broader range to account for noise and discrete sampling
+    assert 0 < D < 1.5, f"Fractal dimension {D} should be between 0 and 1.5 for 1D scatter data"
+
+
+def test_box_counting_scatter_scaling_invariance():
+    """Test that box-counting is scale-invariant for scatter data."""
+    # Load data
+    df = pd.read_excel(data_file, header=None)
+    scatter_data = df.iloc[:, 0].values
+
+    # Test scaling invariance
+    scales = [0.5, 1.0, 2.0, 5.0]
+    results = []
+
+    for scale in scales:
+        scaled_data = scatter_data * scale
+        D, result = box_counting(scaled_data, data_type='scatter')
+        results.append(D)
+
+        # Each calculation should produce valid results
+        assert isinstance(D, (float, np.floating)), f"Scaled data (scale={scale}) should produce numeric result"
+        assert 0 < D < 2, f"Scaled data: Fractal dimension {D} should be between 0 and 2"
+        assert result['R2'] > 0.5, f"Scaled data: R² should be reasonable"
+
+    # Results should be very consistent across scales (fractal dimension is scale-invariant)
+    std_D = np.std(results)
+    mean_D = np.mean(results)
+    relative_std = std_D / mean_D if mean_D != 0 else std_D
+
+    assert relative_std < 0.05, f"Fractal dimension should be scale-invariant, relative std: {relative_std}"

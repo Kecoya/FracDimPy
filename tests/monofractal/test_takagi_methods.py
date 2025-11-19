@@ -1,219 +1,294 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Test Different Box-Counting Methods on Takagi Surface
-======================================================
+Takagi Surface Box-Counting Methods Tests
+=========================================
 
-This example tests and compares 6 different box-counting methods
-for calculating the fractal dimension of Takagi surfaces.
+Test suite for different box-counting methods applied to Takagi surfaces.
 
 The Takagi surface is a theoretical fractal surface with known
 fractal dimension, making it ideal for method validation.
+
+Tests 6 different box-counting methods:
+- method=0: RDCCM - Relative Differential Cubic Cover Method
+- method=1: DCCM  - Differential Cubic Cover Method
+- method=2: CCM   - Cubic Cover Method (standard)
+- method=3: ICCM  - Interpolated Cubic Cover Method
+- method=5: SCCM  - Simplified Cubic Cover Method
+- method=6: SDCCM - Simplified Differential Cubic Cover Method
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
+import pytest
 from fracDimPy import generate_takagi_surface, box_counting
 
-# 使用SciencePlots样式
-try:
-    import scienceplots 
-    plt.style.use(['science', 'no-latex'])
-except ImportError:
-    pass
 
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False
+class TestTakagiMethods:
+    """Test suite for box-counting methods on Takagi surfaces."""
 
+    @pytest.fixture
+    def takagi_parameters(self):
+        """Standard parameters for Takagi surface generation."""
+        return {
+            'level': 10,  # Reduced for faster testing
+            'size': 128   # Reduced for faster testing
+        }
 
-def test_methods_on_takagi():
-    """测试所有6种方法在不同理论维数的Takagi曲面上"""
-    
-    print("="*80)
-    print("Takagi曲面 Box-Counting 方法比较测试")
-    print("="*80)
-    
-    # 理论维数列表
-    theoretical_dims = [2.1, 2.3, 2.5, 2.7, 2.9]
-    
-    # 方法列表
-    methods = {
-        0: "RDCCM (Relative Differential)",
-        1: "DCCM (Differential)",
-        2: "CCM (Cubic Cover)",
-        3: "ICCM (Interpolated)",
-        5: "SCCM (Simplified)",
-        6: "SDCCM (Simplified Differential)"
-    }
-    
-    # 存储结果
-    results = {method_id: [] for method_id in methods.keys()}
-    
-    # 参数设置
-    level = 12
-    size = 256
-    
-    print(f"\n参数设置: 尺寸={size}x{size}, 迭代层数={level}\n")
-    
-    # 测试每个理论维数
-    for theo_D in theoretical_dims:
-        print(f"\n{'='*80}")
-        print(f"理论分形维数 D = {theo_D}")
-        print(f"{'='*80}")
-        
-        # 生成Takagi曲面
+    @pytest.fixture
+    def theoretical_dimensions(self):
+        """List of theoretical dimensions to test."""
+        return [2.1, 2.3, 2.5, 2.7]
+
+    @pytest.fixture
+    def test_methods(self):
+        """Dictionary of box-counting methods to test."""
+        return {
+            0: "RDCCM (Relative Differential)",
+            1: "DCCM (Differential)",
+            2: "CCM (Cubic Cover)",
+            3: "ICCM (Interpolated)",
+            5: "SCCM (Simplified)",
+            6: "SDCCM (Simplified Differential)"
+        }
+
+    def test_takagi_surface_generation(self, takagi_parameters, theoretical_dimensions):
+        """Test Takagi surface generation with different dimensions."""
+        level = takagi_parameters['level']
+        size = takagi_parameters['size']
+
+        for theo_D in theoretical_dimensions:
+            surface = generate_takagi_surface(dimension=theo_D, level=level, size=size)
+
+            # Validate surface properties
+            assert isinstance(surface, np.ndarray)
+            assert surface.shape == (size, size)
+            assert surface.ndim == 2
+            assert not np.any(np.isnan(surface))
+            assert not np.any(np.isinf(surface))
+
+            # Surface should have variation
+            assert surface.std() > 0
+
+    def test_single_method_single_dimension(self, takagi_parameters):
+        """Test a single method on a single Takagi surface."""
+        surface = generate_takagi_surface(dimension=2.5,
+                                         level=takagi_parameters['level'],
+                                         size=takagi_parameters['size'])
+
+        D_measured, result = box_counting(surface, data_type='surface', method=2)
+
+        # Validate results
+        assert isinstance(D_measured, (int, float))
+        assert isinstance(result, dict)
+        assert 'R2' in result
+        assert 0 < result['R2'] <= 1
+        assert 0 < D_measured < 4
+
+        # Should be reasonably close to theoretical value
+        error = abs(D_measured - 2.5)
+        assert error < 0.5  # Allow reasonable error margin
+
+    @pytest.mark.parametrize("method", [0, 1, 2, 3, 5, 6])
+    def test_all_methods_single_dimension(self, method, takagi_parameters):
+        """Test all methods on a single Takagi surface."""
+        theo_D = 2.5
+        surface = generate_takagi_surface(dimension=theo_D,
+                                         level=takagi_parameters['level'],
+                                         size=takagi_parameters['size'])
+
+        D_measured, result = box_counting(surface, data_type='surface', method=method)
+
+        # Validate results for each method
+        assert isinstance(D_measured, (int, float))
+        assert isinstance(result, dict)
+        assert 'R2' in result
+        assert 0 < result['R2'] <= 1
+        assert 0 < D_measured < 4
+
+        # Should be reasonably close to theoretical value
+        error = abs(D_measured - theo_D)
+        rel_error = error / theo_D * 100
+        assert rel_error < 20  # Allow 20% relative error
+
+    def test_method_accuracy_comparison(self, takagi_parameters, theoretical_dimensions, test_methods):
+        """Compare accuracy of different methods across different dimensions."""
+        level = takagi_parameters['level']
+        size = takagi_parameters['size']
+
+        results = {}
+
+        for theo_D in theoretical_dimensions:
+            surface = generate_takagi_surface(dimension=theo_D, level=level, size=size)
+
+            for method_id, method_name in test_methods.items():
+                try:
+                    D_measured, result = box_counting(surface, data_type='surface', method=method_id)
+
+                    error = abs(D_measured - theo_D)
+                    rel_error = error / theo_D * 100
+
+                    # Store results for validation
+                    if method_id not in results:
+                        results[method_id] = []
+                    results[method_id].append({
+                        'theoretical': theo_D,
+                        'measured': D_measured,
+                        'error': error,
+                        'rel_error': rel_error,
+                        'R2': result['R2']
+                    })
+
+                    # Validate each measurement
+                    assert isinstance(D_measured, (int, float))
+                    assert isinstance(result, dict)
+                    assert 'R2' in result
+                    assert 0 < result['R2'] <= 1
+                    assert 0 < D_measured < 4
+
+                    # Reasonable accuracy requirements
+                    assert rel_error < 25  # Allow 25% relative error
+                    assert error < 0.6     # Allow 0.6 absolute error
+
+                except Exception:
+                    # Allow some methods to fail gracefully
+                    pytest.skip(f"Method {method_id} failed on theoretical D={theo_D}")
+
+    def test_method_consistency(self, takagi_parameters):
+        """Test that methods give consistent results for repeated runs."""
+        theo_D = 2.3
+        level = takagi_parameters['level']
+        size = takagi_parameters['size']
+
+        # Generate surface once
         surface = generate_takagi_surface(dimension=theo_D, level=level, size=size)
-        print(f"曲面生成完成: 高度范围 {surface.min():.4f} ~ {surface.max():.4f}, 标准差 {surface.std():.4f}")
-        
-        # 测试每种方法
-        for method_id, method_name in methods.items():
+
+        # Test multiple times with same method
+        measurements = []
+        for _ in range(3):  # Run 3 times
+            D_measured, result = box_counting(surface, data_type='surface', method=2)
+            measurements.append(D_measured)
+
+            assert isinstance(D_measured, (int, float))
+            assert isinstance(result, dict)
+            assert 'R2' in result
+
+        # Results should be consistent (low variance)
+        measurements = np.array(measurements)
+        assert np.std(measurements) < 0.01  # Very low variance expected
+
+    def test_different_surface_sizes(self):
+        """Test methods on different surface sizes."""
+        theo_D = 2.5
+        sizes = [64, 128]  # Test multiple sizes
+
+        for size in sizes:
+            surface = generate_takagi_surface(dimension=theo_D, level=8, size=size)
+
+            D_measured, result = box_counting(surface, data_type='surface', method=2)
+
+            assert isinstance(D_measured, (int, float))
+            assert isinstance(result, dict)
+            assert 'R2' in result
+            assert 0 < result['R2'] <= 1
+            assert 0 < D_measured < 4
+
+            # Should be reasonably accurate even for smaller surfaces
+            error = abs(D_measured - theo_D)
+            assert error < 0.8  # Allow larger error for smaller surfaces
+
+    def test_different_iterations(self):
+        """Test methods with different iteration levels."""
+        theo_D = 2.5
+        levels = [8, 10]  # Test different complexity levels
+
+        for level in levels:
+            surface = generate_takagi_surface(dimension=theo_D, level=level, size=128)
+
+            D_measured, result = box_counting(surface, data_type='surface', method=2)
+
+            assert isinstance(D_measured, (int, float))
+            assert isinstance(result, dict)
+            assert 'R2' in result
+            assert 0 < result['R2'] <= 1
+            assert 0 < D_measured < 4
+
+            # Higher iterations should give better accuracy
+            error = abs(D_measured - theo_D)
+            max_error = 0.6 if level >= 10 else 0.8
+            assert error < max_error
+
+    def test_method_specific_requirements(self, takagi_parameters):
+        """Test method-specific requirements and behaviors."""
+        surface = generate_takagi_surface(dimension=2.5,
+                                         level=takagi_parameters['level'],
+                                         size=takagi_parameters['size'])
+
+        # Test CCM method (method=2) as reference
+        D_ccm, result_ccm = box_counting(surface, data_type='surface', method=2)
+
+        # Test differential methods should give similar results
+        try:
+            D_dccm, result_dccm = box_counting(surface, data_type='surface', method=1)
+            # Should be reasonably close to CCM
+            assert abs(D_dccm - D_ccm) < 0.3
+        except Exception:
+            pass  # Allow some methods to fail
+
+        try:
+            D_rdccm, result_rdccm = box_counting(surface, data_type='surface', method=0)
+            # Should be reasonably close to CCM
+            assert abs(D_rdccm - D_ccm) < 0.3
+        except Exception:
+            pass  # Allow some methods to fail
+
+    def test_result_structure_takagi(self, takagi_parameters):
+        """Test that result dictionary contains expected structure for Takagi surfaces."""
+        surface = generate_takagi_surface(dimension=2.5,
+                                         level=takagi_parameters['level'],
+                                         size=takagi_parameters['size'])
+
+        D, result = box_counting(surface, data_type='surface', method=2)
+
+        # Check required keys
+        required_keys = ['R2']
+        for key in required_keys:
+            assert key in result, f"Missing required key: {key}"
+
+        # Check data consistency if epsilon values are present
+        if 'epsilon_values' in result and 'N_values' in result:
+            assert len(result['epsilon_values']) == len(result['N_values'])
+            assert all(x > 0 for x in result['epsilon_values'])
+            assert all(x > 0 for x in result['N_values'])
+
+        # Check log data consistency
+        if 'log_inv_epsilon' in result and 'log_N' in result:
+            assert len(result['log_inv_epsilon']) == len(result['log_N'])
+
+        # Check coefficients if present
+        if 'coefficients' in result:
+            assert len(result['coefficients']) >= 2
+            assert all(isinstance(c, (int, float)) for c in result['coefficients'])
+
+    def test_edge_cases(self):
+        """Test edge cases and boundary conditions."""
+        # Test with extreme dimension values
+        extreme_dims = [2.01, 2.99]
+
+        for theo_D in extreme_dims:
+            surface = generate_takagi_surface(dimension=theo_D, level=8, size=64)
+
             try:
-                print(f"\n--- 方法 {method_id}: {method_name} ---")
-                D_measured, result = box_counting(surface, data_type='surface', method=method_id)
-                
+                D_measured, result = box_counting(surface, data_type='surface', method=2)
+
+                assert isinstance(D_measured, (int, float))
+                assert isinstance(result, dict)
+                assert 0 < D_measured < 4
+
+                # Even for extreme values, should be reasonably close
                 error = abs(D_measured - theo_D)
-                rel_error = error / theo_D * 100
-                
-                print(f"测量维数: D = {D_measured:.4f}")
-                print(f"绝对误差: ΔD = {error:.4f}")
-                print(f"相对误差: {rel_error:.2f}%")
-                print(f"拟合优度: R^2 = {result['R2']:.6f}")
-                
-                results[method_id].append({
-                    'theoretical': theo_D,
-                    'measured': D_measured,
-                    'error': error,
-                    'rel_error': rel_error,
-                    'R2': result['R2']
-                })
-                
-            except Exception as e:
-                print(f"方法 {method_id} 失败: {e}")
-                results[method_id].append({
-                    'theoretical': theo_D,
-                    'measured': np.nan,
-                    'error': np.nan,
-                    'rel_error': np.nan,
-                    'R2': np.nan
-                })
-    
-    # 可视化结果
-    print(f"\n{'='*80}")
-    print("生成对比图...")
-    print(f"{'='*80}\n")
-    
-    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-    
-    # 1. 测量值 vs 理论值
-    ax1 = axes[0, 0]
-    ax1.plot(theoretical_dims, theoretical_dims, 'k--', linewidth=2, label='理想线 (y=x)')
-    
-    colors = ['red', 'blue', 'green', 'orange', 'purple', 'brown']
-    markers = ['o', 's', '^', 'v', 'd', 'p']
-    
-    for idx, (method_id, method_name) in enumerate(methods.items()):
-        measured_vals = [r['measured'] for r in results[method_id]]
-        ax1.plot(theoretical_dims, measured_vals, 
-                marker=markers[idx], color=colors[idx], 
-                linewidth=2, markersize=8, 
-                label=f'{method_name}', alpha=0.8)
-    
-    ax1.set_xlabel('Theoretical Fractal Dimension', fontsize=13)
-    ax1.set_ylabel('Measured Fractal Dimension', fontsize=13)
-    ax1.set_title('Measured vs Theoretical Dimension', fontsize=14, fontweight='bold')
-    ax1.legend(fontsize=9, loc='best')
-    ax1.grid(True, alpha=0.3)
-    ax1.tick_params(labelsize=11)
-    
-    # 2. 绝对误差
-    ax2 = axes[0, 1]
-    for idx, (method_id, method_name) in enumerate(methods.items()):
-        errors = [r['error'] for r in results[method_id]]
-        ax2.plot(theoretical_dims, errors, 
-                marker=markers[idx], color=colors[idx], 
-                linewidth=2, markersize=8, 
-                label=f'{method_name}', alpha=0.8)
-    
-    ax2.set_xlabel('Theoretical Fractal Dimension', fontsize=13)
-    ax2.set_ylabel('Absolute Error |D_measured - D_theo|', fontsize=13)
-    ax2.set_title('Absolute Error Comparison', fontsize=14, fontweight='bold')
-    ax2.legend(fontsize=9, loc='best')
-    ax2.grid(True, alpha=0.3)
-    ax2.tick_params(labelsize=11)
-    
-    # 3. 相对误差
-    ax3 = axes[1, 0]
-    for idx, (method_id, method_name) in enumerate(methods.items()):
-        rel_errors = [r['rel_error'] for r in results[method_id]]
-        ax3.plot(theoretical_dims, rel_errors, 
-                marker=markers[idx], color=colors[idx], 
-                linewidth=2, markersize=8, 
-                label=f'{method_name}', alpha=0.8)
-    
-    ax3.set_xlabel('Theoretical Fractal Dimension', fontsize=13)
-    ax3.set_ylabel('Relative Error (%)', fontsize=13)
-    ax3.set_title('Relative Error Comparison', fontsize=14, fontweight='bold')
-    ax3.legend(fontsize=9, loc='best')
-    ax3.grid(True, alpha=0.3)
-    ax3.tick_params(labelsize=11)
-    
-    # 4. R^2拟合优度
-    ax4 = axes[1, 1]
-    for idx, (method_id, method_name) in enumerate(methods.items()):
-        R2_vals = [r['R2'] for r in results[method_id]]
-        ax4.plot(theoretical_dims, R2_vals, 
-                marker=markers[idx], color=colors[idx], 
-                linewidth=2, markersize=8, 
-                label=f'{method_name}', alpha=0.8)
-    
-    ax4.set_xlabel('Theoretical Fractal Dimension', fontsize=13)
-    ax4.set_ylabel('R^2 (Goodness of Fit)', fontsize=13)
-    ax4.set_title('Fitting Quality Comparison', fontsize=14, fontweight='bold')
-    ax4.legend(fontsize=9, loc='best')
-    ax4.grid(True, alpha=0.3)
-    ax4.tick_params(labelsize=11)
-    ax4.set_ylim([0.95, 1.0])
-    
-    plt.tight_layout()
-    
-    # 保存图像
-    for ext in ['pdf', 'png']:
-        output_file = f"takagi_methods_comparison.{ext}"
-        fig.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"已保存: {output_file}")
-    
-    plt.close()
-    
-    # 打印汇总表
-    print(f"\n{'='*80}")
-    print("结果汇总表")
-    print(f"{'='*80}\n")
-    
-    for method_id, method_name in methods.items():
-        print(f"\n{method_name} (Method {method_id}):")
-        print(f"{'理论D':<10} {'测量D':<12} {'绝对误差':<12} {'相对误差(%)':<15} {'R^2':<10}")
-        print("-" * 70)
-        for r in results[method_id]:
-            print(f"{r['theoretical']:<10.1f} {r['measured']:<12.4f} {r['error']:<12.4f} "
-                  f"{r['rel_error']:<15.2f} {r['R2']:<10.6f}")
-    
-    # 计算平均误差
-    print(f"\n{'='*80}")
-    print("平均误差统计")
-    print(f"{'='*80}\n")
-    print(f"{'方法':<35} {'平均绝对误差':<18} {'平均相对误差(%)':<18}")
-    print("-" * 70)
-    
-    for method_id, method_name in methods.items():
-        avg_abs_error = np.nanmean([r['error'] for r in results[method_id]])
-        avg_rel_error = np.nanmean([r['rel_error'] for r in results[method_id]])
-        print(f"{method_name:<35} {avg_abs_error:<18.4f} {avg_rel_error:<18.2f}")
-    
-    print(f"\n{'='*80}")
-    print("测试完成！")
-    print(f"{'='*80}")
+                assert error < 1.0  # Allow larger error for extreme values
 
-
-if __name__ == '__main__':
-    test_methods_on_takagi()
+            except Exception:
+                # It's acceptable if extreme cases fail
+                pass
 

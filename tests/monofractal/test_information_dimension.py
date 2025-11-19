@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Information Dimension Method Test Example
-==========================================
+Information Dimension Method Tests
+=================================
 
-This example demonstrates how to use the information dimension method
-to calculate the fractal dimension of point set data.
+Test suite for information dimension method applied to point set data.
 
 The information dimension is based on information entropy and measures
 the amount of information needed to specify a point in the set. It is
@@ -23,17 +22,8 @@ Theoretical Background:
 
 import numpy as np
 import os
-import matplotlib.pyplot as plt
-# Try to use scienceplots style
-try:
-    import scienceplots
-    plt.style.use(['science','no-latex'])
-except ImportError:
-    pass
-
-# Set font: Times New Roman for English, Microsoft YaHei for Chinese
-plt.rcParams['font.family'] = ['Times New Roman', 'Microsoft YaHei']
-plt.rcParams['axes.unicode_minus'] = False  # Fix minus sign display issue
+import pytest
+from fracDimPy import information_dimension
 
 
 def logistic_map(r, x0=0.1, num_steps=5000, transient=1000):
@@ -126,171 +116,257 @@ def generate_multifractal_series(n=5000, p=0.3):
     return series[:n]
 
 
-def main():
-    print("="*60)
-    print("Information Dimension Method Test Example")
-    print("="*60)
-    
-    from fracDimPy import information_dimension
-    
-    # Initialize test cases list
-    test_cases = []
-    
-    # 1. Logistic map
-    print("\n1. Testing logistic map...")
-    logistic_data = logistic_map(r=3.9, num_steps=5000)
-    try:
-        D_logistic, result_logistic = information_dimension(
-            logistic_data, 
-            num_points=20,
-            min_boxes=5,
-            max_boxes=50
-        )
-        test_cases.append({
-            'name': 'Logistic (r=3.9)',
-            'data': logistic_data,
-            'D_measured': D_logistic,
-            'result': result_logistic,
-            'description': 'Chaotic'
-        })
-        print(f"   Information dimension: {D_logistic:.4f}")
-        print(f"   R^2: {result_logistic['r_squared']:.4f}")
-    except Exception as e:
-        print(f"   Error: {e}")
-    
-    # 2. Tent map
-    print("\n2. Testing tent map...")
-    tent_data = tent_map(mu=1.9, num_steps=5000)
-    try:
-        D_tent, result_tent = information_dimension(
-            tent_data,
-            num_points=20,
-            min_boxes=5,
-            max_boxes=50
-        )
-        test_cases.append({
-            'name': 'Tent (mu=1.9)',
-            'data': tent_data,
-            'D_measured': D_tent,
-            'result': result_tent,
-            'description': 'Chaotic'
-        })
-        print(f"   Information dimension: {D_tent:.4f}")
-        print(f"   R^2: {result_tent['r_squared']:.4f}")
-    except Exception as e:
-        print(f"   Error: {e}")
-    
-    # 3. Henon map
-    print("\n3. Testing Henon map...")
-    henon_data = henon_map_1d(num_steps=5000)
-    try:
-        D_henon, result_henon = information_dimension(
-            henon_data,
-            num_points=20,
-            min_boxes=5,
-            max_boxes=50
-        )
-        test_cases.append({
-            'name': 'Henon',
-            'data': henon_data,
-            'D_measured': D_henon,
-            'result': result_henon,
-            'description': 'Chaotic'
-        })
-        print(f"   Information dimension: {D_henon:.4f}")
-        print(f"   R^2: {result_henon['r_squared']:.4f}")
-    except Exception as e:
-        print(f"   Error: {e}")
-    
-    # 4. Multifractal series
-    print("\n4. Testing multifractal series...")
-    mf_data = generate_multifractal_series(n=4096)
-    try:
-        D_mf, result_mf = information_dimension(
-            mf_data,
-            num_points=20,
-            min_boxes=5,
-            max_boxes=60
-        )
-        test_cases.append({
-            'name': 'Multifractal',
-            'data': mf_data,
-            'D_measured': D_mf,
-            'result': result_mf,
-            'description': 'Multiplicative cascade'
-        })
-        print(f"   Information dimension: {D_mf:.4f}")
-        print(f"   R^2: {result_mf['r_squared']:.4f}")
-    except Exception as e:
-        print(f"   Error: {e}")
-    
-    # Visualize results
-    if test_cases:
-        n_cases = len(test_cases)
-        fig = plt.figure(figsize=(16, 5.5*n_cases))
-        
-        for idx, case in enumerate(test_cases):
-            # Left plot: Time series
-            ax1 = fig.add_subplot(n_cases, 3, idx*3 + 1)
-            ax1.plot(case['data'][:1000], linewidth=0.8)  # Show first 1000 points
-            ax1.set_title(f"{case['name']}\n{case['description']}", fontsize=10)
-            ax1.set_xlabel('Time', fontsize=9)
-            ax1.set_ylabel('Value', fontsize=9)
-            ax1.tick_params(labelsize=8)
-            ax1.grid(True, alpha=0.3)
-            
-            # Middle plot: Return map
-            ax_return = fig.add_subplot(n_cases, 3, idx*3 + 2)
-            data = case['data']
-            if len(data) > 1:
-                ax_return.plot(data[:-1], data[1:], 'o', markersize=1, alpha=0.3)
-                ax_return.set_xlabel('x(t)', fontsize=9)
-                ax_return.set_ylabel('x(t+1)', fontsize=9)
-                ax_return.set_title('Return Map', fontsize=10)
-                ax_return.tick_params(labelsize=8)
-                ax_return.grid(True, alpha=0.3)
-            
-            # Right plot: Information dimension log-log plot
-            result = case['result']
-            ax3 = fig.add_subplot(n_cases, 3, idx*3 + 3)
-            ax3.plot(result['log_inv_epsilon'], result['information'], 
-                    'o', label='Data points', markersize=6, color='blue')
-            
-            # Draw fitting line
-            fit_line = np.polyval(result['coeffs'], result['log_inv_epsilon'])
-            ax3.plot(result['log_inv_epsilon'], fit_line, 'r-', 
-                    linewidth=2, label=f'D_I = {case["D_measured"]:.4f}')
-            
-            ax3.set_xlabel('log(1/epsilon)', fontsize=9)
-            ax3.set_ylabel('I(epsilon) (Information)', fontsize=9)
-            ax3.set_title(f'Information Dimension\nR^2 = {result["r_squared"]:.4f}', fontsize=10)
-            ax3.tick_params(labelsize=8)
-            ax3.legend(fontsize=8)
-            ax3.grid(True, alpha=0.3)
-        
-        plt.tight_layout(pad=2.0, h_pad=3.0, w_pad=2.0)
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        output_file = os.path.join(current_dir, "result_information_dimension.png")
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
-        print(f"\nVisualization saved: {output_file}")
-        plt.show()
-    
-    print("\n" + "="*60)
-    print("Summary")
-    print("="*60)
-    print("   Information dimension uses Shannon entropy:")
-    print("   I(epsilon) = -Σ p_i log(p_i)")
-    print("   where p_i is the probability of finding a point in box i")
-    print("   ")
-    print("   Key properties:")
-    print("   - D_I measures information content")
-    print("   - D_I <= D_0 (capacity dimension)")
-    print("   - D_I = D_0 for uniform distributions")
-    print("   - D_I < D_0 for non-uniform distributions")
-    print("\n   For uniform sets: D_I = D_0")
-    print("   For non-uniform sets: D_I < D_0")
+class TestInformationDimension:
+    """Test suite for information dimension method."""
 
+    def test_logistic_map_dimension(self):
+        """Test information dimension on logistic map data."""
+        # Generate logistic map data
+        data = logistic_map(r=3.9, num_steps=2000)  # Reduced for faster testing
 
-if __name__ == '__main__':
-    main()
+        D, result = information_dimension(
+            data,
+            num_points=15,  # Reduced for faster testing
+            min_boxes=4,
+            max_boxes=30
+        )
+
+        # Validate results
+        assert isinstance(D, (int, float))
+        assert isinstance(result, dict)
+        assert 0 < D < 2  # For 1D chaotic time series
+        assert 'r_squared' in result
+        assert 0 < result['r_squared'] <= 1
+
+        # Logistic map should have information dimension between 0.9 and 1.0
+        assert 0.8 < D < 1.2
+
+    def test_tent_map_dimension(self):
+        """Test information dimension on tent map data."""
+        # Generate tent map data
+        data = tent_map(mu=1.9, num_steps=2000)
+
+        D, result = information_dimension(
+            data,
+            num_points=15,
+            min_boxes=4,
+            max_boxes=30
+        )
+
+        # Validate results
+        assert isinstance(D, (int, float))
+        assert isinstance(result, dict)
+        assert 0 < D < 2
+        assert 'r_squared' in result
+        assert 0 < result['r_squared'] <= 1
+
+        # Tent map should have information dimension close to 1
+        assert 0.8 < D < 1.2
+
+    def test_henon_map_dimension(self):
+        """Test information dimension on Henon map data."""
+        # Generate Henon map data
+        data = henon_map_1d(num_steps=2000)
+
+        D, result = information_dimension(
+            data,
+            num_points=15,
+            min_boxes=4,
+            max_boxes=30
+        )
+
+        # Validate results
+        assert isinstance(D, (int, float))
+        assert isinstance(result, dict)
+        assert 0 < D < 2
+        assert 'r_squared' in result
+        assert 0 < result['r_squared'] <= 1
+
+        # Henon map should have information dimension around 1.2
+        assert 1.0 < D < 1.5
+
+    def test_multifractal_series_dimension(self):
+        """Test information dimension on multifractal series."""
+        # Generate multifractal data
+        data = generate_multifractal_series(n=2048)  # Reduced for faster testing
+
+        D, result = information_dimension(
+            data,
+            num_points=15,
+            min_boxes=4,
+            max_boxes=40
+        )
+
+        # Validate results
+        assert isinstance(D, (int, float))
+        assert isinstance(result, dict)
+        assert 0 < D < 2
+        assert 'r_squared' in result
+        assert 0 < result['r_squared'] <= 1
+
+        # Multifractal series should have D between 0.5 and 1.5
+        assert 0.5 < D < 1.5
+
+    def test_uniform_random_data(self):
+        """Test information dimension on uniform random data."""
+        # Generate uniform random data
+        data = np.random.rand(2000)
+
+        D, result = information_dimension(
+            data,
+            num_points=15,
+            min_boxes=4,
+            max_boxes=30
+        )
+
+        # For uniform distribution, information dimension should be close to 1
+        assert isinstance(D, (int, float))
+        assert isinstance(result, dict)
+        assert pytest.approx(D, rel=0.2) == 1.0
+        assert result['r_squared'] > 0.8
+
+    def test_gaussian_random_data(self):
+        """Test information dimension on Gaussian random data."""
+        # Generate Gaussian random data
+        data = np.random.randn(2000)
+
+        D, result = information_dimension(
+            data,
+            num_points=15,
+            min_boxes=4,
+            max_boxes=30
+        )
+
+        # For Gaussian distribution, information dimension should be close to 1
+        assert isinstance(D, (int, float))
+        assert isinstance(result, dict)
+        assert pytest.approx(D, rel=0.3) == 1.0
+        assert result['r_squared'] > 0.7
+
+    def test_different_parameters(self):
+        """Test information dimension with different parameters."""
+        data = logistic_map(r=3.9, num_steps=1000)
+
+        # Test different parameter combinations
+        param_sets = [
+            (10, 3, 20),
+            (15, 4, 30),
+            (20, 5, 40)
+        ]
+
+        for num_points, min_boxes, max_boxes in param_sets:
+            D, result = information_dimension(
+                data,
+                num_points=num_points,
+                min_boxes=min_boxes,
+                max_boxes=max_boxes
+            )
+
+            assert isinstance(D, (int, float))
+            assert isinstance(result, dict)
+            assert 0 < D < 2
+            assert 'r_squared' in result
+            assert 0 < result['r_squared'] <= 1
+
+    def test_different_data_lengths(self):
+        """Test information dimension with different data lengths."""
+        lengths = [500, 1000, 2000]
+
+        for length in lengths:
+            data = logistic_map(r=3.9, num_steps=length)
+
+            D, result = information_dimension(
+                data,
+                num_points=12,
+                min_boxes=3,
+                max_boxes=25
+            )
+
+            assert isinstance(D, (int, float))
+            assert isinstance(result, dict)
+            assert 0 < D < 2
+            assert 'r_squared' in result
+            assert 0 < result['r_squared'] <= 1
+
+            # Longer data should generally give better R²
+            min_r2 = 0.6 if length < 1000 else 0.7
+            assert result['r_squared'] > min_r2
+
+    def test_result_structure_information(self):
+        """Test that result dictionary contains expected structure."""
+        data = logistic_map(r=3.9, num_steps=1000)
+        D, result = information_dimension(data, num_points=10, min_boxes=3, max_boxes=20)
+
+        # Check required keys
+        required_keys = ['r_squared']
+        for key in required_keys:
+            assert key in result, f"Missing required key: {key}"
+
+        # Check data consistency if box sizes are present
+        if 'box_sizes' in result and 'information_values' in result:
+            assert len(result['box_sizes']) == len(result['information_values'])
+            assert all(x > 0 for x in result['box_sizes'])
+            assert all(x >= 0 for x in result['information_values'])  # Information should be non-negative
+
+        # Check coefficients if present
+        if 'coefficients' in result:
+            assert len(result['coefficients']) >= 2
+            assert all(isinstance(c, (int, float)) for c in result['coefficients'])
+
+    def test_theoretical_constraints(self):
+        """Test results against theoretical constraints."""
+        data = logistic_map(r=3.9, num_steps=1000)
+        D, result = information_dimension(data, num_points=10, min_boxes=3, max_boxes=20)
+
+        # For 1D time series, information dimension should satisfy:
+        # - Lower bound: 0 (completely deterministic)
+        # - Upper bound: 1 (completely random)
+        # However, chaotic systems can exceed 1 slightly due to attractor structure
+        assert 0 < D < 2  # Allow some tolerance
+
+        # R² should indicate reasonable fit
+        assert result['r_squared'] > 0.5
+
+    def test_edge_cases(self):
+        """Test edge cases and boundary conditions."""
+        # Test with very short data
+        short_data = np.random.rand(100)
+        try:
+            D, result = information_dimension(short_data, num_points=5, min_boxes=2, max_boxes=10)
+            assert isinstance(D, (int, float))
+            assert isinstance(result, dict)
+        except (ValueError, RuntimeError):
+            # It's acceptable if very short data raises an error
+            pass
+
+        # Test with constant data
+        constant_data = np.ones(500) * 0.5
+        try:
+            D, result = information_dimension(constant_data, num_points=5, min_boxes=2, max_boxes=10)
+            # Constant data should give D = 0 or raise error
+            if isinstance(D, (int, float)):
+                assert D <= 0.5  # Should be very low
+        except (ValueError, RuntimeError):
+            pass
+
+    def test_parameter_validation(self):
+        """Test parameter validation."""
+        data = logistic_map(r=3.9, num_steps=500)
+
+        # Test invalid parameters
+        with pytest.raises((ValueError, TypeError)):
+            information_dimension(data, num_points=0)
+
+        with pytest.raises((ValueError, TypeError)):
+            information_dimension(data, min_boxes=0)
+
+        with pytest.raises((ValueError, TypeError)):
+            information_dimension(data, max_boxes=1, min_boxes=5)  # max < min
+
+        # Test invalid data
+        with pytest.raises((ValueError, TypeError)):
+            information_dimension([], num_points=5)
+
+        with pytest.raises((ValueError, TypeError)):
+            information_dimension(np.array([]), num_points=5)
 
