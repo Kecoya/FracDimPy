@@ -36,10 +36,10 @@ def load_data(file_path: str, data_type: str = "auto") -> np.ndarray:
     >>> data = load_data('data.txt')
     >>> data = load_data('data.csv', data_type='csv')
     """
-    file_path = Path(file_path)
+    path_obj = Path(file_path)
 
     if data_type == "auto":
-        suffix = file_path.suffix.lower()
+        suffix = path_obj.suffix.lower()
         if suffix == ".txt":
             data_type = "txt"
         elif suffix == ".csv":
@@ -86,14 +86,14 @@ def save_results(results: Dict[str, Any], output_path: str, format: str = "xlsx"
     >>> save_results(results, 'results.xlsx')
     >>> save_results(results, 'results.json', format='json')
     """
-    output_path = Path(output_path)
+    output_obj = Path(output_path)
 
     if format == "xlsx":
         df = pd.DataFrame(results)
-        df.to_excel(output_path, index=False)
+        df.to_excel(output_obj, index=False)
     elif format == "csv":
         df = pd.DataFrame(results)
-        df.to_csv(output_path, index=False)
+        df.to_csv(output_obj, index=False)
     elif format == "json":
         import json
 

@@ -13,6 +13,7 @@ where N is the pixel count and r is the radius.
 
 import numpy as np
 from PIL import Image
+from PIL.Image import Image as PILImage
 from typing import Tuple, Optional
 
 
@@ -76,7 +77,7 @@ def sandbox_method(
     if image_path is not None:
         # Use PIL for image loading
         try:
-            img = Image.open(image_path)
+            img: PILImage = Image.open(image_path)  # type: ignore
             if img.mode == "RGBA":
                 # Handle RGBA by removing alpha channel
                 img = img.convert("RGB")
