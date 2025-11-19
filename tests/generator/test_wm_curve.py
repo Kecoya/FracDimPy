@@ -81,7 +81,9 @@ def test_wm_curve_different_dimensions():
     # Test that standard deviation generally increases with fractal dimension
     for i in range(1, len(dimensions)):
         # Higher dimension should generally give higher standard deviation
-        assert std_devs[i] > 0, f"Dimension {dimensions[i]}: Should have positive standard deviation"
+        assert (
+            std_devs[i] > 0
+        ), f"Dimension {dimensions[i]}: Should have positive standard deviation"
 
 
 def test_wm_curve_different_lengths():
@@ -191,9 +193,9 @@ def test_wm_curve_self_similarity():
     segment_size = length // 4
     segments = [
         (x[:segment_size], y[:segment_size]),
-        (x[segment_size:2*segment_size], y[segment_size:2*segment_size]),
+        (x[segment_size : 2 * segment_size], y[segment_size : 2 * segment_size]),
         (x[-segment_size:], y[-segment_size:]),
-        (x[:segment_size], y[:segment_size])  # Duplicate for comparison
+        (x[:segment_size], y[:segment_size]),  # Duplicate for comparison
     ]
 
     # Test that different segments have similar statistical properties (scaled)
@@ -202,8 +204,9 @@ def test_wm_curve_self_similarity():
 
     # Segments should have similar standard deviations (within tolerance due to scaling)
     for i, std_dev in enumerate(std_devs[:3]):  # Skip the duplicate
-        assert abs(std_dev - mean_std) < 0.5 * mean_std, \
-            f"Segment {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
+        assert (
+            abs(std_dev - mean_std) < 0.5 * mean_std
+        ), f"Segment {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
 
 
 def test_wm_curve_deterministic_properties():
@@ -260,7 +263,7 @@ def test_wm_curve_fourier_properties():
     assert np.isfinite(dc_component), "DC component should be finite"
 
     # Test that high frequency components exist (WM curve should have rich frequency content)
-    high_freq_energy = np.sum(fft_magnitude[length//4:3*length//4])
+    high_freq_energy = np.sum(fft_magnitude[length // 4 : 3 * length // 4])
     assert high_freq_energy > 0, "Should have energy in high frequencies"
 
 
@@ -288,8 +291,9 @@ def test_wm_curve_x_coordinates():
     # Test that x coordinates are roughly evenly spaced
     expected_spacing = 1.0 / (length - 1)
     actual_spacing = np.mean(x_diffs[x_diffs > 1e-10])  # Mean of positive differences
-    assert np.abs(actual_spacing - expected_spacing) < 0.1 * expected_spacing, \
-        f"X spacing {actual_spacing} should be close to expected {expected_spacing}"
+    assert (
+        np.abs(actual_spacing - expected_spacing) < 0.1 * expected_spacing
+    ), f"X spacing {actual_spacing} should be close to expected {expected_spacing}"
 
 
 def test_wm_curve_continuity():

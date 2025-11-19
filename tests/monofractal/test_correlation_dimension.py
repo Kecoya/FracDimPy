@@ -32,13 +32,10 @@ def lorenz_attractor(num_steps=8000, dt=0.01):
     The Lorenz attractor is a set of chaotic solutions to the Lorenz system
     of differential equations, which exhibits a strange attractor.
     """
-    def lorenz_deriv(state, sigma=10, rho=28, beta=8/3):
+
+    def lorenz_deriv(state, sigma=10, rho=28, beta=8 / 3):
         x, y, z = state
-        return np.array([
-            sigma * (y - x),
-            x * (rho - z) - y,
-            x * y - beta * z
-        ])
+        return np.array([sigma * (y - x), x * (rho - z) - y, x * y - beta * z])
 
     # Initial state
     state = np.array([1.0, 1.0, 1.0])
@@ -50,7 +47,7 @@ def lorenz_attractor(num_steps=8000, dt=0.01):
         k2 = lorenz_deriv(state + 0.5 * dt * k1)
         k3 = lorenz_deriv(state + 0.5 * dt * k2)
         k4 = lorenz_deriv(state + dt * k3)
-        state = state + (dt / 6) * (k1 + 2*k2 + 2*k3 + k4)
+        state = state + (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
         trajectory.append(state)
 
     return np.array(trajectory)
@@ -84,24 +81,21 @@ def test_correlation_dimension_lorenz():
     D_theory = 2.06
 
     # Calculate correlation dimension
-    D, result = correlation_dimension(
-        lorenz_traj,
-        num_points=20,
-        max_samples=2000
-    )
+    D, result = correlation_dimension(lorenz_traj, num_points=20, max_samples=2000)
 
     # Basic result validation
     assert isinstance(D, (float, np.floating)), "Correlation dimension should be a number"
     assert isinstance(result, dict), "Result should be a dictionary"
-    assert 'r_squared' in result, "Result should contain 'r_squared'"
+    assert "r_squared" in result, "Result should contain 'r_squared'"
     assert 0 < D < 4, f"Correlation dimension {D} should be in reasonable range"
 
     # Test against theoretical value
-    assert pytest.approx(D, abs=0.3) == D_theory, \
-        f"Lorenz correlation dimension {D} should be close to theoretical {D_theory}"
+    assert (
+        pytest.approx(D, abs=0.3) == D_theory
+    ), f"Lorenz correlation dimension {D} should be close to theoretical {D_theory}"
 
     # Check goodness of fit
-    assert result['r_squared'] > 0.8, f"R² should be > 0.8 for good fit, got {result['r_squared']}"
+    assert result["r_squared"] > 0.8, f"R² should be > 0.8 for good fit, got {result['r_squared']}"
 
 
 def test_correlation_dimension_henon():
@@ -113,24 +107,21 @@ def test_correlation_dimension_henon():
     D_theory = 1.26
 
     # Calculate correlation dimension
-    D, result = correlation_dimension(
-        henon_traj,
-        num_points=20,
-        max_samples=2000
-    )
+    D, result = correlation_dimension(henon_traj, num_points=20, max_samples=2000)
 
     # Basic result validation
     assert isinstance(D, (float, np.floating)), "Correlation dimension should be a number"
     assert isinstance(result, dict), "Result should be a dictionary"
-    assert 'r_squared' in result, "Result should contain 'r_squared'"
+    assert "r_squared" in result, "Result should contain 'r_squared'"
     assert 0 < D < 3, f"Correlation dimension {D} should be in reasonable range"
 
     # Test against theoretical value
-    assert pytest.approx(D, abs=0.3) == D_theory, \
-        f"Henon correlation dimension {D} should be close to theoretical {D_theory}"
+    assert (
+        pytest.approx(D, abs=0.3) == D_theory
+    ), f"Henon correlation dimension {D} should be close to theoretical {D_theory}"
 
     # Check goodness of fit
-    assert result['r_squared'] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
+    assert result["r_squared"] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
 
 
 def test_correlation_dimension_consistency():
@@ -141,11 +132,7 @@ def test_correlation_dimension_consistency():
     # Calculate correlation dimension multiple times
     results = []
     for _ in range(3):
-        D, result = correlation_dimension(
-            henon_traj,
-            num_points=15,
-            max_samples=1500
-        )
+        D, result = correlation_dimension(henon_traj, num_points=15, max_samples=1500)
         results.append(D)
 
     # Results should be consistent (small variation due to potential randomness)
@@ -165,9 +152,9 @@ def test_correlation_dimension_different_parameters():
     # Test with different parameter combinations
     parameter_sets = [
         {},  # default parameters
-        {'num_points': 15, 'max_samples': 1500},
-        {'num_points': 25, 'max_samples': 2000},
-        {'num_points': 18, 'max_samples': 1800},
+        {"num_points": 15, "max_samples": 1500},
+        {"num_points": 25, "max_samples": 2000},
+        {"num_points": 18, "max_samples": 1800},
     ]
 
     results = []
@@ -178,7 +165,7 @@ def test_correlation_dimension_different_parameters():
         # Each calculation should produce valid results
         assert isinstance(D, (float, np.floating)), f"Result with params {params} should be numeric"
         assert 0 < D < 3, f"Correlation dimension {D} should be in reasonable range"
-        assert result['r_squared'] > 0.6, f"R² should be reasonable for params {params}"
+        assert result["r_squared"] > 0.6, f"R² should be reasonable for params {params}"
 
     # Results should be relatively consistent across parameter variations
     mean_D = np.mean(results)
@@ -199,16 +186,14 @@ def test_correlation_dimension_data_sizes():
         henon_traj = henon_map(num_steps=size)
 
         D, result = correlation_dimension(
-            henon_traj,
-            num_points=15,
-            max_samples=min(1500, size // 2)
+            henon_traj, num_points=15, max_samples=min(1500, size // 2)
         )
         results.append(D)
 
         # Each calculation should produce valid results
         assert isinstance(D, (float, np.floating)), f"Result with size {size} should be numeric"
         assert 0 < D < 3, f"Correlation dimension {D} should be in reasonable range for size {size}"
-        assert result['r_squared'] > 0.5, f"R² should be reasonable for size {size}"
+        assert result["r_squared"] > 0.5, f"R² should be reasonable for size {size}"
 
     # Results should be relatively consistent across different sizes
     mean_D = np.mean(results)
@@ -236,22 +221,20 @@ def test_correlation_dimension_input_validation():
     ]
 
     for i, test_data in enumerate(test_cases):
-        D, result = correlation_dimension(
-            test_data,
-            num_points=15,
-            max_samples=1500
-        )
+        D, result = correlation_dimension(test_data, num_points=15, max_samples=1500)
 
         # Each test case should produce valid results
         assert isinstance(D, (float, np.floating)), f"Test case {i} should produce numeric result"
         assert isinstance(result, dict), f"Test case {i} should produce dictionary result"
         assert 0 < D < 3, f"Test case {i}: Correlation dimension {D} should be between 0 and 3"
-        assert result['r_squared'] > 0.5, f"Test case {i}: R² should be reasonable"
+        assert result["r_squared"] > 0.5, f"Test case {i}: R² should be reasonable"
 
         # The correlation dimension should be invariant under scaling/translation
         if i > 0:
             D_diff = abs(D - results[0])
-            assert D_diff < 0.3, f"Correlation dimension should be invariant under scaling/translation"
+            assert (
+                D_diff < 0.3
+            ), f"Correlation dimension should be invariant under scaling/translation"
 
 
 def test_correlation_dimension_dimensional_bounds():
@@ -268,17 +251,15 @@ def test_correlation_dimension_dimensional_bounds():
 
     for i, (data, expected_range) in enumerate(test_cases):
         D, result = correlation_dimension(
-            data,
-            num_points=15,
-            max_samples=min(1500, len(data) // 2)
+            data, num_points=15, max_samples=min(1500, len(data) // 2)
         )
 
         # Check that dimension is within expected bounds
         min_expected, max_expected = expected_range
-        assert min_expected <= D <= max_expected, \
-            f"Test case {i}: Correlation dimension {D} should be between {min_expected} and {max_expected}"
+        assert (
+            min_expected <= D <= max_expected
+        ), f"Test case {i}: Correlation dimension {D} should be between {min_expected} and {max_expected}"
 
         # Basic validation
         assert isinstance(D, (float, np.floating)), f"Test case {i} should produce numeric result"
-        assert result['r_squared'] > 0.5, f"Test case {i}: R² should be reasonable"
-
+        assert result["r_squared"] > 0.5, f"Test case {i}: R² should be reasonable"

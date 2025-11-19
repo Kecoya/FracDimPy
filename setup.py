@@ -9,7 +9,7 @@ from pathlib import Path
 
 # README
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text(encoding='utf-8')
+long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="FracDimPy",
@@ -63,4 +63,3 @@ setup(
     },
     keywords="fractal fractal-dimension multifractal box-counting hurst r-s-analysis",
 )
-

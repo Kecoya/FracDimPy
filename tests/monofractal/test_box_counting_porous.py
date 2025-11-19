@@ -16,6 +16,7 @@ import os
 import pytest
 from fracDimPy import box_counting
 
+
 def load_porous_data():
     """Load and preprocess porous media data."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -64,14 +65,14 @@ class TestBoxCountingPorous:
 
     def test_box_counting_porous_basic(self, porous_data):
         """Test basic box-counting on porous media data."""
-        D, result = box_counting(porous_data, data_type='porous')
+        D, result = box_counting(porous_data, data_type="porous")
 
         # Validate results
         assert isinstance(D, (int, float))
         assert isinstance(result, dict)
         assert 0 < D < 4  # 3D fractal dimension should be between 0 and 4
-        assert 'R2' in result
-        assert 0 < result['R2'] <= 1  # R² should be between 0 and 1
+        assert "R2" in result
+        assert 0 < result["R2"] <= 1  # R² should be between 0 and 1
 
         # For porous media, D should be reasonable
         assert 1.5 < D < 3.5
@@ -115,7 +116,7 @@ class TestBoxCountingPorous:
         expected_shape = (
             (test_data.shape[0] + epsilon - 1) // epsilon,
             (test_data.shape[1] + epsilon - 1) // epsilon,
-            (test_data.shape[2] + epsilon - 1) // epsilon
+            (test_data.shape[2] + epsilon - 1) // epsilon,
         )
         assert simplified.shape == expected_shape
 
@@ -125,24 +126,24 @@ class TestBoxCountingPorous:
 
     def test_result_structure_porous(self, porous_data):
         """Test that result dictionary contains expected structure for porous data."""
-        D, result = box_counting(porous_data, data_type='porous')
+        D, result = box_counting(porous_data, data_type="porous")
 
         # Check required keys
-        required_keys = ['R2']
+        required_keys = ["R2"]
         for key in required_keys:
             assert key in result, f"Missing required key: {key}"
 
         # Check data consistency if epsilon values are present
-        if 'epsilon_values' in result and 'N_values' in result:
-            assert len(result['epsilon_values']) == len(result['N_values'])
-            assert all(x > 0 for x in result['epsilon_values'])
-            assert all(x > 0 for x in result['N_values'])
+        if "epsilon_values" in result and "N_values" in result:
+            assert len(result["epsilon_values"]) == len(result["N_values"])
+            assert all(x > 0 for x in result["epsilon_values"])
+            assert all(x > 0 for x in result["N_values"])
 
             # For porous media, N should generally increase with decreasing epsilon
             # (monotonic relationship)
-            if len(result['epsilon_values']) > 1:
-                eps_vals = result['epsilon_values']
-                n_vals = result['N_values']
+            if len(result["epsilon_values"]) > 1:
+                eps_vals = result["epsilon_values"]
+                n_vals = result["N_values"]
 
                 # Sort by epsilon (descending) and check N values (ascending)
                 sorted_indices = np.argsort(eps_vals)[::-1]
@@ -153,13 +154,13 @@ class TestBoxCountingPorous:
                 assert np.all(np.diff(sorted_n) >= 0) or len(set(sorted_n)) > 1
 
         # Check log data consistency
-        if 'log_inv_epsilon' in result and 'log_N' in result:
-            assert len(result['log_inv_epsilon']) == len(result['log_N'])
+        if "log_inv_epsilon" in result and "log_N" in result:
+            assert len(result["log_inv_epsilon"]) == len(result["log_N"])
 
         # Check coefficients if present
-        if 'coefficients' in result:
-            assert len(result['coefficients']) >= 2
-            assert all(isinstance(c, (int, float)) for c in result['coefficients'])
+        if "coefficients" in result:
+            assert len(result["coefficients"]) >= 2
+            assert all(isinstance(c, (int, float)) for c in result["coefficients"])
 
     def test_different_voxel_sizes(self, porous_data):
         """Test box-counting with different data preprocessing."""
@@ -171,17 +172,17 @@ class TestBoxCountingPorous:
                 simplified = simplify_3d(porous_data, epsilon)
                 voxel_data = np.where(simplified > 0, 1, 0)
 
-                D, result = box_counting(voxel_data, data_type='porous')
+                D, result = box_counting(voxel_data, data_type="porous")
 
                 assert isinstance(D, (int, float))
                 assert isinstance(result, dict)
                 assert 0 < D < 4
-                assert 'R2' in result
-                assert 0 < result['R2'] <= 1
+                assert "R2" in result
+                assert 0 < result["R2"] <= 1
 
     def test_theoretical_constraints(self, porous_data):
         """Test results against theoretical constraints."""
-        D, result = box_counting(porous_data, data_type='porous')
+        D, result = box_counting(porous_data, data_type="porous")
 
         # For 3D porous media, fractal dimension should satisfy:
         # - Lower bound: 2 (surface fractal dimension)
@@ -189,7 +190,7 @@ class TestBoxCountingPorous:
         assert 2 <= D <= 3
 
         # R² should indicate good fit for fractal behavior
-        assert result['R2'] > 0.8  # Should have decent linear fit
+        assert result["R2"] > 0.8  # Should have decent linear fit
 
     def test_edge_cases(self):
         """Test edge cases and boundary conditions."""
@@ -197,11 +198,10 @@ class TestBoxCountingPorous:
         tiny_data = np.random.randint(0, 2, size=(2, 2, 2), dtype=np.uint8)
 
         try:
-            D, result = box_counting(tiny_data, data_type='porous')
+            D, result = box_counting(tiny_data, data_type="porous")
             # If it doesn't crash, results should be valid
             assert isinstance(D, (int, float))
             assert isinstance(result, dict)
         except (ValueError, RuntimeError):
             # It's acceptable if small data raises an error
             pass
-

@@ -10,7 +10,9 @@
       "Bash(docker:*)",
       "Bash(paper_clean.md)",
       "Bash(cat:*)",
-      "Bash(dos2unix:*)"
+      "Bash(dos2unix:*)",
+      "Bash(black:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

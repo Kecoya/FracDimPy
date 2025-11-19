@@ -31,8 +31,9 @@ def test_wm_surface_basic_generation():
     size = 128
     lambda_param = 1.5
 
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     # Test basic properties
     assert surface.shape == (size, size), f"Expected shape {(size, size)}, got {surface.shape}"
@@ -59,8 +60,9 @@ def test_wm_surface_different_dimensions():
 
     std_devs = []
     for dimension in dimensions:
-        surface = generate_wm_surface(dimension=dimension, level=level,
-                                      size=size, lambda_param=lambda_param)
+        surface = generate_wm_surface(
+            dimension=dimension, level=level, size=size, lambda_param=lambda_param
+        )
 
         # Test basic properties
         assert surface.shape == (size, size), f"Dimension {dimension}: Incorrect shape"
@@ -75,7 +77,9 @@ def test_wm_surface_different_dimensions():
     # Test that standard deviation generally increases with fractal dimension
     for i in range(1, len(dimensions)):
         # Higher dimension should generally give higher standard deviation
-        assert std_devs[i] > 0, f"Dimension {dimensions[i]}: Should have positive standard deviation"
+        assert (
+            std_devs[i] > 0
+        ), f"Dimension {dimensions[i]}: Should have positive standard deviation"
 
 
 def test_wm_surface_different_levels():
@@ -89,8 +93,9 @@ def test_wm_surface_different_levels():
 
     std_devs = []
     for level in levels:
-        surface = generate_wm_surface(dimension=dimension, level=level,
-                                      size=size, lambda_param=lambda_param)
+        surface = generate_wm_surface(
+            dimension=dimension, level=level, size=size, lambda_param=lambda_param
+        )
 
         # Test basic properties
         assert surface.shape == (size, size), f"Level {level}: Incorrect shape"
@@ -118,8 +123,9 @@ def test_wm_surface_different_lambda():
 
     std_devs = []
     for lambda_param in lambda_params:
-        surface = generate_wm_surface(dimension=dimension, level=level,
-                                      size=size, lambda_param=lambda_param)
+        surface = generate_wm_surface(
+            dimension=dimension, level=level, size=size, lambda_param=lambda_param
+        )
 
         # Test basic properties
         assert surface.shape == (size, size), f"Lambda {lambda_param}: Incorrect shape"
@@ -146,8 +152,9 @@ def test_wm_surface_theoretical_properties():
     size = 256
     lambda_param = 1.5
 
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     # Test dimension bounds
     assert 2.0 < dimension < 3.0, f"Fractal dimension {dimension} should be in (2, 3)"
@@ -175,32 +182,28 @@ def test_wm_surface_edge_cases():
 
     # Test with small size
     size = 32
-    surface_small = generate_wm_surface(dimension=2.3, level=5,
-                                        size=size, lambda_param=1.5)
+    surface_small = generate_wm_surface(dimension=2.3, level=5, size=size, lambda_param=1.5)
     assert surface_small.shape == (size, size), "Small size should work"
     assert np.all(np.isfinite(surface_small)), "Small size surface should be finite"
     assert surface_small.std() > 0, "Small size surface should have variation"
 
     # Test with extreme dimensions
     for dimension in [2.01, 2.99]:
-        surface = generate_wm_surface(dimension=dimension, level=8,
-                                      size=64, lambda_param=1.5)
+        surface = generate_wm_surface(dimension=dimension, level=8, size=64, lambda_param=1.5)
         assert surface.shape == (64, 64), f"Dimension {dimension}: Incorrect shape"
         assert np.all(np.isfinite(surface)), f"Dimension {dimension}: All values should be finite"
         assert surface.std() > 0, f"Dimension {dimension}: Should have variation"
 
     # Test with low level
     level = 3
-    surface_low_level = generate_wm_surface(dimension=2.5, level=level,
-                                            size=128, lambda_param=1.5)
+    surface_low_level = generate_wm_surface(dimension=2.5, level=level, size=128, lambda_param=1.5)
     assert surface_low_level.shape == (128, 128), "Low level should work"
     assert np.all(np.isfinite(surface_low_level)), "Low level surface should be finite"
     assert surface_low_level.std() > 0, "Low level surface should have variation"
 
     # Test with extreme lambda
     for lambda_param in [1.1, 3.0]:
-        surface = generate_wm_surface(dimension=2.5, level=8,
-                                      size=64, lambda_param=lambda_param)
+        surface = generate_wm_surface(dimension=2.5, level=8, size=64, lambda_param=lambda_param)
         assert surface.shape == (64, 64), f"Lambda {lambda_param}: Incorrect shape"
         assert np.all(np.isfinite(surface)), f"Lambda {lambda_param}: All values should be finite"
         assert surface.std() > 0, f"Lambda {lambda_param}: Should have variation"
@@ -215,8 +218,9 @@ def test_wm_surface_self_similarity():
     size = 256
     lambda_param = 1.5
 
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     # Test statistical self-similarity by comparing statistics at different scales
     # This is a simplified test - true self-similarity analysis would be more complex
@@ -225,10 +229,10 @@ def test_wm_surface_self_similarity():
     region_size = size // 4
     regions = [
         surface[:region_size, :region_size],
-        surface[region_size:2*region_size, region_size:2*region_size],
+        surface[region_size : 2 * region_size, region_size : 2 * region_size],
         surface[-region_size:, -region_size:],
         surface[:region_size, -region_size:],
-        surface[-region_size:, :region_size]
+        surface[-region_size:, :region_size],
     ]
 
     # Test that different regions have similar statistical properties
@@ -237,8 +241,9 @@ def test_wm_surface_self_similarity():
 
     # All regions should have similar standard deviations (within tolerance)
     for i, std_dev in enumerate(std_devs):
-        assert abs(std_dev - mean_std) < 0.5 * mean_std, \
-            f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
+        assert (
+            abs(std_dev - mean_std) < 0.5 * mean_std
+        ), f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
 
 
 def test_wm_surface_deterministic_properties():
@@ -253,10 +258,12 @@ def test_wm_surface_deterministic_properties():
     lambda_param = 1.5
 
     # Generate surface twice with same parameters
-    surface1 = generate_wm_surface(dimension=dimension, level=level,
-                                   size=size, lambda_param=lambda_param)
-    surface2 = generate_wm_surface(dimension=dimension, level=level,
-                                   size=size, lambda_param=lambda_param)
+    surface1 = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
+    surface2 = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     # Test that both are valid
     assert surface1.shape == (size, size), "First surface should have correct shape"
@@ -281,8 +288,9 @@ def test_wm_surface_fourier_properties():
     size = 128
     lambda_param = 1.5
 
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     # Test that surface has expected frequency content
     # WM surface is constructed from Fourier series, so should have specific properties
@@ -309,8 +317,9 @@ def test_wm_surface_dimension_parameter(dimension):
     level = 8
     size = 64
     lambda_param = 1.5
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     assert surface.shape == (size, size), f"Dimension {dimension}: Correct shape"
     assert np.all(np.isfinite(surface)), f"Dimension {dimension}: All values should be finite"
@@ -328,8 +337,9 @@ def test_wm_surface_level_parameter(level):
     dimension = 2.5
     size = 128
     lambda_param = 1.5
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     assert surface.shape == (size, size), f"Level {level}: Correct shape"
     assert np.all(np.isfinite(surface)), f"Level {level}: All values should be finite"
@@ -349,8 +359,9 @@ def test_wm_surface_lambda_parameter(lambda_param):
     dimension = 2.5
     level = 8
     size = 64
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     assert surface.shape == (size, size), f"Lambda {lambda_param}: Correct shape"
     assert np.all(np.isfinite(surface)), f"Lambda {lambda_param}: All values should be finite"
@@ -368,8 +379,9 @@ def test_wm_surface_size_parameter(size):
     dimension = 2.5
     level = 8
     lambda_param = 1.5
-    surface = generate_wm_surface(dimension=dimension, level=level,
-                                  size=size, lambda_param=lambda_param)
+    surface = generate_wm_surface(
+        dimension=dimension, level=level, size=size, lambda_param=lambda_param
+    )
 
     assert surface.shape == (size, size), f"Size {size}: Correct shape"
     assert np.all(np.isfinite(surface)), f"Size {size}: All values should be finite"

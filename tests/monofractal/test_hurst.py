@@ -44,7 +44,7 @@ def test_hurst_basic():
     assert 1 < D < 2, f"Fractal dimension {D} should be between 1 and 2 for 1D signal"
 
     # Check for required result keys
-    required_keys = ['hurst', 'R2']
+    required_keys = ["hurst", "R2"]
     for key in required_keys:
         assert key in result, f"Result should contain '{key}' key"
 
@@ -56,12 +56,13 @@ def test_hurst_theoretical_relationships():
 
     # Calculate Hurst exponent and fractal dimension
     D, result = hurst_dimension(data)
-    H = result['hurst']
+    H = result["hurst"]
 
     # Test theoretical relationship: D = 2 - H
     D_calculated = 2 - H
-    assert pytest.approx(D, rel=1e-10) == D_calculated, \
-        f"Fractal dimension should satisfy D = 2 - H, got D={D}, H={H}"
+    assert (
+        pytest.approx(D, rel=1e-10) == D_calculated
+    ), f"Fractal dimension should satisfy D = 2 - H, got D={D}, H={H}"
 
     # Test Hurst exponent bounds
     assert 0 < H < 1, f"Hurst exponent {H} should be between 0 and 1"
@@ -76,7 +77,7 @@ def test_hurst_goodness_of_fit():
     D, result = hurst_dimension(data)
 
     # Check goodness of fit - should be reasonably high for good data
-    r_squared = result['R2']
+    r_squared = result["R2"]
     assert r_squared > 0.7, f"R² should be > 0.7 for good fit, got {r_squared}"
     assert r_squared <= 1.0, f"R² should not exceed 1.0, got {r_squared}"
 
@@ -92,7 +93,7 @@ def test_hurst_consistency():
     for _ in range(3):
         D, result = hurst_dimension(data)
         results.append(D)
-        hurst_values.append(result['hurst'])
+        hurst_values.append(result["hurst"])
 
     # Results should be consistent (small variation due to potential randomness)
     std_dev = np.std(results)
@@ -106,7 +107,9 @@ def test_hurst_consistency():
     std_hurst = np.std(hurst_values)
     mean_hurst = np.mean(hurst_values)
     relative_std_hurst = std_hurst / mean_hurst if mean_hurst != 0 else std_hurst
-    assert relative_std_hurst < 0.01, f"Hurst values should be consistent, relative std: {relative_std_hurst}"
+    assert (
+        relative_std_hurst < 0.01
+    ), f"Hurst values should be consistent, relative std: {relative_std_hurst}"
 
 
 def test_hurst_data_length_sensitivity():
@@ -122,13 +125,17 @@ def test_hurst_data_length_sensitivity():
         if length <= len(full_data):
             data_subset = full_data[:length]
             D, result = hurst_dimension(data_subset)
-            results.append((D, result['hurst'], result['R2']))
+            results.append((D, result["hurst"], result["R2"]))
 
             # Each calculation should produce valid results
-            assert isinstance(D, (float, np.floating)), f"Result with length {length} should be numeric"
+            assert isinstance(
+                D, (float, np.floating)
+            ), f"Result with length {length} should be numeric"
             assert 1 < D < 2, f"Fractal dimension {D} should be between 1 and 2"
-            assert 0 < result['hurst'] < 1, f"Hurst exponent {result['hurst']} should be between 0 and 1"
-            assert result['R2'] > 0.5, f"R² should be reasonable for length {length}"
+            assert (
+                0 < result["hurst"] < 1
+            ), f"Hurst exponent {result['hurst']} should be between 0 and 1"
+            assert result["R2"] > 0.5, f"R² should be reasonable for length {length}"
 
     # If we have multiple results, they should be relatively consistent
     if len(results) > 1:
@@ -137,7 +144,9 @@ def test_hurst_data_length_sensitivity():
         std_D = np.std(D_values)
 
         # Allow for some variation with different lengths but not too much
-        assert std_D / mean_D < 0.15, f"Results should be relatively stable across different lengths"
+        assert (
+            std_D / mean_D < 0.15
+        ), f"Results should be relatively stable across different lengths"
 
 
 def test_hurst_input_validation():
@@ -164,10 +173,10 @@ def test_hurst_input_validation():
         assert isinstance(D, (float, np.floating)), f"Test case {i} should produce numeric result"
         assert isinstance(result, dict), f"Test case {i} should produce dictionary result"
         assert 1 < D < 2, f"Test case {i}: Fractal dimension {D} should be between 1 and 2"
-        assert 0 < result['hurst'] < 1, f"Test case {i}: Hurst exponent should be between 0 and 1"
-        assert result['R2'] > 0.5, f"Test case {i}: R² should be reasonable"
+        assert 0 < result["hurst"] < 1, f"Test case {i}: Hurst exponent should be between 0 and 1"
+        assert result["R2"] > 0.5, f"Test case {i}: R² should be reasonable"
 
         # The Hurst exponent should be relatively stable across scaling/offset
         if i > 0:
-            hurst_diff = abs(result['hurst'] - test_cases[0][1]['hurst'])
+            hurst_diff = abs(result["hurst"] - test_cases[0][1]["hurst"])
             assert hurst_diff < 0.1, f"Hurst exponent should be stable under scaling/offset"

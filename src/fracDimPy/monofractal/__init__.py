@@ -31,13 +31,12 @@ from .correlation_dimension import correlation_dimension
 from .dfa import dfa
 
 __all__ = [
-    'hurst_dimension',
-    'structural_function',
-    'variogram_method',
-    'box_counting',
-    'sandbox_method',
-    'information_dimension',
-    'correlation_dimension',
-    'dfa',
+    "hurst_dimension",
+    "structural_function",
+    "variogram_method",
+    "box_counting",
+    "sandbox_method",
+    "information_dimension",
+    "correlation_dimension",
+    "dfa",
 ]
-

@@ -31,8 +31,16 @@ def test_vicsek_fractal_basic_generation():
 
     # Test basic properties
     expected_size = 3**level
-    assert fractal.shape == (expected_size, expected_size), f"Fractal should be {expected_size}x{expected_size}"
-    assert fractal.dtype in [np.float64, np.float32, np.uint8, np.bool_], "Valid image dtype expected"
+    assert fractal.shape == (
+        expected_size,
+        expected_size,
+    ), f"Fractal should be {expected_size}x{expected_size}"
+    assert fractal.dtype in [
+        np.float64,
+        np.float32,
+        np.uint8,
+        np.bool_,
+    ], "Valid image dtype expected"
     assert np.all(np.isfinite(fractal)), "All values should be finite"
 
     # Test image properties
@@ -56,7 +64,10 @@ def test_vicsek_fractal_different_levels():
 
         # Test basic properties
         expected_size = 3**level
-        assert fractal.shape == (expected_size, expected_size), f"Level {level}: Incorrect image size"
+        assert fractal.shape == (
+            expected_size,
+            expected_size,
+        ), f"Level {level}: Incorrect image size"
 
         # Calculate fill ratio
         non_zero_pixels = np.sum(fractal > 0)
@@ -70,8 +81,9 @@ def test_vicsek_fractal_different_levels():
     # Vicsek fractal should become sparser as level increases
     for i in range(1, len(levels)):
         # Allow some tolerance due to discretization effects
-        assert fill_ratios[i] <= fill_ratios[i-1] * 1.1, \
-            f"Fill ratio should generally decrease with level (level {i} vs {i-1})"
+        assert (
+            fill_ratios[i] <= fill_ratios[i - 1] * 1.1
+        ), f"Fill ratio should generally decrease with level (level {i} vs {i-1})"
 
 
 def test_vicsek_fractal_theoretical_properties():
@@ -87,11 +99,12 @@ def test_vicsek_fractal_theoretical_properties():
     fractal = generate_vicsek_fractal(level=level)
 
     actual_fill_ratio = np.sum(fractal > 0) / (fractal.shape[0] * fractal.shape[1])
-    theoretical_fill_ratio = (5/9) ** level
+    theoretical_fill_ratio = (5 / 9) ** level
 
     # Allow tolerance due to discretization
-    assert abs(actual_fill_ratio - theoretical_fill_ratio) < 0.1, \
-        f"Actual fill ratio {actual_fill_ratio:.4f} should be close to theoretical {theoretical_fill_ratio:.4f}"
+    assert (
+        abs(actual_fill_ratio - theoretical_fill_ratio) < 0.1
+    ), f"Actual fill ratio {actual_fill_ratio:.4f} should be close to theoretical {theoretical_fill_ratio:.4f}"
 
 
 def test_vicsek_fractal_cross_structure():
@@ -114,22 +127,20 @@ def test_vicsek_fractal_cross_structure():
         assert np.any(center_region > 0), "Center region should be filled"
 
     # Test that the 4 corner regions contain similar patterns
-    positions = [
-        (0, 0), (0, 2*sub_size),
-        (2*sub_size, 0), (2*sub_size, 2*sub_size)
-    ]
+    positions = [(0, 0), (0, 2 * sub_size), (2 * sub_size, 0), (2 * sub_size, 2 * sub_size)]
 
     sub_patterns = []
     for y, x in positions:
-        sub_pattern = fractal[y:y+sub_size, x:x+sub_size]
+        sub_pattern = fractal[y : y + sub_size, x : x + sub_size]
         sub_patterns.append(np.sum(sub_pattern > 0))
 
     # All 4 corner sub-patterns should have similar fill ratios
     if len(sub_patterns) >= 2:
         mean_fill = np.mean(sub_patterns)
         for i, fill_count in enumerate(sub_patterns):
-            assert abs(fill_count - mean_fill) < mean_fill * 0.5, \
-                f"Corner pattern {i} should have similar fill count to mean"
+            assert (
+                abs(fill_count - mean_fill) < mean_fill * 0.5
+            ), f"Corner pattern {i} should have similar fill count to mean"
 
 
 def test_vicsek_fractal_symmetry():
@@ -150,8 +161,12 @@ def test_vicsek_fractal_symmetry():
 
         # Should be roughly centered
         total_size = fractal.shape[0]
-        assert abs(centroid_y - total_size // 2) < total_size // 4, "Should be roughly centered vertically"
-        assert abs(centroid_x - total_size // 2) < total_size // 4, "Should be roughly centered horizontally"
+        assert (
+            abs(centroid_y - total_size // 2) < total_size // 4
+        ), "Should be roughly centered vertically"
+        assert (
+            abs(centroid_x - total_size // 2) < total_size // 4
+        ), "Should be roughly centered horizontally"
 
 
 def test_vicsek_fractal_edge_cases():
@@ -214,15 +229,17 @@ def test_vicsek_fractal_fill_ratio_properties():
 
         # Should have decreasing fill ratio
         if level > 1:
-            theoretical_ratio = (5/9) ** level
+            theoretical_ratio = (5 / 9) ** level
             # Allow tolerance for discretization
-            assert abs(fill_ratio - theoretical_ratio) < 0.15, \
-                f"Level {level}: Fill ratio should be close to theoretical (5/9)^level"
+            assert (
+                abs(fill_ratio - theoretical_ratio) < 0.15
+            ), f"Level {level}: Fill ratio should be close to theoretical (5/9)^level"
 
     # Test monotonic decrease
     for i in range(1, len(fill_ratios)):
-        assert fill_ratios[i] <= fill_ratios[i-1], \
-            f"Fill ratio should decrease with level (level {i} vs {i-1})"
+        assert (
+            fill_ratios[i] <= fill_ratios[i - 1]
+        ), f"Fill ratio should decrease with level (level {i} vs {i-1})"
 
 
 def test_vicsek_vs_sierpinski_carpet():

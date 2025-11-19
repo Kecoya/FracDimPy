@@ -39,11 +39,7 @@ def test_brownian_motion_basic_generation():
     size = 256
     num_paths = 3
 
-    paths, image = generate_brownian_motion(
-        steps=steps,
-        size=size,
-        num_paths=num_paths
-    )
+    paths, image = generate_brownian_motion(steps=steps, size=size, num_paths=num_paths)
 
     # Test basic properties
     assert paths.shape[0] == num_paths, f"Should have {num_paths} paths"
@@ -74,11 +70,7 @@ def test_brownian_motion_properties():
     size = 512
     num_paths = 10
 
-    paths, image = generate_brownian_motion(
-        steps=steps,
-        size=size,
-        num_paths=num_paths
-    )
+    paths, image = generate_brownian_motion(steps=steps, size=size, num_paths=num_paths)
 
     # Test mean square displacement scaling
     # For Brownian motion, MSD should be proportional to time
@@ -105,12 +97,7 @@ def test_levy_flight_basic_generation():
     alpha = 1.5
     num_paths = 2
 
-    paths, image = generate_levy_flight(
-        steps=steps,
-        size=size,
-        alpha=alpha,
-        num_paths=num_paths
-    )
+    paths, image = generate_levy_flight(steps=steps, size=size, alpha=alpha, num_paths=num_paths)
 
     # Test basic properties
     assert paths.shape[0] == num_paths, f"Should have {num_paths} paths"
@@ -140,12 +127,7 @@ def test_levy_flight_different_alphas():
 
     max_step_lengths = []
     for alpha in alphas:
-        paths, image = generate_levy_flight(
-            steps=steps,
-            size=size,
-            alpha=alpha,
-            num_paths=3
-        )
+        paths, image = generate_levy_flight(steps=steps, size=size, alpha=alpha, num_paths=3)
 
         # Test basic properties
         assert paths.shape[1] == steps, f"Alpha {alpha}: Should have {steps} steps"
@@ -161,7 +143,9 @@ def test_levy_flight_different_alphas():
         max_step_lengths.append(max(all_step_lengths))
 
         # Test that there are steps of different lengths
-        assert len(set(all_step_lengths[:100])) > 1, f"Alpha {alpha}: Should have varied step lengths"
+        assert (
+            len(set(all_step_lengths[:100])) > 1
+        ), f"Alpha {alpha}: Should have varied step lengths"
 
     # Test that alpha=1.0 generally produces longer jumps than alpha=2.0
     # (though this is statistical, so we allow some tolerance)
@@ -181,18 +165,11 @@ def test_levy_flight_alpha_2_brownian():
 
     # Generate Lévy flight with alpha=2.0 (should be similar to Brownian motion)
     paths_levy, image_levy = generate_levy_flight(
-        steps=steps,
-        size=size,
-        alpha=2.0,
-        num_paths=num_paths
+        steps=steps, size=size, alpha=2.0, num_paths=num_paths
     )
 
     # Generate Brownian motion for comparison
-    paths_bm, image_bm = generate_brownian_motion(
-        steps=steps,
-        size=size,
-        num_paths=num_paths
-    )
+    paths_bm, image_bm = generate_brownian_motion(steps=steps, size=size, num_paths=num_paths)
 
     # Both should have the same shape
     assert paths_levy.shape == paths_bm.shape, "Should have same shape"
@@ -213,10 +190,7 @@ def test_self_avoiding_walk_basic_generation():
     max_retries = 1000
 
     paths, image = generate_self_avoiding_walk(
-        steps=steps,
-        size=size,
-        num_attempts=num_attempts,
-        max_retries=max_retries
+        steps=steps, size=size, num_attempts=num_attempts, max_retries=max_retries
     )
 
     # Test basic properties
@@ -248,10 +222,7 @@ def test_self_avoiding_walk_properties():
     max_retries = 1000
 
     paths, image = generate_self_avoiding_walk(
-        steps=steps,
-        size=size,
-        num_attempts=num_attempts,
-        max_retries=max_retries
+        steps=steps, size=size, num_attempts=num_attempts, max_retries=max_retries
     )
 
     if len(paths) > 0:
@@ -261,8 +232,9 @@ def test_self_avoiding_walk_properties():
             unique_positions = np.unique(path.reshape(-1, 2), axis=0)
 
             # Should be able to make reasonable progress
-            assert len(unique_positions) >= steps * 0.5, \
-                f"Path {i}: Should achieve at least 50% of requested steps"
+            assert (
+                len(unique_positions) >= steps * 0.5
+            ), f"Path {i}: Should achieve at least 50% of requested steps"
 
             # Test that path spreads out
             if len(unique_positions) > 10:
@@ -280,20 +252,13 @@ def test_random_walk_edge_cases():
     num_paths = 1
 
     # Brownian motion with minimal parameters
-    paths_bm, image_bm = generate_brownian_motion(
-        steps=steps,
-        size=size,
-        num_paths=num_paths
-    )
+    paths_bm, image_bm = generate_brownian_motion(steps=steps, size=size, num_paths=num_paths)
     assert paths_bm.shape == (1, steps, 2), "Small Brownian motion should work"
     assert image_bm.shape == (size, size), "Small image should work"
 
     # Lévy flight with minimal parameters
     paths_levy, image_levy = generate_levy_flight(
-        steps=steps,
-        size=size,
-        alpha=1.5,
-        num_paths=num_paths
+        steps=steps, size=size, alpha=1.5, num_paths=num_paths
     )
     assert paths_levy.shape == (1, steps, 2), "Small Lévy flight should work"
     assert image_levy.shape == (size, size), "Small image should work"
@@ -307,11 +272,7 @@ def test_brownian_motion_steps_parameter(steps):
     size = 256
     num_paths = 2
 
-    paths, image = generate_brownian_motion(
-        steps=steps,
-        size=size,
-        num_paths=num_paths
-    )
+    paths, image = generate_brownian_motion(steps=steps, size=size, num_paths=num_paths)
 
     assert paths.shape == (num_paths, steps, 2), f"Steps {steps}: Correct path shape"
     assert image.shape == (size, size), f"Steps {steps}: Correct image size"
@@ -327,12 +288,7 @@ def test_levy_flight_alpha_parameter(alpha):
     size = 256
     num_paths = 2
 
-    paths, image = generate_levy_flight(
-        steps=steps,
-        size=size,
-        alpha=alpha,
-        num_paths=num_paths
-    )
+    paths, image = generate_levy_flight(steps=steps, size=size, alpha=alpha, num_paths=num_paths)
 
     assert paths.shape == (num_paths, steps, 2), f"Alpha {alpha}: Correct path shape"
     assert image.shape == (size, size), f"Alpha {alpha}: Correct image size"

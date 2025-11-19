@@ -41,7 +41,7 @@ def test_box_counting_scatter_basic():
     assert np.isfinite(scatter_data).all(), "Scatter data should contain only finite values"
 
     # Calculate fractal dimension using box-counting
-    D, result = box_counting(scatter_data, data_type='scatter')
+    D, result = box_counting(scatter_data, data_type="scatter")
 
     # Basic result validation
     assert isinstance(D, (float, np.floating)), "Fractal dimension should be a number"
@@ -49,7 +49,7 @@ def test_box_counting_scatter_basic():
     assert 0 < D < 2, f"Fractal dimension {D} should be in reasonable range for 1D scatter data"
 
     # Check for required result keys
-    required_keys = ['R2']
+    required_keys = ["R2"]
     for key in required_keys:
         assert key in result, f"Result should contain '{key}' key"
 
@@ -61,10 +61,10 @@ def test_box_counting_scatter_goodness_of_fit():
     scatter_data = df.iloc[:, 0].values
 
     # Calculate fractal dimension
-    D, result = box_counting(scatter_data, data_type='scatter')
+    D, result = box_counting(scatter_data, data_type="scatter")
 
     # Check goodness of fit - should be reasonably high for good data
-    r_squared = result['R2']
+    r_squared = result["R2"]
     assert r_squared > 0.7, f"R² should be > 0.7 for good fit, got {r_squared}"
     assert r_squared <= 1.0, f"R² should not exceed 1.0, got {r_squared}"
 
@@ -78,7 +78,7 @@ def test_box_counting_scatter_consistency():
     # Calculate fractal dimension multiple times
     results = []
     for _ in range(3):
-        D, result = box_counting(scatter_data, data_type='scatter')
+        D, result = box_counting(scatter_data, data_type="scatter")
         results.append(D)
 
     # Results should be consistent (small variation due to potential randomness)
@@ -110,14 +110,16 @@ def test_box_counting_scatter_data_types():
 
     results = []
     for i, test_data in enumerate(test_cases):
-        D, result = box_counting(test_data, data_type='scatter')
+        D, result = box_counting(test_data, data_type="scatter")
         results.append(D)
 
         # Each calculation should produce valid results
         assert isinstance(D, (float, np.floating)), f"Test case {i} should produce numeric result"
         assert isinstance(result, dict), f"Test case {i} should produce dictionary result"
-        assert 0 < D < 2, f"Test case {i}: Fractal dimension {D} should be between 0 and 2 for 1D data"
-        assert result['R2'] > 0.5, f"Test case {i}: R² should be reasonable"
+        assert (
+            0 < D < 2
+        ), f"Test case {i}: Fractal dimension {D} should be between 0 and 2 for 1D data"
+        assert result["R2"] > 0.5, f"Test case {i}: R² should be reasonable"
 
 
 def test_box_counting_scatter_different_parameters():
@@ -129,21 +131,21 @@ def test_box_counting_scatter_different_parameters():
     # Test with different parameter combinations
     parameter_sets = [
         {},  # default parameters
-        {'min_box_size': 0.001},
-        {'max_box_size': 1.0},
-        {'num_boxes': 20},
-        {'min_box_size': 0.001, 'max_box_size': 1.0, 'num_boxes': 25}
+        {"min_box_size": 0.001},
+        {"max_box_size": 1.0},
+        {"num_boxes": 20},
+        {"min_box_size": 0.001, "max_box_size": 1.0, "num_boxes": 25},
     ]
 
     results = []
     for params in parameter_sets:
-        D, result = box_counting(scatter_data, data_type='scatter', **params)
+        D, result = box_counting(scatter_data, data_type="scatter", **params)
         results.append(D)
 
         # Each calculation should produce valid results
         assert isinstance(D, (float, np.floating)), f"Result with params {params} should be numeric"
         assert 0 < D < 2, f"Fractal dimension {D} should be in reasonable range for 1D scatter data"
-        assert result['R2'] > 0.5, f"R² should be reasonable for params {params}"
+        assert result["R2"] > 0.5, f"R² should be reasonable for params {params}"
 
     # Results should be relatively consistent across parameter variations
     mean_D = np.mean(results)
@@ -160,7 +162,7 @@ def test_box_counting_scatter_theoretical_bounds():
     scatter_data = df.iloc[:, 0].values
 
     # Calculate fractal dimension
-    D, result = box_counting(scatter_data, data_type='scatter')
+    D, result = box_counting(scatter_data, data_type="scatter")
 
     # For 1D scatter data, fractal dimension should be between 0 (isolated points) and 1 (continuous)
     # We use a slightly broader range to account for noise and discrete sampling
@@ -179,17 +181,21 @@ def test_box_counting_scatter_scaling_invariance():
 
     for scale in scales:
         scaled_data = scatter_data * scale
-        D, result = box_counting(scaled_data, data_type='scatter')
+        D, result = box_counting(scaled_data, data_type="scatter")
         results.append(D)
 
         # Each calculation should produce valid results
-        assert isinstance(D, (float, np.floating)), f"Scaled data (scale={scale}) should produce numeric result"
+        assert isinstance(
+            D, (float, np.floating)
+        ), f"Scaled data (scale={scale}) should produce numeric result"
         assert 0 < D < 2, f"Scaled data: Fractal dimension {D} should be between 0 and 2"
-        assert result['R2'] > 0.5, f"Scaled data: R² should be reasonable"
+        assert result["R2"] > 0.5, f"Scaled data: R² should be reasonable"
 
     # Results should be very consistent across scales (fractal dimension is scale-invariant)
     std_D = np.std(results)
     mean_D = np.mean(results)
     relative_std = std_D / mean_D if mean_D != 0 else std_D
 
-    assert relative_std < 0.05, f"Fractal dimension should be scale-invariant, relative std: {relative_std}"
+    assert (
+        relative_std < 0.05
+    ), f"Fractal dimension should be scale-invariant, relative std: {relative_std}"

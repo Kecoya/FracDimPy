@@ -65,7 +65,9 @@ def test_cantor_set_different_levels():
         cantor = generate_cantor_set(level=level, length=length)
 
         # Test length property
-        assert len(cantor) >= length, f"Level {level}: Expected length at least {length}, got {len(cantor)}"
+        assert (
+            len(cantor) >= length
+        ), f"Level {level}: Expected length at least {length}, got {len(cantor)}"
 
         # Test monotonic decrease in retained points
         retained_points = np.sum(cantor)
@@ -73,7 +75,9 @@ def test_cantor_set_different_levels():
 
         # For level > 0, should have fewer retained points than total
         if level > 0:
-            assert retained_points < len(cantor), f"Level {level}: Should retain fewer points than total"
+            assert retained_points < len(
+                cantor
+            ), f"Level {level}: Should retain fewer points than total"
 
 
 def test_cantor_set_self_similarity():
@@ -90,10 +94,12 @@ def test_cantor_set_self_similarity():
 
     # Extract first and last thirds
     first_third = cantor[:third_length]
-    last_third = cantor[2*third_length:]
+    last_third = cantor[2 * third_length :]
 
     # They should be identical (self-similarity)
-    assert np.array_equal(first_third, last_third), "First and last thirds should be identical (self-similarity)"
+    assert np.array_equal(
+        first_third, last_third
+    ), "First and last thirds should be identical (self-similarity)"
 
 
 def test_cantor_set_theoretical_properties():
@@ -109,11 +115,12 @@ def test_cantor_set_theoretical_properties():
     retention_ratio = retained_points / total_points
 
     # Theoretical retention ratio should be (2/3)^level
-    theoretical_ratio = (2/3) ** level
+    theoretical_ratio = (2 / 3) ** level
 
     # Allow some tolerance for numerical precision
-    assert abs(retention_ratio - theoretical_ratio) < 0.01, \
-        f"Retention ratio {retention_ratio:.6f} should be close to theoretical {theoretical_ratio:.6f}"
+    assert (
+        abs(retention_ratio - theoretical_ratio) < 0.01
+    ), f"Retention ratio {retention_ratio:.6f} should be close to theoretical {theoretical_ratio:.6f}"
 
     # Test theoretical fractal dimension
     theoretical_dim = np.log(2) / np.log(3)
@@ -135,4 +142,3 @@ def test_cantor_set_edge_cases():
         cantor = generate_cantor_set(level=level, length=length)
         assert len(cantor) >= length, f"Level {level}: Length should be at least {length}"
         assert np.sum(cantor) > 0, f"Level {level}: Should have retained points"
-

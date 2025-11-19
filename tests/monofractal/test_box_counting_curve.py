@@ -37,7 +37,7 @@ def test_box_counting_curve_basic():
     assert len(x) == len(y), "X and Y data should have same length"
 
     # Calculate fractal dimension using box-counting
-    D, result = box_counting((x, y), data_type='curve')
+    D, result = box_counting((x, y), data_type="curve")
 
     # Basic result validation
     assert isinstance(D, (float, np.floating)), "Fractal dimension should be a number"
@@ -45,7 +45,7 @@ def test_box_counting_curve_basic():
     assert 0 < D < 3, f"Fractal dimension {D} should be in reasonable range for 2D curve"
 
     # Check for required result keys
-    required_keys = ['R2']
+    required_keys = ["R2"]
     for key in required_keys:
         assert key in result, f"Result should contain '{key}' key"
 
@@ -58,10 +58,10 @@ def test_box_counting_curve_goodness_of_fit():
     y = df.iloc[:, 1].values
 
     # Calculate fractal dimension
-    D, result = box_counting((x, y), data_type='curve')
+    D, result = box_counting((x, y), data_type="curve")
 
     # Check goodness of fit - should be reasonably high for good data
-    r_squared = result['R2']
+    r_squared = result["R2"]
     assert r_squared > 0.8, f"R² should be > 0.8 for good fit, got {r_squared}"
     assert r_squared <= 1.0, f"R² should not exceed 1.0, got {r_squared}"
 
@@ -76,7 +76,7 @@ def test_box_counting_curve_consistency():
     # Calculate fractal dimension multiple times
     results = []
     for _ in range(3):
-        D, result = box_counting((x, y), data_type='curve')
+        D, result = box_counting((x, y), data_type="curve")
         results.append(D)
 
     # Results should be consistent (small variation due to potential randomness)
@@ -96,7 +96,7 @@ def test_box_counting_curve_theoretical_range():
     y = df.iloc[:, 1].values
 
     # Calculate fractal dimension
-    D, result = box_counting((x, y), data_type='curve')
+    D, result = box_counting((x, y), data_type="curve")
 
     # For a 2D curve, fractal dimension should be between 1 (smooth line) and 2 (space-filling)
     # We use a slightly broader range to account for noise and discrete sampling
@@ -113,21 +113,21 @@ def test_box_counting_curve_different_parameters():
     # Test with different parameter combinations
     parameter_sets = [
         {},  # default parameters
-        {'min_box_size': 0.001},
-        {'max_box_size': 1.0},
-        {'num_boxes': 20},
-        {'min_box_size': 0.001, 'max_box_size': 1.0, 'num_boxes': 25}
+        {"min_box_size": 0.001},
+        {"max_box_size": 1.0},
+        {"num_boxes": 20},
+        {"min_box_size": 0.001, "max_box_size": 1.0, "num_boxes": 25},
     ]
 
     results = []
     for params in parameter_sets:
-        D, result = box_counting((x, y), data_type='curve', **params)
+        D, result = box_counting((x, y), data_type="curve", **params)
         results.append(D)
 
         # Each calculation should produce valid results
         assert isinstance(D, (float, np.floating)), f"Result with params {params} should be numeric"
         assert 0 < D < 3, f"Fractal dimension {D} should be in reasonable range"
-        assert result['R2'] > 0.5, f"R² should be reasonable for params {params}"
+        assert result["R2"] > 0.5, f"R² should be reasonable for params {params}"
 
     # Results should be relatively consistent across parameter variations
     mean_D = np.mean(results)

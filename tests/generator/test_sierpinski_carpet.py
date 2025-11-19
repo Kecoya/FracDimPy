@@ -32,8 +32,16 @@ def test_sierpinski_carpet_basic_generation():
 
     # Test basic properties
     expected_size = 3**level
-    assert carpet.shape == (expected_size, expected_size), f"Carpet should be {expected_size}x{expected_size}"
-    assert carpet.dtype in [np.float64, np.float32, np.uint8, np.bool_], "Valid image dtype expected"
+    assert carpet.shape == (
+        expected_size,
+        expected_size,
+    ), f"Carpet should be {expected_size}x{expected_size}"
+    assert carpet.dtype in [
+        np.float64,
+        np.float32,
+        np.uint8,
+        np.bool_,
+    ], "Valid image dtype expected"
     assert np.all(np.isfinite(carpet)), "All values should be finite"
 
     # Test image properties
@@ -57,7 +65,10 @@ def test_sierpinski_carpet_different_levels():
 
         # Test basic properties
         expected_size = 3**level
-        assert carpet.shape == (expected_size, expected_size), f"Level {level}: Incorrect image size"
+        assert carpet.shape == (
+            expected_size,
+            expected_size,
+        ), f"Level {level}: Incorrect image size"
 
         # Calculate fill ratio
         non_zero_pixels = np.sum(carpet > 0)
@@ -71,8 +82,9 @@ def test_sierpinski_carpet_different_levels():
     # Sierpinski carpet should become sparser as level increases
     for i in range(1, len(levels)):
         # Allow some tolerance due to discretization effects
-        assert fill_ratios[i] <= fill_ratios[i-1] * 1.1, \
-            f"Fill ratio should generally decrease with level (level {i} vs {i-1})"
+        assert (
+            fill_ratios[i] <= fill_ratios[i - 1] * 1.1
+        ), f"Fill ratio should generally decrease with level (level {i} vs {i-1})"
 
 
 def test_sierpinski_carpet_theoretical_properties():
@@ -88,11 +100,12 @@ def test_sierpinski_carpet_theoretical_properties():
     carpet = generate_sierpinski_carpet(level=level)
 
     actual_fill_ratio = np.sum(carpet > 0) / (carpet.shape[0] * carpet.shape[1])
-    theoretical_fill_ratio = (8/9) ** level
+    theoretical_fill_ratio = (8 / 9) ** level
 
     # Allow tolerance due to discretization
-    assert abs(actual_fill_ratio - theoretical_fill_ratio) < 0.1, \
-        f"Actual fill ratio {actual_fill_ratio:.4f} should be close to theoretical {theoretical_fill_ratio:.4f}"
+    assert (
+        abs(actual_fill_ratio - theoretical_fill_ratio) < 0.1
+    ), f"Actual fill ratio {actual_fill_ratio:.4f} should be close to theoretical {theoretical_fill_ratio:.4f}"
 
 
 def test_sierpinski_carpet_self_similarity():
@@ -116,22 +129,28 @@ def test_sierpinski_carpet_self_similarity():
 
     # Test that the 8 outer regions contain similar patterns
     positions = [
-        (0, 0), (0, sub_size), (0, 2*sub_size),
-        (sub_size, 0), (sub_size, 2*sub_size),
-        (2*sub_size, 0), (2*sub_size, sub_size), (2*sub_size, 2*sub_size)
+        (0, 0),
+        (0, sub_size),
+        (0, 2 * sub_size),
+        (sub_size, 0),
+        (sub_size, 2 * sub_size),
+        (2 * sub_size, 0),
+        (2 * sub_size, sub_size),
+        (2 * sub_size, 2 * sub_size),
     ]
 
     sub_patterns = []
     for y, x in positions:
-        sub_pattern = carpet[y:y+sub_size, x:x+sub_size]
+        sub_pattern = carpet[y : y + sub_size, x : x + sub_size]
         sub_patterns.append(np.sum(sub_pattern > 0))
 
     # All 8 sub-patterns should have similar fill ratios
     if len(sub_patterns) >= 2:
         mean_fill = np.mean(sub_patterns)
         for i, fill_count in enumerate(sub_patterns):
-            assert abs(fill_count - mean_fill) < mean_fill * 0.5, \
-                f"Sub-pattern {i} should have similar fill count to mean"
+            assert (
+                abs(fill_count - mean_fill) < mean_fill * 0.5
+            ), f"Sub-pattern {i} should have similar fill count to mean"
 
 
 def test_sierpinski_carpet_edge_cases():
@@ -185,12 +204,14 @@ def test_sierpinski_carpet_fill_ratio_properties():
 
         # Should have decreasing fill ratio
         if level > 1:
-            theoretical_ratio = (8/9) ** level
+            theoretical_ratio = (8 / 9) ** level
             # Allow tolerance for discretization
-            assert abs(fill_ratio - theoretical_ratio) < 0.15, \
-                f"Level {level}: Fill ratio should be close to theoretical (8/9)^level"
+            assert (
+                abs(fill_ratio - theoretical_ratio) < 0.15
+            ), f"Level {level}: Fill ratio should be close to theoretical (8/9)^level"
 
     # Test monotonic decrease
     for i in range(1, len(fill_ratios)):
-        assert fill_ratios[i] <= fill_ratios[i-1], \
-            f"Fill ratio should decrease with level (level {i} vs {i-1})"
+        assert (
+            fill_ratios[i] <= fill_ratios[i - 1]
+        ), f"Fill ratio should decrease with level (level {i} vs {i-1})"

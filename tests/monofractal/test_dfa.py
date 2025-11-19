@@ -31,15 +31,17 @@ def generate_fgn(H, n=10000):
     """
     try:
         from fbm import FBM
-        f = FBM(n=n, hurst=H, length=1, method='daviesharte')
+
+        f = FBM(n=n, hurst=H, length=1, method="daviesharte")
         # Generate FGN using fgn() method
         fgn_values = f.fgn()
         return fgn_values
     except ImportError:
         # Use fracDimPy FBM generator as fallback
         from fracDimPy import generate_fbm_curve
+
         D = 2 - H
-        fbm_curve, _ = generate_fbm_curve(dimension=D, length=n+1)
+        fbm_curve, _ = generate_fbm_curve(dimension=D, length=n + 1)
         # FGN = diff(FBM)
         fgn = np.diff(fbm_curve)
         return fgn
@@ -82,31 +84,27 @@ def test_dfa_white_noise():
     white_noise = generate_white_noise(n=5000)
     alpha_theory = 0.5
 
-    alpha, result = dfa(
-        white_noise,
-        min_window=10,
-        max_window=500,
-        num_windows=20,
-        order=1
-    )
+    alpha, result = dfa(white_noise, min_window=10, max_window=500, num_windows=20, order=1)
 
     # Basic result validation
     assert isinstance(alpha, (float, np.floating)), "Alpha should be a number"
     assert isinstance(result, dict), "Result should be a dictionary"
-    assert 'dimension' in result, "Result should contain 'dimension'"
-    assert 'r_squared' in result, "Result should contain 'r_squared'"
+    assert "dimension" in result, "Result should contain 'dimension'"
+    assert "r_squared" in result, "Result should contain 'r_squared'"
 
     # Test theoretical expectation
-    assert pytest.approx(alpha, abs=0.15) == alpha_theory, \
-        f"White noise DFA alpha {alpha} should be close to theoretical {alpha_theory}"
+    assert (
+        pytest.approx(alpha, abs=0.15) == alpha_theory
+    ), f"White noise DFA alpha {alpha} should be close to theoretical {alpha_theory}"
 
     # Test fractal dimension relationship: D = 2 - alpha
     D_expected = 2 - alpha_theory
-    assert pytest.approx(result['dimension'], abs=0.15) == D_expected, \
-        f"Fractal dimension {result['dimension']} should be close to 2 - alpha"
+    assert (
+        pytest.approx(result["dimension"], abs=0.15) == D_expected
+    ), f"Fractal dimension {result['dimension']} should be close to 2 - alpha"
 
     # Goodness of fit should be reasonable
-    assert result['r_squared'] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
+    assert result["r_squared"] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
 
 
 def test_dfa_random_walk():
@@ -116,31 +114,27 @@ def test_dfa_random_walk():
     random_walk = generate_random_walk(n=5000)
     alpha_theory = 1.5
 
-    alpha, result = dfa(
-        random_walk,
-        min_window=10,
-        max_window=500,
-        num_windows=20,
-        order=1
-    )
+    alpha, result = dfa(random_walk, min_window=10, max_window=500, num_windows=20, order=1)
 
     # Basic result validation
     assert isinstance(alpha, (float, np.floating)), "Alpha should be a number"
     assert isinstance(result, dict), "Result should be a dictionary"
-    assert 'dimension' in result, "Result should contain 'dimension'"
-    assert 'r_squared' in result, "Result should contain 'r_squared'"
+    assert "dimension" in result, "Result should contain 'dimension'"
+    assert "r_squared" in result, "Result should contain 'r_squared'"
 
     # Test theoretical expectation
-    assert pytest.approx(alpha, abs=0.2) == alpha_theory, \
-        f"Random walk DFA alpha {alpha} should be close to theoretical {alpha_theory}"
+    assert (
+        pytest.approx(alpha, abs=0.2) == alpha_theory
+    ), f"Random walk DFA alpha {alpha} should be close to theoretical {alpha_theory}"
 
     # Test fractal dimension relationship: D = 2 - alpha
     D_expected = 2 - alpha_theory
-    assert pytest.approx(result['dimension'], abs=0.2) == D_expected, \
-        f"Fractal dimension {result['dimension']} should be close to 2 - alpha"
+    assert (
+        pytest.approx(result["dimension"], abs=0.2) == D_expected
+    ), f"Fractal dimension {result['dimension']} should be close to 2 - alpha"
 
     # Goodness of fit should be reasonable
-    assert result['r_squared'] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
+    assert result["r_squared"] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
 
 
 def test_dfa_fgn_anti_persistent():
@@ -150,27 +144,22 @@ def test_dfa_fgn_anti_persistent():
     fgn_03 = generate_fgn(H=0.3, n=5000)
     alpha_theory = 0.3
 
-    alpha, result = dfa(
-        fgn_03,
-        min_window=10,
-        max_window=500,
-        num_windows=20,
-        order=1
-    )
+    alpha, result = dfa(fgn_03, min_window=10, max_window=500, num_windows=20, order=1)
 
     # Basic result validation
     assert isinstance(alpha, (float, np.floating)), "Alpha should be a number"
     assert isinstance(result, dict), "Result should be a dictionary"
 
     # Test theoretical expectation
-    assert pytest.approx(alpha, abs=0.15) == alpha_theory, \
-        f"FGN(H=0.3) DFA alpha {alpha} should be close to theoretical {alpha_theory}"
+    assert (
+        pytest.approx(alpha, abs=0.15) == alpha_theory
+    ), f"FGN(H=0.3) DFA alpha {alpha} should be close to theoretical {alpha_theory}"
 
     # For FGN, alpha should be < 0.5 (anti-persistent)
     assert alpha < 0.5, f"Alpha {alpha} should be < 0.5 for anti-persistent FGN"
 
     # Goodness of fit should be reasonable
-    assert result['r_squared'] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
+    assert result["r_squared"] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
 
 
 def test_dfa_fgn_persistent():
@@ -180,27 +169,22 @@ def test_dfa_fgn_persistent():
     fgn_07 = generate_fgn(H=0.7, n=5000)
     alpha_theory = 0.7
 
-    alpha, result = dfa(
-        fgn_07,
-        min_window=10,
-        max_window=500,
-        num_windows=20,
-        order=1
-    )
+    alpha, result = dfa(fgn_07, min_window=10, max_window=500, num_windows=20, order=1)
 
     # Basic result validation
     assert isinstance(alpha, (float, np.floating)), "Alpha should be a number"
     assert isinstance(result, dict), "Result should be a dictionary"
 
     # Test theoretical expectation
-    assert pytest.approx(alpha, abs=0.15) == alpha_theory, \
-        f"FGN(H=0.7) DFA alpha {alpha} should be close to theoretical {alpha_theory}"
+    assert (
+        pytest.approx(alpha, abs=0.15) == alpha_theory
+    ), f"FGN(H=0.7) DFA alpha {alpha} should be close to theoretical {alpha_theory}"
 
     # For FGN, alpha should be > 0.5 (persistent)
     assert alpha > 0.5, f"Alpha {alpha} should be > 0.5 for persistent FGN"
 
     # Goodness of fit should be reasonable
-    assert result['r_squared'] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
+    assert result["r_squared"] > 0.7, f"R² should be > 0.7 for good fit, got {result['r_squared']}"
 
 
 def test_dfa_pink_noise():
@@ -210,24 +194,19 @@ def test_dfa_pink_noise():
     pink_noise = generate_pink_noise(n=5000)
     alpha_theory = 1.0
 
-    alpha, result = dfa(
-        pink_noise,
-        min_window=10,
-        max_window=500,
-        num_windows=20,
-        order=1
-    )
+    alpha, result = dfa(pink_noise, min_window=10, max_window=500, num_windows=20, order=1)
 
     # Basic result validation
     assert isinstance(alpha, (float, np.floating)), "Alpha should be a number"
     assert isinstance(result, dict), "Result should be a dictionary"
 
     # Test theoretical expectation (1/f noise should have alpha ≈ 1.0)
-    assert pytest.approx(alpha, abs=0.2) == alpha_theory, \
-        f"Pink noise DFA alpha {alpha} should be close to theoretical {alpha_theory}"
+    assert (
+        pytest.approx(alpha, abs=0.2) == alpha_theory
+    ), f"Pink noise DFA alpha {alpha} should be close to theoretical {alpha_theory}"
 
     # Goodness of fit should be reasonable
-    assert result['r_squared'] > 0.6, f"R² should be > 0.6 for good fit, got {result['r_squared']}"
+    assert result["r_squared"] > 0.6, f"R² should be > 0.6 for good fit, got {result['r_squared']}"
 
 
 def test_dfa_consistency():
@@ -239,13 +218,7 @@ def test_dfa_consistency():
     # Calculate DFA multiple times
     results = []
     for _ in range(3):
-        alpha, result = dfa(
-            white_noise,
-            min_window=10,
-            max_window=200,
-            num_windows=15,
-            order=1
-        )
+        alpha, result = dfa(white_noise, min_window=10, max_window=200, num_windows=15, order=1)
         results.append(alpha)
 
     # Results should be consistent (small variation due to potential randomness)
@@ -266,9 +239,9 @@ def test_dfa_different_parameters():
     # Test with different parameter combinations
     parameter_sets = [
         {},  # default parameters
-        {'min_window': 5, 'max_window': 300, 'num_windows': 20, 'order': 1},
-        {'min_window': 8, 'max_window': 400, 'num_windows': 25, 'order': 2},
-        {'min_window': 15, 'max_window': 500, 'num_windows': 30, 'order': 1},
+        {"min_window": 5, "max_window": 300, "num_windows": 20, "order": 1},
+        {"min_window": 8, "max_window": 400, "num_windows": 25, "order": 2},
+        {"min_window": 15, "max_window": 500, "num_windows": 30, "order": 1},
     ]
 
     results = []
@@ -277,9 +250,11 @@ def test_dfa_different_parameters():
         results.append(alpha)
 
         # Each calculation should produce valid results
-        assert isinstance(alpha, (float, np.floating)), f"Result with params {params} should be numeric"
+        assert isinstance(
+            alpha, (float, np.floating)
+        ), f"Result with params {params} should be numeric"
         assert 0 < alpha < 2, f"Alpha {alpha} should be in reasonable range"
-        assert result['r_squared'] > 0.5, f"R² should be reasonable for params {params}"
+        assert result["r_squared"] > 0.5, f"R² should be reasonable for params {params}"
 
     # Results should be relatively consistent across parameter variations
     mean_alpha = np.mean(results)
@@ -313,14 +288,16 @@ def test_dfa_input_validation():
             min_window=5,
             max_window=min(len(test_data) // 4, 100),
             num_windows=15,
-            order=1
+            order=1,
         )
 
         # Each test case should produce valid results
-        assert isinstance(alpha, (float, np.floating)), f"Test case {i} should produce numeric result"
+        assert isinstance(
+            alpha, (float, np.floating)
+        ), f"Test case {i} should produce numeric result"
         assert isinstance(result, dict), f"Test case {i} should produce dictionary result"
         assert 0 < alpha < 2, f"Test case {i}: Alpha {alpha} should be between 0 and 2"
-        assert result['r_squared'] > 0.3, f"Test case {i}: R² should be reasonable"
+        assert result["r_squared"] > 0.3, f"Test case {i}: R² should be reasonable"
 
 
 def test_dfa_theoretical_relationships():
@@ -329,20 +306,14 @@ def test_dfa_theoretical_relationships():
     np.random.seed(42)
     white_noise = generate_white_noise(n=2000)
 
-    alpha, result = dfa(
-        white_noise,
-        min_window=10,
-        max_window=200,
-        num_windows=15,
-        order=1
-    )
+    alpha, result = dfa(white_noise, min_window=10, max_window=200, num_windows=15, order=1)
 
     # Test fractal dimension relationship: D = 2 - alpha
     D_expected = 2 - alpha
-    assert pytest.approx(result['dimension'], rel=1e-10) == D_expected, \
-        f"Fractal dimension should satisfy D = 2 - alpha, got D={result['dimension']}, alpha={alpha}"
+    assert (
+        pytest.approx(result["dimension"], rel=1e-10) == D_expected
+    ), f"Fractal dimension should satisfy D = 2 - alpha, got D={result['dimension']}, alpha={alpha}"
 
     # Test bounds on alpha and dimension
     assert 0 < alpha < 2, f"Alpha {alpha} should be between 0 and 2"
-    assert 0 < result['dimension'] < 2, f"Dimension {result['dimension']} should be between 0 and 2"
-
+    assert 0 < result["dimension"] < 2, f"Dimension {result['dimension']} should be between 0 and 2"

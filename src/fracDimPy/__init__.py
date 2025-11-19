@@ -49,15 +49,11 @@ from .monofractal import (
     sandbox_method,
     information_dimension,
     correlation_dimension,
-    dfa
+    dfa,
 )
 
 # Import multifractal analysis functions
-from .multifractal import (
-    multifractal_curve,
-    multifractal_image,
-    mf_dfa
-)
+from .multifractal import multifractal_curve, multifractal_image, mf_dfa
 
 # Import fractal generator functions
 from .generator import (
@@ -81,48 +77,47 @@ from .generator import (
     generate_levy_flight,
     generate_self_avoiding_walk,
     generate_dla,
-    generate_menger_sponge
+    generate_menger_sponge,
 )
 
 __all__ = [
     # Monofractal analysis functions
-    'hurst_dimension',
-    'structural_function',
-    'variogram_method',
-    'box_counting',
-    'sandbox_method',
-    'information_dimension',
-    'correlation_dimension',
-    'dfa',
+    "hurst_dimension",
+    "structural_function",
+    "variogram_method",
+    "box_counting",
+    "sandbox_method",
+    "information_dimension",
+    "correlation_dimension",
+    "dfa",
     # Multifractal analysis functions
-    'multifractal_curve',
-    'multifractal_image',
-    'mf_dfa',
+    "multifractal_curve",
+    "multifractal_image",
+    "mf_dfa",
     # Fractal generation functions - curves
-    'generate_fbm_curve',
-    'generate_wm_curve',
-    'generate_takagi_curve',
+    "generate_fbm_curve",
+    "generate_wm_curve",
+    "generate_takagi_curve",
     # Fractal generation functions - surfaces
-    'generate_fbm_surface',
-    'generate_wm_surface',
-    'generate_takagi_surface',
+    "generate_fbm_surface",
+    "generate_wm_surface",
+    "generate_takagi_surface",
     # Fractal generation functions - geometric
-    'generate_cantor_set',
-    'generate_sierpinski',
-    'generate_sierpinski_carpet',
-    'generate_vicsek_fractal',
-    'generate_koch_curve',
-    'generate_koch_snowflake',
+    "generate_cantor_set",
+    "generate_sierpinski",
+    "generate_sierpinski_carpet",
+    "generate_vicsek_fractal",
+    "generate_koch_curve",
+    "generate_koch_snowflake",
     # Fractal generation functions - random
-    'generate_brownian_motion',
-    'generate_levy_flight',
-    'generate_self_avoiding_walk',
-    'generate_dla',
-    'generate_menger_sponge',
+    "generate_brownian_motion",
+    "generate_levy_flight",
+    "generate_self_avoiding_walk",
+    "generate_dla",
+    "generate_menger_sponge",
     # Main modules
-    'monofractal',
-    'multifractal',
-    'generator',
-    'utils',
+    "monofractal",
+    "multifractal",
+    "generator",
+    "utils",
 ]
-

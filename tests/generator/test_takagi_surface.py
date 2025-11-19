@@ -41,7 +41,7 @@ def test_takagi_surface_basic_generation():
     assert len(np.unique(surface)) > 10, "Should have sufficient variation in values"
 
     # Test parameter b calculation
-    b = 2 ** dimension / 8
+    b = 2**dimension / 8
     assert 2 < dimension < 3, f"Fractal dimension {dimension} should be in (2, 3)"
     assert b > 0, f"Parameter b {b} should be positive"
 
@@ -66,7 +66,7 @@ def test_takagi_surface_different_dimensions():
         std_devs.append(std_dev)
 
         # Test parameter b calculation
-        b = 2 ** dimension / 8
+        b = 2**dimension / 8
         assert 2 < dimension < 3, f"Dimension {dimension}: Should be in (2, 3)"
         assert b > 0, f"Dimension {dimension}: Parameter b should be positive"
 
@@ -75,7 +75,9 @@ def test_takagi_surface_different_dimensions():
     for i in range(1, len(dimensions)):
         # Higher dimension should generally give higher standard deviation
         # But we allow for some tolerance
-        assert std_devs[i] > 0, f"Dimension {dimensions[i]}: Should have positive standard deviation"
+        assert (
+            std_devs[i] > 0
+        ), f"Dimension {dimensions[i]}: Should have positive standard deviation"
 
 
 def test_takagi_surface_different_levels():
@@ -120,8 +122,8 @@ def test_takagi_surface_theoretical_properties():
     assert 2.0 < dimension < 3.0, f"Fractal dimension {dimension} should be in (2, 3)"
 
     # Test parameter b relationship
-    b = 2 ** dimension / 8
-    expected_b = 2 ** 2.5 / 8
+    b = 2**dimension / 8
+    expected_b = 2**2.5 / 8
     assert abs(b - expected_b) < 0.001, f"Parameter b {b} should match formula"
 
     # Test that surface has expected statistical properties
@@ -136,7 +138,9 @@ def test_takagi_surface_theoretical_properties():
     # Test theoretical dimension-b relationship
     # From theory: D = log(8*b) / log(2), so b = 2^D / 8
     calculated_D = np.log(8 * b) / np.log(2)
-    assert abs(calculated_D - dimension) < 0.001, f"Calculated D {calculated_D} should match input {dimension}"
+    assert (
+        abs(calculated_D - dimension) < 0.001
+    ), f"Calculated D {calculated_D} should match input {dimension}"
 
 
 def test_takagi_surface_edge_cases():
@@ -152,7 +156,7 @@ def test_takagi_surface_edge_cases():
 
     # Test with extreme dimensions
     for dimension in [2.01, 2.99]:
-        b = 2 ** dimension / 8
+        b = 2**dimension / 8
         assert 0 < b, f"Extreme dimension {dimension}: Parameter b should be positive"
 
         surface = generate_takagi_surface(dimension=dimension, level=8, size=64)
@@ -185,10 +189,10 @@ def test_takagi_surface_self_similarity():
     region_size = size // 4
     regions = [
         surface[:region_size, :region_size],
-        surface[region_size:2*region_size, region_size:2*region_size],
+        surface[region_size : 2 * region_size, region_size : 2 * region_size],
         surface[-region_size:, -region_size:],
         surface[:region_size, -region_size:],
-        surface[-region_size:, :region_size]
+        surface[-region_size:, :region_size],
     ]
 
     # Test that different regions have similar statistical properties
@@ -197,8 +201,9 @@ def test_takagi_surface_self_similarity():
 
     # All regions should have similar standard deviations (within tolerance)
     for i, std_dev in enumerate(std_devs):
-        assert abs(std_dev - mean_std) < 0.5 * mean_std, \
-            f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
+        assert (
+            abs(std_dev - mean_std) < 0.5 * mean_std
+        ), f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
 
 
 def test_takagi_surface_parameter_b():
@@ -211,7 +216,7 @@ def test_takagi_surface_parameter_b():
 
     for dimension in dimensions:
         # Calculate expected b
-        expected_b = 2 ** dimension / 8
+        expected_b = 2**dimension / 8
 
         # Generate surface
         surface = generate_takagi_surface(dimension=dimension, level=level, size=size)
@@ -225,14 +230,15 @@ def test_takagi_surface_parameter_b():
 
         # Test that higher dimensions give higher b values
         if dimension > 2.1:
-            current_b = 2 ** dimension / 8
-            reference_b = 2 ** 2.1 / 8
+            current_b = 2**dimension / 8
+            reference_b = 2**2.1 / 8
             assert current_b > reference_b, f"Higher dimension {dimension} should give higher b"
 
         # Test theoretical relationship: D = log(8*b) / log(2)
         calculated_D = np.log(8 * expected_b) / np.log(2)
-        assert abs(calculated_D - dimension) < 0.001, \
-            f"Dimension {dimension}: Calculated D {calculated_D} should match input"
+        assert (
+            abs(calculated_D - dimension) < 0.001
+        ), f"Dimension {dimension}: Calculated D {calculated_D} should match input"
 
 
 def test_takagi_surface_deterministic_properties():
@@ -284,13 +290,14 @@ def test_takagi_surface_dimension_parameter(dimension):
     assert 2.0 < dimension < 3.0, f"Dimension {dimension}: Should be in valid range"
 
     # Test parameter b calculation
-    b = 2 ** dimension / 8
+    b = 2**dimension / 8
     assert 0.0 < b, f"Dimension {dimension}: Parameter b should be positive"
 
     # Test theoretical relationship
     calculated_D = np.log(8 * b) / np.log(2)
-    assert abs(calculated_D - dimension) < 0.001, \
-        f"Dimension {dimension}: Calculated D should match input"
+    assert (
+        abs(calculated_D - dimension) < 0.001
+    ), f"Dimension {dimension}: Calculated D should match input"
 
 
 @pytest.mark.parametrize("level", [5, 8, 12, 15])

@@ -26,17 +26,21 @@ def test_menger_sponge_basic_generation():
 
     # Test basic generation
     level = 2
-    size = 3 ** level
+    size = 3**level
     sponge = generate_menger_sponge(level=level, size=size)
 
     # Test basic properties
-    assert sponge.shape == (size, size, size), f"Expected shape {(size, size, size)}, got {sponge.shape}"
+    assert sponge.shape == (
+        size,
+        size,
+        size,
+    ), f"Expected shape {(size, size, size)}, got {sponge.shape}"
     assert sponge.dtype in [np.float64, np.float32, np.uint8, np.bool_], "Expected valid dtype"
     assert np.all(np.isfinite(sponge)), "All values should be finite"
 
     # Test Menger sponge properties
     assert np.any(sponge > 0), "Should have some filled voxels"
-    assert np.sum(sponge) < size ** 3, "Should not fill all voxels"
+    assert np.sum(sponge) < size**3, "Should not fill all voxels"
 
     # Test boundary conditions
     assert sponge[0, 0, 0] > 0, "Corner voxels should be filled"
@@ -52,14 +56,18 @@ def test_menger_sponge_different_levels():
     levels = [0, 1, 2, 3]
 
     for level in levels:
-        size = 3 ** level
+        size = 3**level
         sponge = generate_menger_sponge(level=level, size=size)
 
         # Test shape property
-        assert sponge.shape == (size, size, size), f"Level {level}: Expected shape {(size, size, size)}, got {sponge.shape}"
+        assert sponge.shape == (
+            size,
+            size,
+            size,
+        ), f"Level {level}: Expected shape {(size, size, size)}, got {sponge.shape}"
 
         filled_voxels = np.sum(sponge)
-        total_voxels = size ** 3
+        total_voxels = size**3
         fill_ratio = filled_voxels / total_voxels
 
         # Test valid fill ratio
@@ -77,19 +85,20 @@ def test_menger_sponge_theoretical_properties():
 
     # Test with higher level for better approximation
     level = 3
-    size = 3 ** level
+    size = 3**level
     sponge = generate_menger_sponge(level=level, size=size)
 
     filled_voxels = np.sum(sponge)
-    total_voxels = size ** 3
+    total_voxels = size**3
     fill_ratio = filled_voxels / total_voxels
 
     # Theoretical fill ratio should be (20/27)^level
-    theoretical_ratio = (20/27) ** level
+    theoretical_ratio = (20 / 27) ** level
 
     # Allow some tolerance for numerical precision
-    assert abs(fill_ratio - theoretical_ratio) < 0.01, \
-        f"Fill ratio {fill_ratio:.6f} should be close to theoretical {theoretical_ratio:.6f}"
+    assert (
+        abs(fill_ratio - theoretical_ratio) < 0.01
+    ), f"Fill ratio {fill_ratio:.6f} should be close to theoretical {theoretical_ratio:.6f}"
 
     # Test theoretical fractal dimension
     theoretical_dim = np.log(20) / np.log(3)
@@ -99,8 +108,9 @@ def test_menger_sponge_theoretical_properties():
     if level >= 1:
         center_start = size // 3
         center_end = 2 * size // 3
-        assert np.all(sponge[center_start:center_end, center_start:center_end, center_start:center_end] == 0), \
-            "Center cube should be empty"
+        assert np.all(
+            sponge[center_start:center_end, center_start:center_end, center_start:center_end] == 0
+        ), "Center cube should be empty"
 
 
 def test_menger_sponge_self_similarity():
@@ -108,7 +118,7 @@ def test_menger_sponge_self_similarity():
     from fracDimPy import generate_menger_sponge
 
     level = 2
-    size = 3 ** level
+    size = 3**level
     sponge = generate_menger_sponge(level=level, size=size)
 
     # Test self-similarity: each of the 20 sub-cubes should contain
@@ -149,11 +159,11 @@ def test_menger_sponge_edge_cases():
 
     # Test with different levels to ensure robustness
     for level in [1, 2, 3]:
-        size = 3 ** level
+        size = 3**level
         sponge = generate_menger_sponge(level=level, size=size)
         assert sponge.shape == (size, size, size), f"Level {level}: Incorrect shape"
         assert np.sum(sponge) > 0, f"Level {level}: Should have filled voxels"
-        assert np.sum(sponge) < size ** 3, f"Level {level}: Should not fill all voxels"
+        assert np.sum(sponge) < size**3, f"Level {level}: Should not fill all voxels"
 
 
 @pytest.mark.parametrize("level", [0, 1, 2, 3])
@@ -161,7 +171,7 @@ def test_menger_sponge_level_parameter(level):
     """Test Menger sponge generation with different level parameters."""
     from fracDimPy import generate_menger_sponge
 
-    size = 3 ** level
+    size = 3**level
     sponge = generate_menger_sponge(level=level, size=size)
 
     assert sponge.shape == (size, size, size), f"Level {level}: Correct shape"
@@ -169,12 +179,13 @@ def test_menger_sponge_level_parameter(level):
     assert np.all(np.isfinite(sponge)), f"Level {level}: All values should be finite"
 
     # Test volume ratio decreases with level
-    total_voxels = size ** 3
+    total_voxels = size**3
     filled_voxels = np.sum(sponge)
     fill_ratio = filled_voxels / total_voxels
 
     # For level >= 1, fill ratio should be (20/27)^level approximately
     if level >= 1:
-        expected_ratio = (20/27) ** level
-        assert abs(fill_ratio - expected_ratio) < 0.1, \
-            f"Level {level}: Fill ratio {fill_ratio:.3f} should be close to {expected_ratio:.3f}"
+        expected_ratio = (20 / 27) ** level
+        assert (
+            abs(fill_ratio - expected_ratio) < 0.1
+        ), f"Level {level}: Fill ratio {fill_ratio:.3f} should be close to {expected_ratio:.3f}"

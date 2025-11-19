@@ -36,17 +36,16 @@ from .custom_epsilon import (
     advise_mtepsilon,
     coordinate_to_matrix,
     fill_vacancy,
-    is_power_of_two
+    is_power_of_two,
 )
 
 __all__ = [
-    'multifractal_curve',
-    'multifractal_image',
-    'mf_dfa',
-    'custom_epsilon',
-    'advise_mtepsilon',
-    'coordinate_to_matrix',
-    'fill_vacancy',
-    'is_power_of_two',
+    "multifractal_curve",
+    "multifractal_image",
+    "mf_dfa",
+    "custom_epsilon",
+    "advise_mtepsilon",
+    "coordinate_to_matrix",
+    "fill_vacancy",
+    "is_power_of_two",
 ]
-

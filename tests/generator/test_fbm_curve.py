@@ -24,7 +24,7 @@ def test_fbm_curve_basic_generation():
 
     # Test basic generation
     target_D = 1.5  # Target fractal dimension
-    length = 2048   # Curve length (number of sampling points)
+    length = 2048  # Curve length (number of sampling points)
 
     curve, D_set = generate_fbm_curve(dimension=target_D, length=length)
 
@@ -35,7 +35,9 @@ def test_fbm_curve_basic_generation():
 
     # Test that D_set is close to target_D
     assert isinstance(D_set, (int, float, np.number)), "D_set should be a number"
-    assert abs(D_set - target_D) < 0.1, f"Set dimension {D_set} should be close to target {target_D}"
+    assert (
+        abs(D_set - target_D) < 0.1
+    ), f"Set dimension {D_set} should be close to target {target_D}"
 
     # Test FBM curve properties
     assert curve.min() < curve.max(), "Should have variation in curve values"
@@ -72,7 +74,9 @@ def test_fbm_curve_different_dimensions():
     # Test that standard deviation generally varies with fractal dimension
     # Allow for some variation due to randomness, but check that we have different values
     unique_std_devs = len(np.unique(np.round(std_devs, 6)))
-    assert unique_std_devs >= 2, "Should have different standard deviations for different dimensions"
+    assert (
+        unique_std_devs >= 2
+    ), "Should have different standard deviations for different dimensions"
 
 
 def test_fbm_curve_hurst_exponent():
@@ -91,11 +95,15 @@ def test_fbm_curve_hurst_exponent():
         # Test basic properties
         assert len(curve) == length, f"H={H}: Incorrect length"
         assert np.all(np.isfinite(curve)), f"H={H}: All values should be finite"
-        assert abs(D_set - dimension) < 0.1, f"H={H}: D_set {D_set} should be close to target {dimension}"
+        assert (
+            abs(D_set - dimension) < 0.1
+        ), f"H={H}: D_set {D_set} should be close to target {dimension}"
 
         # Test that curve has reasonable properties
         assert curve.std() > 0, f"H={H}: Curve should have non-zero standard deviation"
-        assert len(np.unique(curve)) > length // 20, f"H={H}: Curve should have sufficient variation"
+        assert (
+            len(np.unique(curve)) > length // 20
+        ), f"H={H}: Curve should have sufficient variation"
 
 
 def test_fbm_curve_theoretical_properties():
@@ -120,16 +128,20 @@ def test_fbm_curve_theoretical_properties():
 
     # FBM curves should have approximately zero mean (or can be normalized)
     # We allow for some deviation due to random generation
-    assert abs(mean_val) < 3 * std_val, f"Mean {mean_val} should be reasonable relative to std {std_val}"
+    assert (
+        abs(mean_val) < 3 * std_val
+    ), f"Mean {mean_val} should be reasonable relative to std {std_val}"
 
     # Test theoretical dimension calculation
-    assert abs(dimension + H - 2) < 0.001, f"Dimension {dimension} and H {H} should satisfy D + H = 2"
+    assert (
+        abs(dimension + H - 2) < 0.001
+    ), f"Dimension {dimension} and H {H} should satisfy D + H = 2"
 
     # Test self-similarity property by checking variance at different scales
     # This is a simplified test - true self-similarity analysis would be more complex
     quarter_length = length // 4
     quarter_std = curve[:quarter_length].std()
-    half_std = curve[:length//2].std()
+    half_std = curve[: length // 2].std()
     full_std = curve.std()
 
     # Standard deviations should scale appropriately (simplified test)
@@ -157,7 +169,9 @@ def test_fbm_curve_edge_cases():
         curve, D_set = generate_fbm_curve(dimension=dimension, length=512)
         assert len(curve) == 512, f"Dimension {dimension}: Incorrect length"
         assert np.all(np.isfinite(curve)), f"Dimension {dimension}: All values should be finite"
-        assert abs(D_set - dimension) < 0.1, f"Dimension {dimension}: D_set should be close to target"
+        assert (
+            abs(D_set - dimension) < 0.1
+        ), f"Dimension {dimension}: D_set should be close to target"
 
     # Test with large length
     length = 4096
@@ -208,7 +222,7 @@ def test_fbm_curve_statistical_properties():
 
     # Test that curve has variation across different segments
     segment_size = length // 8
-    segments = [curve[i*segment_size:(i+1)*segment_size] for i in range(8)]
+    segments = [curve[i * segment_size : (i + 1) * segment_size] for i in range(8)]
 
     # Each segment should have different statistics (within tolerance)
     segment_means = [seg.mean() for seg in segments]

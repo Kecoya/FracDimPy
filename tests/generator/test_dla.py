@@ -32,7 +32,13 @@ def test_dla_basic_generation():
 
     # Test basic properties
     assert dla.shape == (size, size), f"Expected shape {(size, size)}, got {dla.shape}"
-    assert dla.dtype in [np.float64, np.float32, np.uint8, np.uint16, np.bool_], "Expected valid dtype"
+    assert dla.dtype in [
+        np.float64,
+        np.float32,
+        np.uint8,
+        np.uint16,
+        np.bool_,
+    ], "Expected valid dtype"
     assert np.all(np.isfinite(dla)), "All DLA values should be finite"
 
     # Test DLA structure properties
@@ -86,16 +92,21 @@ def test_dla_different_particle_counts():
         assert dla.shape == (size, size), f"Particles {num_particles}: Incorrect shape"
         assert np.all(np.isfinite(dla)), f"Particles {num_particles}: All values should be finite"
         assert occupied > 0, f"Particles {num_particles}: Should have occupied cells"
-        assert occupied <= num_particles, f"Particles {num_particles}: Should not exceed particle count"
+        assert (
+            occupied <= num_particles
+        ), f"Particles {num_particles}: Should not exceed particle count"
 
         # Test success rate (should be reasonable)
         success_rate = occupied / num_particles
-        assert 0.1 <= success_rate <= 1.0, f"Particles {num_particles}: Success rate {success_rate} should be reasonable"
+        assert (
+            0.1 <= success_rate <= 1.0
+        ), f"Particles {num_particles}: Success rate {success_rate} should be reasonable"
 
     # Test that more particles generally lead to more occupied cells
     for i in range(1, len(particle_counts)):
-        assert occupied_counts[i] >= occupied_counts[i-1] * 0.8, \
-            f"Should have more occupied cells with more particles"
+        assert (
+            occupied_counts[i] >= occupied_counts[i - 1] * 0.8
+        ), f"Should have more occupied cells with more particles"
 
 
 def test_dla_fractal_properties():
@@ -123,21 +134,25 @@ def test_dla_fractal_properties():
 
     if len(occupied_positions[0]) > 0:
         # Test that structure extends outward from center
-        max_distance = np.max(np.sqrt((occupied_positions[0] - center)**2 +
-                                     (occupied_positions[1] - center)**2))
+        max_distance = np.max(
+            np.sqrt((occupied_positions[0] - center) ** 2 + (occupied_positions[1] - center) ** 2)
+        )
         assert max_distance > size // 4, "Structure should extend outward from center"
 
         # Test that occupied cells form a connected structure (simplified test)
         # The center should be connected to other occupied cells
         center_neighbors = [
-            (center-1, center), (center+1, center),
-            (center, center-1), (center, center+1)
+            (center - 1, center),
+            (center + 1, center),
+            (center, center - 1),
+            (center, center + 1),
         ]
 
         # At least one neighbor of center should be occupied (if enough particles)
         if occupied > 100:  # Only test if we have enough particles
-            neighbor_occupied = any(0 <= x < size and 0 <= y < size and dla[x, y] > 0
-                                  for x, y in center_neighbors)
+            neighbor_occupied = any(
+                0 <= x < size and 0 <= y < size and dla[x, y] > 0 for x, y in center_neighbors
+            )
             # Note: This might not always be true due to randomness, so we don't strictly enforce it
 
 
@@ -169,8 +184,9 @@ def test_dla_theoretical_properties():
     if len(occupied_positions[0]) > 50:
         # Calculate some simple structural properties
         center = size // 2
-        distances = np.sqrt((occupied_positions[0] - center)**2 +
-                          (occupied_positions[1] - center)**2)
+        distances = np.sqrt(
+            (occupied_positions[0] - center) ** 2 + (occupied_positions[1] - center) ** 2
+        )
 
         # Test that particles are at various distances from center
         distance_range = np.max(distances) - np.min(distances)
@@ -227,10 +243,12 @@ def test_dla_structure_connectivity():
         assert len(occupied_positions[0]) == occupied, "Occupied positions count should match"
 
         # Test that positions are within bounds
-        assert np.all(occupied_positions[0] >= 0) and np.all(occupied_positions[0] < size), \
-            "X positions should be within bounds"
-        assert np.all(occupied_positions[1] >= 0) and np.all(occupied_positions[1] < size), \
-            "Y positions should be within bounds"
+        assert np.all(occupied_positions[0] >= 0) and np.all(
+            occupied_positions[0] < size
+        ), "X positions should be within bounds"
+        assert np.all(occupied_positions[1] >= 0) and np.all(
+            occupied_positions[1] < size
+        ), "Y positions should be within bounds"
 
         # Test that there's a reasonable distribution of occupied cells
         unique_x = len(np.unique(occupied_positions[0]))
@@ -301,4 +319,6 @@ def test_dla_particles_parameter(num_particles):
 
     # Test success rate
     success_rate = occupied / num_particles
-    assert 0.1 <= success_rate <= 1.0, f"Particles {num_particles}: Success rate should be reasonable"
+    assert (
+        0.1 <= success_rate <= 1.0
+    ), f"Particles {num_particles}: Success rate should be reasonable"

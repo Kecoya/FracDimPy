@@ -25,7 +25,7 @@ def test_fbm_surface_basic_generation():
 
     # Test basic generation
     dimension = 2.3  # Target fractal dimension
-    size = 256       # Surface size (number of pixels)
+    size = 256  # Surface size (number of pixels)
 
     surface = generate_fbm_surface(dimension=dimension, size=size)
 
@@ -70,8 +70,9 @@ def test_fbm_surface_different_dimensions():
     for i in range(1, len(dimensions)):
         # Higher dimension should generally give higher standard deviation
         # But we allow for some tolerance due to randomness
-        assert abs(std_devs[i] - std_devs[i-1]) < max(std_devs) * 0.5, \
-            f"Std dev should not vary dramatically between dimensions {dimensions[i]} and {dimensions[i-1]}"
+        assert (
+            abs(std_devs[i] - std_devs[i - 1]) < max(std_devs) * 0.5
+        ), f"Std dev should not vary dramatically between dimensions {dimensions[i]} and {dimensions[i-1]}"
 
 
 def test_fbm_surface_hurst_exponent():
@@ -118,10 +119,14 @@ def test_fbm_surface_theoretical_properties():
 
     # FBM surfaces should have approximately zero mean (or can be normalized)
     # We allow for some deviation due to random generation
-    assert abs(mean_val) < 5 * std_val, f"Mean {mean_val} should be reasonable relative to std {std_val}"
+    assert (
+        abs(mean_val) < 5 * std_val
+    ), f"Mean {mean_val} should be reasonable relative to std {std_val}"
 
     # Test theoretical dimension calculation
-    assert abs(dimension + H - 3) < 0.001, f"Dimension {dimension} and H {H} should satisfy D + H = 3"
+    assert (
+        abs(dimension + H - 3) < 0.001
+    ), f"Dimension {dimension} and H {H} should satisfy D + H = 3"
 
 
 def test_fbm_surface_edge_cases():
@@ -166,10 +171,10 @@ def test_fbm_surface_self_similarity():
     region_size = size // 4
     regions = [
         surface[:region_size, :region_size],
-        surface[region_size:2*region_size, region_size:2*region_size],
+        surface[region_size : 2 * region_size, region_size : 2 * region_size],
         surface[-region_size:, -region_size:],
         surface[:region_size, -region_size:],
-        surface[-region_size:, :region_size]
+        surface[-region_size:, :region_size],
     ]
 
     # Test that different regions have similar statistical properties
@@ -178,8 +183,9 @@ def test_fbm_surface_self_similarity():
 
     # All regions should have similar standard deviations (within tolerance)
     for i, std_dev in enumerate(std_devs):
-        assert abs(std_dev - mean_std) < 0.5 * mean_std, \
-            f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
+        assert (
+            abs(std_dev - mean_std) < 0.5 * mean_std
+        ), f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
 
 
 @pytest.mark.parametrize("dimension", [2.1, 2.3, 2.5, 2.7, 2.9])

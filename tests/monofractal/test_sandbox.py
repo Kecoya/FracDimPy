@@ -16,6 +16,7 @@ import os
 import pytest
 from fracDimPy import sandbox_method
 
+
 def load_sandbox_data():
     """Load sandbox data file path."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,20 +33,20 @@ def generate_test_patterns():
         x, y = np.random.rand(2)
         for _ in range(10):  # Iterations for Sierpinski
             vertex = np.random.choice(3)
-            vertices = [(0, 0), (1, 0), (0.5, np.sqrt(3)/2)]
+            vertices = [(0, 0), (1, 0), (0.5, np.sqrt(3) / 2)]
             x = 0.5 * (x + vertices[vertex][0])
             y = 0.5 * (y + vertices[vertex][1])
         points_sierpinski.append([x, y])
-    patterns['sierpinski'] = np.array(points_sierpinski)
+    patterns["sierpinski"] = np.array(points_sierpinski)
 
     # 2D grid points (D = 2)
     x, y = np.meshgrid(np.linspace(0, 1, 20), np.linspace(0, 1, 20))
     grid_points = np.column_stack([x.ravel(), y.ravel()])
-    patterns['grid'] = grid_points
+    patterns["grid"] = grid_points
 
     # Random points (D = 2)
     random_points = np.random.rand(1000, 2)
-    patterns['random'] = random_points
+    patterns["random"] = random_points
 
     # 1D Cantor set points
     cantor_points = []
@@ -54,7 +55,7 @@ def generate_test_patterns():
         for _ in range(8):  # 8 iterations
             x = x / 3 if np.random.rand() < 0.5 else (x + 2) / 3
         cantor_points.append([x, 0])
-    patterns['cantor'] = np.array(cantor_points)
+    patterns["cantor"] = np.array(cantor_points)
 
     return patterns
 
@@ -81,8 +82,8 @@ class TestSandbox:
             assert isinstance(D, (int, float))
             assert isinstance(result, dict)
             assert 0 < D < 3  # For 2D image data
-            assert 'R2' in result
-            assert 0 < result['R2'] <= 1
+            assert "R2" in result
+            assert 0 < result["R2"] <= 1
 
         except (FileNotFoundError, ImportError):
             # Skip test if data file doesn't exist or required libraries missing
@@ -90,7 +91,7 @@ class TestSandbox:
 
     def test_sierpinski_pattern(self, test_patterns):
         """Test sandbox method on Sierpinski triangle."""
-        points = test_patterns['sierpinski']
+        points = test_patterns["sierpinski"]
 
         D, result = sandbox_method(points)
 
@@ -98,11 +99,11 @@ class TestSandbox:
         assert isinstance(D, (int, float))
         assert isinstance(result, dict)
         assert pytest.approx(D, rel=0.2) == 1.585
-        assert result['R2'] > 0.8  # Should have good fit
+        assert result["R2"] > 0.8  # Should have good fit
 
     def test_grid_pattern(self, test_patterns):
         """Test sandbox method on grid pattern."""
-        points = test_patterns['grid']
+        points = test_patterns["grid"]
 
         D, result = sandbox_method(points)
 
@@ -110,11 +111,11 @@ class TestSandbox:
         assert isinstance(D, (int, float))
         assert isinstance(result, dict)
         assert pytest.approx(D, rel=0.2) == 2.0
-        assert result['R2'] > 0.8
+        assert result["R2"] > 0.8
 
     def test_random_pattern(self, test_patterns):
         """Test sandbox method on random points."""
-        points = test_patterns['random']
+        points = test_patterns["random"]
 
         D, result = sandbox_method(points)
 
@@ -122,11 +123,11 @@ class TestSandbox:
         assert isinstance(D, (int, float))
         assert isinstance(result, dict)
         assert 1.5 <= D <= 2.5  # Allow reasonable range
-        assert result['R2'] > 0.6  # Random data might have lower R²
+        assert result["R2"] > 0.6  # Random data might have lower R²
 
     def test_cantor_pattern(self, test_patterns):
         """Test sandbox method on Cantor set."""
-        points = test_patterns['cantor']
+        points = test_patterns["cantor"]
 
         D, result = sandbox_method(points)
 
@@ -134,7 +135,7 @@ class TestSandbox:
         assert isinstance(D, (int, float))
         assert isinstance(result, dict)
         assert pytest.approx(D, rel=0.3) == 0.631
-        assert result['R2'] > 0.6
+        assert result["R2"] > 0.6
 
     def test_different_point_densities(self):
         """Test sandbox method with different point densities."""
@@ -149,42 +150,42 @@ class TestSandbox:
             assert isinstance(D, (int, float))
             assert isinstance(result, dict)
             assert 0 < D < 3
-            assert 'R2' in result
-            assert 0 < result['R2'] <= 1
+            assert "R2" in result
+            assert 0 < result["R2"] <= 1
 
             # Higher density should generally give better R²
             min_r2 = 0.5 if density < 500 else 0.6
-            assert result['R2'] > min_r2
+            assert result["R2"] > min_r2
 
     def test_result_structure_sandbox(self, test_patterns):
         """Test that result dictionary contains expected structure."""
-        points = test_patterns['sierpinski']
+        points = test_patterns["sierpinski"]
         D, result = sandbox_method(points)
 
         # Check required keys
-        required_keys = ['R2']
+        required_keys = ["R2"]
         for key in required_keys:
             assert key in result, f"Missing required key: {key}"
 
         # Check data consistency if radius values are present
-        if 'r_values' in result and 'N_values' in result:
-            assert len(result['r_values']) == len(result['N_values'])
-            assert all(x > 0 for x in result['r_values'])
-            assert all(x > 0 for x in result['N_values'])
+        if "r_values" in result and "N_values" in result:
+            assert len(result["r_values"]) == len(result["N_values"])
+            assert all(x > 0 for x in result["r_values"])
+            assert all(x > 0 for x in result["N_values"])
 
             # N should increase with r
-            r_vals = np.array(result['r_values'])
-            n_vals = np.array(result['N_values'])
+            r_vals = np.array(result["r_values"])
+            n_vals = np.array(result["N_values"])
             assert np.all(np.diff(n_vals) >= 0) or len(set(n_vals)) > 1
 
         # Check coefficients if present
-        if 'coefficients' in result:
-            assert len(result['coefficients']) >= 2
-            assert all(isinstance(c, (int, float)) for c in result['coefficients'])
+        if "coefficients" in result:
+            assert len(result["coefficients"]) >= 2
+            assert all(isinstance(c, (int, float)) for c in result["coefficients"])
 
     def test_theoretical_constraints(self, test_patterns):
         """Test results against theoretical constraints."""
-        points = test_patterns['sierpinski']
+        points = test_patterns["sierpinski"]
         D, result = sandbox_method(points)
 
         # For 2D point sets, fractal dimension should satisfy:
@@ -193,7 +194,7 @@ class TestSandbox:
         assert 0 <= D <= 2
 
         # R² should indicate reasonable fit
-        assert result['R2'] > 0.5
+        assert result["R2"] > 0.5
 
     def test_edge_cases(self):
         """Test edge cases and boundary conditions."""
@@ -227,7 +228,7 @@ class TestSandbox:
 
     def test_parameter_validation(self, test_patterns):
         """Test parameter validation."""
-        points = test_patterns['sierpinski']
+        points = test_patterns["sierpinski"]
 
         # Test invalid data types
         with pytest.raises((ValueError, TypeError)):

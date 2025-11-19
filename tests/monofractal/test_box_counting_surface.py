@@ -186,14 +186,14 @@ class TestBoxCountingSurface:
         """Test Cubic Cover Method (CCM) on surface data."""
         surface, mt_epsilon_min = surface_data
 
-        D, result = box_counting(surface, data_type='surface', method=2)
+        D, result = box_counting(surface, data_type="surface", method=2)
 
         # Validate results
         assert isinstance(D, (int, float))
         assert isinstance(result, dict)
         assert 0 < D < 4  # Surface fractal dimension should be between 0 and 4
-        assert 'R2' in result
-        assert 0 < result['R2'] <= 1  # R² should be between 0 and 1
+        assert "R2" in result
+        assert 0 < result["R2"] <= 1  # R² should be between 0 and 1
 
         # For a typical surface, D should be around 2-3
         assert pytest.approx(D, rel=0.3) == 2.5
@@ -203,28 +203,29 @@ class TestBoxCountingSurface:
         surface, mt_epsilon_min = surface_data
 
         if mt_epsilon_min is not None:
-            D, result = box_counting(surface, data_type='surface',
-                                    method=2, mt_epsilon_min=mt_epsilon_min)
+            D, result = box_counting(
+                surface, data_type="surface", method=2, mt_epsilon_min=mt_epsilon_min
+            )
 
             assert isinstance(D, (int, float))
             assert isinstance(result, dict)
             assert 0 < D < 4
-            assert 'R2' in result
-            assert 0 < result['R2'] <= 1
+            assert "R2" in result
+            assert 0 < result["R2"] <= 1
 
     @pytest.mark.parametrize("method", [0, 1, 2, 3])
     def test_box_counting_surface_different_methods(self, surface_data, method):
         """Test different box-counting methods on surface data."""
         surface, _ = surface_data
 
-        D, result = box_counting(surface, data_type='surface', method=method)
+        D, result = box_counting(surface, data_type="surface", method=method)
 
         # Validate results for each method
         assert isinstance(D, (int, float))
         assert isinstance(result, dict)
         assert 0 < D < 4
-        assert 'R2' in result
-        assert 0 < result['R2'] <= 1
+        assert "R2" in result
+        assert 0 < result["R2"] <= 1
 
     def test_surface_data_loading(self):
         """Test that surface data loads correctly."""
@@ -254,11 +255,7 @@ class TestBoxCountingSurface:
     def test_surface_interpolation(self):
         """Test surface interpolation function."""
         # Create test matrix with zeros
-        test_matrix = np.array([
-            [1, 0, 3],
-            [0, 5, 0],
-            [7, 0, 9]
-        ], dtype=float)
+        test_matrix = np.array([[1, 0, 3], [0, 5, 0], [7, 0, 9]], dtype=float)
 
         interpolated = interpolate_surface(test_matrix.copy())
 
@@ -270,19 +267,19 @@ class TestBoxCountingSurface:
         """Test that result dictionary contains expected structure."""
         surface, _ = surface_data
 
-        D, result = box_counting(surface, data_type='surface', method=2)
+        D, result = box_counting(surface, data_type="surface", method=2)
 
         # Check required keys
-        required_keys = ['R2']
+        required_keys = ["R2"]
         for key in required_keys:
             assert key in result, f"Missing required key: {key}"
 
         # Check data consistency if epsilon values are present
-        if 'epsilon_values' in result and 'N_values' in result:
-            assert len(result['epsilon_values']) == len(result['N_values'])
-            assert all(x > 0 for x in result['epsilon_values'])
-            assert all(x > 0 for x in result['N_values'])
+        if "epsilon_values" in result and "N_values" in result:
+            assert len(result["epsilon_values"]) == len(result["N_values"])
+            assert all(x > 0 for x in result["epsilon_values"])
+            assert all(x > 0 for x in result["N_values"])
 
         # Check log data consistency
-        if 'log_inv_epsilon' in result and 'log_N' in result:
-            assert len(result['log_inv_epsilon']) == len(result['log_N'])
+        if "log_inv_epsilon" in result and "log_N" in result:
+            assert len(result["log_inv_epsilon"]) == len(result["log_N"])

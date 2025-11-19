@@ -33,7 +33,12 @@ def test_sierpinski_basic_generation():
 
     # Test basic properties
     assert triangle.shape == (size, size), f"Image should be {size}x{size}"
-    assert triangle.dtype in [np.float64, np.float32, np.uint8, np.bool_], "Valid image dtype expected"
+    assert triangle.dtype in [
+        np.float64,
+        np.float32,
+        np.uint8,
+        np.bool_,
+    ], "Valid image dtype expected"
     assert np.all(np.isfinite(triangle)), "All values should be finite"
 
     # Test image properties
@@ -71,8 +76,9 @@ def test_sierpinski_different_levels():
     # Sierpinski triangle should become sparser as level increases
     for i in range(1, len(levels)):
         # Allow some tolerance due to discretization effects
-        assert fill_ratios[i] <= fill_ratios[i-1] * 1.1, \
-            f"Fill ratio should generally decrease with level (level {i} vs {i-1})"
+        assert (
+            fill_ratios[i] <= fill_ratios[i - 1] * 1.1
+        ), f"Fill ratio should generally decrease with level (level {i} vs {i-1})"
 
 
 def test_sierpinski_theoretical_properties():
@@ -89,11 +95,12 @@ def test_sierpinski_theoretical_properties():
     triangle = generate_sierpinski(level=level, size=size)
 
     actual_fill_ratio = np.sum(triangle > 0) / (size * size)
-    theoretical_fill_ratio = (3/4) ** level
+    theoretical_fill_ratio = (3 / 4) ** level
 
     # Allow tolerance due to discretization
-    assert abs(actual_fill_ratio - theoretical_fill_ratio) < 0.1, \
-        f"Actual fill ratio {actual_fill_ratio:.4f} should be close to theoretical {theoretical_fill_ratio:.4f}"
+    assert (
+        abs(actual_fill_ratio - theoretical_fill_ratio) < 0.1
+    ), f"Actual fill ratio {actual_fill_ratio:.4f} should be close to theoretical {theoretical_fill_ratio:.4f}"
 
 
 def test_sierpinski_self_similarity():
@@ -211,12 +218,14 @@ def test_sierpinski_fill_ratio_properties():
 
         # Should have decreasing fill ratio
         if level > 1:
-            theoretical_ratio = (3/4) ** level
+            theoretical_ratio = (3 / 4) ** level
             # Allow tolerance for discretization
-            assert abs(fill_ratio - theoretical_ratio) < 0.15, \
-                f"Level {level}: Fill ratio should be close to theoretical (3/4)^level"
+            assert (
+                abs(fill_ratio - theoretical_ratio) < 0.15
+            ), f"Level {level}: Fill ratio should be close to theoretical (3/4)^level"
 
     # Test monotonic decrease
     for i in range(1, len(fill_ratios)):
-        assert fill_ratios[i] <= fill_ratios[i-1], \
-            f"Fill ratio should decrease with level (level {i} vs {i-1})"
+        assert (
+            fill_ratios[i] <= fill_ratios[i - 1]
+        ), f"Fill ratio should decrease with level (level {i} vs {i-1})"

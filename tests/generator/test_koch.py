@@ -60,13 +60,15 @@ def test_koch_curve_different_levels():
 
         # Test monotonic increase in point count with level
         if level > 0:
-            assert len(points) > point_counts[level-1], \
-                f"Level {level}: Should have more points than level {level-1}"
+            assert (
+                len(points) > point_counts[level - 1]
+            ), f"Level {level}: Should have more points than level {level-1}"
 
     # Test that higher levels generate more points (exponential growth)
     for i in range(1, len(levels)):
-        assert point_counts[i] > point_counts[i-1], \
-            f"Point count should increase with level (level {i} vs {i-1})"
+        assert (
+            point_counts[i] > point_counts[i - 1]
+        ), f"Point count should increase with level (level {i} vs {i-1})"
 
 
 def test_koch_snowflake_basic_generation():
@@ -118,8 +120,9 @@ def test_koch_snowflake_different_levels():
     # but the complexity should increase
     for i in range(1, len(levels)):
         # Allow for some variation in pixel count but check general trend
-        assert abs(non_zero_counts[i] - non_zero_counts[i-1]) < size * size, \
-            f"Pixel count should not vary dramatically between levels {i} and {i-1}"
+        assert (
+            abs(non_zero_counts[i] - non_zero_counts[i - 1]) < size * size
+        ), f"Pixel count should not vary dramatically between levels {i} and {i-1}"
 
 
 def test_koch_properties():
@@ -143,8 +146,9 @@ def test_koch_properties():
     # Test that point count grows roughly as 4^level
     for i, level in enumerate(levels):
         expected_min = 3 * (4 ** (level - 1)) if level > 0 else 3
-        assert point_counts[i] >= expected_min * 0.8, \
-            f"Level {level}: Point count {point_counts[i]} should be at least {expected_min * 0.8}"
+        assert (
+            point_counts[i] >= expected_min * 0.8
+        ), f"Level {level}: Point count {point_counts[i]} should be at least {expected_min * 0.8}"
 
 
 def test_koch_edge_cases():
@@ -191,4 +195,3 @@ def test_koch_snowflake_level_parameter(level):
     assert snowflake.shape == (size, size), f"Level {level}: Correct image size"
     assert np.sum(snowflake > 0) > 0, f"Level {level}: Should have non-zero pixels"
     assert np.all(np.isfinite(snowflake)), f"Level {level}: All values should be finite"
-
