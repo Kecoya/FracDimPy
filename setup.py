@@ -47,6 +47,7 @@ setup(
         "scipy>=1.7.0",
         "matplotlib>=3.3.0",
         "pandas>=1.3.0",
+        "Pillow>=9.0.0",
     ],
     extras_require={
         "dev": [
@@ -57,8 +58,7 @@ setup(
             "mypy>=0.990",
         ],
         "full": [
-            "opencv-python>=4.5.0",
-            "Pillow>=9.0.0",
+            "scienceplots>=2.0.0",
         ],
     },
     keywords="fractal fractal-dimension multifractal box-counting hurst r-s-analysis",

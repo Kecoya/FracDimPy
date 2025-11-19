@@ -57,7 +57,7 @@ jobs:
     - name: Install additional test dependencies
       run: |
         pip install pytest pytest-cov pytest-benchmark pytest-xdist
-        pip install pillow opencv-python-headless scienceplots
+        pip install pillow scienceplots
 
     - name: Verify package installation
       run: |
