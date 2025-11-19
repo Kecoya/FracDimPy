@@ -14,7 +14,7 @@ Main Features:
 - Display theoretical fractal dimension and fill ratio
 
 Theoretical Background:
-- Fractal dimension of Vicsek fractal: D = log(5)/log(3) ≈ 1.465
+- Fractal dimension of Vicsek fractal: D = log(5)/log(3) ~= 1.465
 - Divide square into 9 equal parts, keep center and four corners (5 parts total)
 - Structure resembles cross or plus sign shape
 - Related to Sierpinski carpet but with different retention pattern
@@ -65,7 +65,7 @@ def main():
         # Add theoretical fractal dimension and fill ratio annotation
         D_theoretical = np.log(5) / np.log(3)
         axes[idx].text(0.5, -0.05, 
-                      f'Theoretical Fractal Dimension: D ≈ {D_theoretical:.4f}\nFill Ratio: {fill_ratio:.1f}%',
+                      f'Theoretical Fractal Dimension: D ~= {D_theoretical:.4f}\nFill Ratio: {fill_ratio:.1f}%',
                       transform=axes[idx].transAxes,
                       ha='center', va='top',
                       fontsize=9,
@@ -83,7 +83,7 @@ def main():
     print("="*60)
     print("   Vicsek fractal presents cross or plus sign shape")
     print("   Divide square into 3×3 parts, keep center and four corners, 5 parts total")
-    print(f"   Fractal dimension: D = log(5)/log(3) ≈ {np.log(5)/np.log(3):.4f}")
+    print(f"   Fractal dimension: D = log(5)/log(3) ~= {np.log(5)/np.log(3):.4f}")
     print("   Similar to Sierpinski carpet but with different retention pattern")
     print("\nExample execution completed!")
 

@@ -68,7 +68,7 @@ def main():
     # 3. Display results
     print("\n3. Results:")
     print(f"    Fractal dimension D: {D:.4f}")
-    print(f"    Goodness of fit R²: {result['R2']:.4f}")
+    print(f"    Goodness of fit R^2: {result['R2']:.4f}")
     
     # 4. Visualize results
     try:
@@ -90,8 +90,8 @@ def main():
             if 'coefficients' in result:
                 fit_line = np.exp(result['coefficients'][1]) * np.array(result['tau_values'])**result['coefficients'][0]
                 axes[1].loglog(result['tau_values'], fit_line, 'r-', label=f'Fit (slope={result["slope"]:.4f})')
-            axes[1].set_xlabel('τ (Time lag)')
-            axes[1].set_ylabel('S(τ) (Structure function)')
+            axes[1].set_xlabel('tau (Time lag)')
+            axes[1].set_ylabel('S(tau) (Structure function)')
             axes[1].set_title(f'Structural Function (D={D:.4f})')
             axes[1].legend()
             axes[1].grid(True, which='both', alpha=0.3)

@@ -56,7 +56,7 @@ def main():
     print("\n3. Calculation results:")
     print(f"   Fractal dimension D: {D:.4f}")
     print(f"   Hurst exponent H: {result['hurst']:.4f}")
-    print(f"   Goodness of fit R²: {result['R2']:.4f}")
+    print(f"   Goodness of fit R^2: {result['R2']:.4f}")
     
     # 4. Visualize results
     try:

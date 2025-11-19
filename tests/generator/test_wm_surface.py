@@ -19,7 +19,7 @@ Theoretical Background:
 - Fractal dimension of WM surface: D ∈ (2, 3)
 - Larger D indicates rougher surfaces with greater fluctuations
 - Constructed in Fourier series form: superimpose sine waves of different frequencies
-- Parameter λ controls frequency growth rate, typically λ > 1
+- Parameter lambda controls frequency growth rate, typically lambda > 1
 - Deterministic fractal surface (different from randomness of FBM)
 """
 
@@ -74,7 +74,7 @@ def main():
                         surface[::step, ::step], cmap='viridis', 
                         linewidth=0, antialiased=True)
         
-        ax1.set_title(f'WM Surface 3D View\n(D={dimension}, λ={lambda_param})')
+        ax1.set_title(f'WM Surface 3D View\n(D={dimension}, lambda={lambda_param})')
         ax1.set_xlabel('X Coordinate')
         ax1.set_ylabel('Y Coordinate')
         ax1.set_zlabel('Height Value')
@@ -101,8 +101,8 @@ def main():
     print("="*60)
     print("   Weierstrass-Mandelbrot surface is a deterministic fractal")
     print("   Constructed by superimposing waveforms of different frequencies in Fourier series")
-    print(f"   Z(x,y) = Σ [C[n] * λ^((D-3)*n) * sin(...)]")
-    print(f"   Frequency growth parameter λ={lambda_param}, iteration level={level}")
+    print(f"   Z(x,y) = Σ [C[n] * lambda^((D-3)*n) * sin(...)]")
+    print(f"   Frequency growth parameter lambda={lambda_param}, iteration level={level}")
     print("\nExample execution completed!")
 
 

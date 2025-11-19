@@ -13,7 +13,7 @@ long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 
 setup(
     name="FracDimPy",
-    version="0.1.1",
+    version="0.1.3",
     author="Zhile Han",
     author_email="2667032759@qq.com",
     description="A comprehensive Python package for fractal dimension calculation and multifractal analysis",

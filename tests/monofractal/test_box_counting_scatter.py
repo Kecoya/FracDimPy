@@ -68,7 +68,7 @@ def main():
     # 3. Display results
     print("\n3. Results:")
     print(f"    Fractal dimension D: {D:.4f}")
-    print(f"    Goodness of fit R²: {result['R2']:.4f}")
+    print(f"    Goodness of fit R^2: {result['R2']:.4f}")
     
     # 4. Visualize results
     print("\n4. Generating visualization...")
@@ -108,8 +108,8 @@ def main():
             axes[1].loglog(result['epsilon_values'], fit_line, 'r-', linewidth=2,
                           label=f'Fit (D={D:.4f})')
         
-        axes[1].set_xlabel('ε (Box size)', fontsize=12)
-        axes[1].set_ylabel('N(ε) (Number of boxes)', fontsize=12)
+        axes[1].set_xlabel('epsilon (Box size)', fontsize=12)
+        axes[1].set_ylabel('N(epsilon) (Number of boxes)', fontsize=12)
         axes[1].set_title('Box-counting Log-Log Plot', fontsize=12)
         axes[1].legend()
         axes[1].grid(True, alpha=0.3, which='both')

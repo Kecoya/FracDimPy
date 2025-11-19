@@ -15,7 +15,7 @@ Main Features:
 - Display theoretical fractal dimension and fill ratio
 
 Theoretical Background:
-- Fractal dimension of Sierpinski triangle: D = log(3)/log(2) ≈ 1.585
+- Fractal dimension of Sierpinski triangle: D = log(3)/log(2) ~= 1.585
 - Each iteration keeps 3 small triangles, removes the middle one
 - As iteration increases, fill ratio gradually decreases toward 0
 - Has perfect three-fold symmetry
@@ -63,7 +63,7 @@ def main():
         # Add theoretical fractal dimension annotation
         D_theoretical = np.log(3) / np.log(2)
         axes[idx].text(0.5, 0.02, 
-                      f'Theoretical Fractal Dimension: D ≈ {D_theoretical:.3f}',
+                      f'Theoretical Fractal Dimension: D ~= {D_theoretical:.3f}',
                       transform=axes[idx].transAxes,
                       ha='center',
                       bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.7))

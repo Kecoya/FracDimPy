@@ -45,6 +45,10 @@ dev = [
     "black>=22.0",
     "flake8>=5.0",
     "mypy>=0.990",
+    "isort>=5.10",
+    "bandit>=1.7",
+    "safety>=2.0",
+    "scienceplots>=2.0.0",
 ]
 docs = [
     "sphinx>=5.0",
@@ -77,6 +81,17 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--disable-warnings",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
 
 [tool.mypy]
 python_version = "3.8"

@@ -94,12 +94,12 @@ def main():
         
         # Extract analysis results
         ql = figure_data['q值']
-        tau_q = figure_data['质量指数τ(q)']
-        alpha_q = figure_data['奇异性指数α(q)']
-        f_alpha = figure_data['多重分形谱f(α)']
+        tau_q = figure_data['质量指数tau(q)']
+        alpha_q = figure_data['奇异性指数alpha(q)']
+        f_alpha = figure_data['多重分形谱f(alpha)']
         D_q = figure_data['广义维数D(q)']
         
-        # τ(q) curve
+        # tau(q) curve
         ax2 = fig.add_subplot(2, 3, 2)
         ax2.plot(ql, tau_q, 'o-', color='darkgreen', linewidth=2, markersize=4)
         ax2.set_xlabel(r'$q$ - Statistical Moment Order', fontsize=10)
@@ -107,7 +107,7 @@ def main():
         ax2.set_title('(b) Mass Exponent Function')
         ax2.grid(True, alpha=0.3)
         
-        # α(q) curve
+        # alpha(q) curve
         ax3 = fig.add_subplot(2, 3, 3)
         ax3.plot(ql, alpha_q, 's-', color='crimson', linewidth=2, markersize=4)
         ax3.set_xlabel(r'$q$ - Statistical Moment Order', fontsize=10)
@@ -115,7 +115,7 @@ def main():
         ax3.set_title(r'(c) Hölder Exponent Function')
         ax3.grid(True, alpha=0.3)
         
-        # f(α) multifractal spectrum
+        # f(alpha) multifractal spectrum
         ax4 = fig.add_subplot(2, 3, 4)
         ax4.plot(alpha_q, f_alpha, '^-', color='darkorange', linewidth=2, markersize=4)
         ax4.set_xlabel(r'$\alpha$ - Singularity Index', fontsize=10)

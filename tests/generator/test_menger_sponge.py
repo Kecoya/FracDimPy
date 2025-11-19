@@ -16,7 +16,7 @@ Main Features:
 - Display theoretical fractal dimension
 
 Theoretical Background:
-- Fractal dimension of Menger sponge: D = log(20)/log(3) ≈ 2.727
+- Fractal dimension of Menger sponge: D = log(20)/log(3) ~= 2.727
 - Divide cube into 27 equal parts (3×3×3), remove center and face centers (7 total), keep 20
 - As iteration increases, volume tends to 0, surface area tends to infinity
 - Three-dimensional analog of Sierpinski carpet
@@ -87,7 +87,7 @@ def main():
     # Add theoretical description
     D_theoretical = np.log(20) / np.log(3)
     fig.text(0.5, 0.02, 
-            f'Theoretical Fractal Dimension: D = log(20)/log(3) ≈ {D_theoretical:.3f}',
+            f'Theoretical Fractal Dimension: D = log(20)/log(3) ~= {D_theoretical:.3f}',
             ha='center', fontsize=12,
             bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.7))
     
@@ -103,7 +103,7 @@ def main():
     print("="*60)
     print("   Menger sponge is a three-dimensional generalization of Sierpinski carpet")
     print("   It is the three-dimensional analog of Sierpinski triangle (2D) and Cantor set (1D)")
-    print(f"   Fractal dimension: D = log(20)/log(3) ≈ {D_theoretical:.4f}")
+    print(f"   Fractal dimension: D = log(20)/log(3) ~= {D_theoretical:.4f}")
     print("\nExample execution completed!")
 
 

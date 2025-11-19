@@ -16,8 +16,8 @@ Main Features:
 - Visualizes scale relationship of variogram
 
 Theoretical Background:
-- Variogram γ(h) describes spatial variability at distance h
-- For fractal data: γ(h) ∝ h^(2H)
+- Variogram gamma(h) describes spatial variability at distance h
+- For fractal data: gamma(h) ∝ h^(2H)
 - H is the Hurst exponent, reflecting data smoothness
 - Fractal dimension: D = E + 1 - H (E is embedding dimension)
 - 1D: D = 2 - H, 2D: D = 3 - H
@@ -56,7 +56,7 @@ def main():
         print("\nResults:")
         print(f"   Fractal dimension D: {D_1d:.4f}")
         print(f"   Hurst exponent H: {result_1d['hurst']:.4f}")
-        print(f"   Goodness of fit R²: {result_1d['R2']:.4f}")
+        print(f"   Goodness of fit R^2: {result_1d['R2']:.4f}")
         
     except Exception as e:
         print(f"   Error: {e}")
@@ -84,7 +84,7 @@ def main():
         print("\nResults:")
         print(f"   Fractal dimension D: {D_2d:.4f}")
         print(f"   Hurst exponent H: {result_2d['hurst']:.4f}")
-        print(f"   Goodness of fit R²: {result_2d['R2']:.4f}")
+        print(f"   Goodness of fit R^2: {result_2d['R2']:.4f}")
         
     except Exception as e:
         print(f"   Error: {e}")
@@ -127,7 +127,7 @@ def main():
                         linewidth=2, label=f'Fit (slope={a:.4f})')
             
             ax2.set_xlabel('log(lag) - Lag distance logarithm')
-            ax2.set_ylabel('log(γ) - Variogram logarithm')
+            ax2.set_ylabel('log(gamma) - Variogram logarithm')
             ax2.set_title('Variogram Analysis (1D)')
             ax2.legend()
             ax2.grid(True, alpha=0.3)
@@ -145,7 +145,7 @@ def main():
                     f'{val:.4f}', ha='center', va='bottom')
         
         ax3.set_ylabel('Parameter Value')
-        ax3.set_title(f'Fractal Parameters\nR²={result_1d["R2"]:.4f}')
+        ax3.set_title(f'Fractal Parameters\nR^2={result_1d["R2"]:.4f}')
         ax3.grid(True, alpha=0.3, axis='y')
         
         plot_idx += 3
@@ -173,7 +173,7 @@ def main():
                         linewidth=2, label=f'Fit (slope={a:.4f})')
             
             ax2.set_xlabel('log(lag) - Lag distance logarithm')
-            ax2.set_ylabel('log(γ) - Variogram logarithm')
+            ax2.set_ylabel('log(gamma) - Variogram logarithm')
             ax2.set_title('Variogram Analysis (2D)')
             ax2.legend()
             ax2.grid(True, alpha=0.3)
@@ -191,7 +191,7 @@ def main():
                     f'{val:.4f}', ha='center', va='bottom')
         
         ax3.set_ylabel('Parameter Value')
-        ax3.set_title(f'Fractal Parameters\nR²={result_2d["R2"]:.4f}')
+        ax3.set_title(f'Fractal Parameters\nR^2={result_2d["R2"]:.4f}')
         ax3.grid(True, alpha=0.3, axis='y')
     
     plt.tight_layout()

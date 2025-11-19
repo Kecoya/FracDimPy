@@ -16,7 +16,7 @@ Main Features:
 - Display theoretical fractal dimension
 
 Theoretical Background:
-- Fractal dimension of Koch curve: D = log(4)/log(3) ≈ 1.2619
+- Fractal dimension of Koch curve: D = log(4)/log(3) ~= 1.2619
 - Each iteration replaces one line segment with 4 segments, length becomes 1/3 of original
 - Koch snowflake is formed by 3 Koch curves, with infinite perimeter and finite area
 """
@@ -61,7 +61,7 @@ def main():
         # Add theoretical fractal dimension annotation
         D_theoretical = np.log(4) / np.log(3)
         axes1[idx].text(0.5, -0.05, 
-                       f'Theoretical Fractal Dimension: D ≈ {D_theoretical:.4f}',
+                       f'Theoretical Fractal Dimension: D ~= {D_theoretical:.4f}',
                        transform=axes1[idx].transAxes,
                        ha='center', va='top',
                        fontsize=9,
@@ -92,7 +92,7 @@ def main():
         # Add theoretical fractal dimension annotation
         D_theoretical = np.log(4) / np.log(3)
         axes2[idx].text(0.5, -0.05, 
-                       f'Theoretical Fractal Dimension: D ≈ {D_theoretical:.4f}',
+                       f'Theoretical Fractal Dimension: D ~= {D_theoretical:.4f}',
                        transform=axes2[idx].transAxes,
                        ha='center', va='top',
                        fontsize=9,
@@ -110,7 +110,7 @@ def main():
     print("="*60)
     print("   Koch curve is a classic fractal curve")
     print("   Koch snowflake is formed by 3 Koch curves, creating a closed figure")
-    print(f"   Fractal dimension: D = log(4)/log(3) ≈ {np.log(4)/np.log(3):.4f}")
+    print(f"   Fractal dimension: D = log(4)/log(3) ~= {np.log(4)/np.log(3):.4f}")
     print("   Characteristics: Infinite perimeter, finite area")
     print("\nExample execution completed!")
 

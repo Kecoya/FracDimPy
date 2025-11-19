@@ -72,7 +72,7 @@ def main():
     # 3. Display results
     print("\n3. Results:")
     print(f"    Fractal dimension D: {D:.4f}")
-    print(f"    Goodness of fit R²: {result['R2']:.4f}")
+    print(f"    Goodness of fit R^2: {result['R2']:.4f}")
     
     # 4. Visualize results
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
@@ -92,7 +92,7 @@ def main():
         axes[1, 0].loglog(result['epsilon_values'], result['N_values'], 'o', markersize=6, label='Data points')
         # Draw fitting line
         if 'coefficients' in result:
-            # Relationship: log(N) = a*log(1/ε) + b  =>  N = exp(b) * ε^(-a)
+            # Relationship: log(N) = a*log(1/epsilon) + b  =>  N = exp(b) * epsilon^(-a)
             a, b = result['coefficients'][0], result['coefficients'][1]
             fit_line = np.exp(b) * np.array(result['epsilon_values'])**(-a)
             axes[1, 0].loglog(result['epsilon_values'], fit_line, 'r-', linewidth=2,
@@ -105,8 +105,8 @@ def main():
                           fontsize=10, verticalalignment='top',
                           bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         
-        axes[1, 0].set_xlabel('ε (Box size)')
-        axes[1, 0].set_ylabel('N(ε) (Number of boxes)')
+        axes[1, 0].set_xlabel('epsilon (Box size)')
+        axes[1, 0].set_ylabel('N(epsilon) (Number of boxes)')
         axes[1, 0].set_title('Box-counting Log-Log Plot')
         axes[1, 0].legend()
         axes[1, 0].grid(True, alpha=0.3)
@@ -127,7 +127,7 @@ def main():
                           fontsize=10, verticalalignment='top',
                           bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8))
         
-        axes[1, 1].set_xlabel('log(1/ε)')
+        axes[1, 1].set_xlabel('log(1/epsilon)')
         axes[1, 1].set_ylabel('log(N)')
         axes[1, 1].set_title('Linear Fit in Log Space')
         axes[1, 1].legend()

@@ -23,13 +23,13 @@ Brownian Motion:
 
 Lévy Flight:
 - Step length follows power-law distribution, with long-range jumps
-- Parameter α ∈ (0, 2] controls jump distance distribution
-- Degenerates to Brownian motion when α = 2
-- Long-range jumps occur when α < 2
+- Parameter alpha ∈ (0, 2] controls jump distance distribution
+- Degenerates to Brownian motion when alpha = 2
+- Long-range jumps occur when alpha < 2
 
 Self-Avoiding Walk:
 - Cannot visit already visited positions
-- Fractal dimension approximately 4/3 ≈ 1.333 (on 2D plane)
+- Fractal dimension approximately 4/3 ~= 1.333 (on 2D plane)
 - Models polymer chain behavior
 """
 
@@ -69,7 +69,7 @@ def main():
     # 2. Generate Lévy flights
     print("\n2. Generating Lévy flights...")
     steps_levy = 5000
-    alphas = [1.0, 1.5, 2.0]  # Different α parameters
+    alphas = [1.0, 1.5, 2.0]  # Different alpha parameters
     
     # 3. Generate self-avoiding walks
     print("\n3. Generating self-avoiding walks...")
@@ -106,7 +106,7 @@ def main():
     ax2.set_title('Brownian Motion\n(Density Heatmap)')
     ax2.axis('off')
     
-    # Columns 2-4: Lévy flight trajectories with different α parameters
+    # Columns 2-4: Lévy flight trajectories with different alpha parameters
     for idx, alpha in enumerate(alphas):
         paths_levy, image_levy = generate_levy_flight(
             steps=steps_levy,
@@ -115,13 +115,13 @@ def main():
             num_paths=1
         )
         
-        print(f"   Lévy flight α={alpha}: Generated {steps_levy} steps")
+        print(f"   Lévy flight alpha={alpha}: Generated {steps_levy} steps")
         
         # Row 1: Trajectory plot
         ax_traj = fig.add_subplot(2, 5, idx+2)
         ax_traj.plot(paths_levy[0, :, 0], paths_levy[0, :, 1], 
                     linewidth=0.5, alpha=0.8, color='blue')
-        ax_traj.set_title(f'Lévy Flight\n(α={alpha})')
+        ax_traj.set_title(f'Lévy Flight\n(alpha={alpha})')
         ax_traj.set_xlabel('X Coordinate')
         ax_traj.set_ylabel('Y Coordinate')
         ax_traj.grid(True, alpha=0.3)
@@ -130,7 +130,7 @@ def main():
         # Row 2: Density heatmap
         ax_img = fig.add_subplot(2, 5, idx+7)
         ax_img.imshow(image_levy, cmap='hot', origin='upper')
-        ax_img.set_title(f'Lévy Flight\n(α={alpha})')
+        ax_img.set_title(f'Lévy Flight\n(alpha={alpha})')
         ax_img.axis('off')
     
     # Column 5: Self-avoiding walk trajectories
@@ -165,12 +165,12 @@ def main():
     print("   - Standard random walk, fractal dimension D = 2")
     print("   - Step length follows normal distribution")
     print("\n   Lévy Flight:")
-    print("   - Parameter α ∈ (0, 2] controls step length distribution, characteristic of Lévy flight")
-    print("   - Degenerates to Brownian motion when α = 2")
-    print("   - Long-range jumps occur when α < 2")
+    print("   - Parameter alpha ∈ (0, 2] controls step length distribution, characteristic of Lévy flight")
+    print("   - Degenerates to Brownian motion when alpha = 2")
+    print("   - Long-range jumps occur when alpha < 2")
     print("   - Widely used in animal foraging behavior and other fields")
     print("\n   Self-Avoiding Walk:")
-    print("   - Fractal dimension approximately 4/3 ≈ 1.333")
+    print("   - Fractal dimension approximately 4/3 ~= 1.333")
     print("   - Cannot revisit already visited positions (\"no backtracking\")")
     print("   - Models polymer chains, protein folding, etc.")
     print("   - High computational complexity, slow generation speed")

@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "SlashCommand(/sc:save)",
+      "Bash(dir:*)",
+      "Bash(rm:*)",
+      "Bash(pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(docker:*)",
+      "Bash(paper_clean.md)",
+      "Bash(cat:*)",
+      "Bash(dos2unix:*)"
     ],
     "deny": [],
     "ask": []

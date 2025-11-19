@@ -16,7 +16,7 @@ Main Features:
 - Display the step-by-step construction process of fractals
 
 Theoretical Background:
-- Fractal dimension of Cantor set: D = log(2)/log(3) ≈ 0.6309
+- Fractal dimension of Cantor set: D = log(2)/log(3) ~= 0.6309
 - Each iteration removes middle 1/3, keeps both ends 1/3 each
 - The set formed after infinite iterations is uncountable
 """
@@ -52,7 +52,7 @@ def main():
     print(f"   Array length: {len(cantor)}")
     print(f"   Theoretical length: {3**level}")
     print(f"   Retained points: {np.sum(cantor)}")
-    print(f"   Theoretical fractal dimension: {np.log(2)/np.log(3):.4f} (≈ 0.6309)")
+    print(f"   Theoretical fractal dimension: {np.log(2)/np.log(3):.4f} (~= 0.6309)")
     
     # 2. Save as CSV file
     print("\n2. Saving Cantor set as CSV...")

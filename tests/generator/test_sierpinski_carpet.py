@@ -15,7 +15,7 @@ Main Features:
 - Display theoretical fractal dimension and fill ratio changes
 
 Theoretical Background:
-- Fractal dimension of Sierpinski carpet: D = log(8)/log(3) ≈ 1.8928
+- Fractal dimension of Sierpinski carpet: D = log(8)/log(3) ~= 1.8928
 - Divide square into 9 equal parts, remove middle 1, keep surrounding 8
 - Two-dimensional analog of Menger sponge
 - Fill ratio decreases exponentially as iteration increases
@@ -66,7 +66,7 @@ def main():
         # Add theoretical fractal dimension and fill ratio annotation
         D_theoretical = np.log(8) / np.log(3)
         axes[idx].text(0.5, -0.05, 
-                      f'Theoretical Fractal Dimension: D ≈ {D_theoretical:.3f}\nFill Ratio: {fill_ratio:.1f}%',
+                      f'Theoretical Fractal Dimension: D ~= {D_theoretical:.3f}\nFill Ratio: {fill_ratio:.1f}%',
                       transform=axes[idx].transAxes,
                       ha='center', va='top',
                       fontsize=9,
@@ -84,7 +84,7 @@ def main():
     print("="*60)
     print("   Sierpinski carpet is a two-dimensional analog of Menger sponge")
     print("   Each iteration divides square into 9 parts, removes center 1, keeps surrounding 8")
-    print(f"   Fractal dimension: D = log(8)/log(3) ≈ {np.log(8)/np.log(3):.4f}")
+    print(f"   Fractal dimension: D = log(8)/log(3) ~= {np.log(8)/np.log(3):.4f}")
     print("\nExample execution completed!")
 
 

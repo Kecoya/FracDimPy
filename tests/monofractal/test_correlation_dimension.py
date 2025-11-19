@@ -13,12 +13,12 @@ It is particularly useful for analyzing chaotic attractors and time series data.
 
 Theoretical Background:
 - Uses Grassberger-Procaccia algorithm
-- Correlation integral: C(r) = (1/N²) Σ Θ(r - |x_i - x_j|)
+- Correlation integral: C(r) = (1/N^2) Σ Θ(r - |x_i - x_j|)
 - For fractal sets: C(r) ∝ r^D
 - Correlation dimension D is the slope of log(C(r)) vs log(r)
 - Known theoretical values:
-  - Lorenz attractor: D ≈ 2.06
-  - Henon map: D ≈ 1.26
+  - Lorenz attractor: D ~= 2.06
+  - Henon map: D ~= 1.26
 """
 
 import numpy as np
@@ -115,7 +115,7 @@ def main():
         })
         print(f"   Theoretical D: ~{D_lorenz_theory:.2f}")
         print(f"   Measured D: {D_lorenz:.4f}")
-        print(f"   R²: {result_lorenz['r_squared']:.4f}")
+        print(f"   R^2: {result_lorenz['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -139,7 +139,7 @@ def main():
         })
         print(f"   Theoretical D: ~{D_henon_theory:.2f}")
         print(f"   Measured D: {D_henon:.4f}")
-        print(f"   R²: {result_henon['r_squared']:.4f}")
+        print(f"   R^2: {result_henon['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -192,7 +192,7 @@ def main():
             
             ax2.set_xlabel('log(r)')
             ax2.set_ylabel('log(C(r))')
-            ax2.set_title(f'Correlation Dimension\nR² = {result["r_squared"]:.4f}')
+            ax2.set_title(f'Correlation Dimension\nR^2 = {result["r_squared"]:.4f}')
             ax2.legend(fontsize=8)
             ax2.grid(True, alpha=0.3)
             
@@ -231,8 +231,8 @@ def main():
     print("   It measures the scaling of correlation integral C(r)")
     print("   ")
     print("   Known theoretical values:")
-    print("   - Lorenz attractor: D ≈ 2.06")
-    print("   - Henon map: D ≈ 1.26")
+    print("   - Lorenz attractor: D ~= 2.06")
+    print("   - Henon map: D ~= 1.26")
 
 
 if __name__ == '__main__':

@@ -1,13 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Fractal Generation Module
+========================
 
-==============
+This module provides functions to generate various types of fractals for testing,
+validation, and educational purposes.
 
+Curve Generators (1D):
+- FBM: Fractional Brownian Motion curves
+- WM: Weierstrass-Mandelbrot curves
+- Takagi: Takagi (Blancmange) function curves
 
-- : FBM, Weierstrass-Mandelbrot, Takagi
-- : FBM, WM, Takagi
-- : Cantor, Sierpinski, DLA, Menger
+Surface Generators (2D):
+- FBM: Fractional Brownian Motion surfaces
+- WM: Weierstrass-Mandelbrot surfaces
+- Takagi: Takagi surfaces
+
+Pattern Generators:
+- Cantor: Cantor set
+- Sierpinski: Triangle and carpet
+- DLA: Diffusion-limited aggregation
+- Menger: Menger sponge (3D)
 """
 
 from .curves import (

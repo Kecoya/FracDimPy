@@ -17,10 +17,10 @@ Main Features:
 
 Theoretical Background:
 - Multifractal analysis for curves uses box-counting method on the curve
-- Partition function X(ε,q) describes scaling behavior at different scales
-- Mass exponent τ(q) characterizes the scaling of q-order moments
-- Hölder exponent α(q) describes local singularity strength
-- Multifractal spectrum f(α) shows the distribution of singularities
+- Partition function X(epsilon,q) describes scaling behavior at different scales
+- Mass exponent tau(q) characterizes the scaling of q-order moments
+- Hölder exponent alpha(q) describes local singularity strength
+- Multifractal spectrum f(alpha) shows the distribution of singularities
 - Generalized dimension D(q) extends fractal dimension to different moments
 """
 
@@ -102,7 +102,7 @@ def main():
         ax1.set_title('(a) Original Curve', fontsize=12, fontweight='bold')
         ax1.grid(True, alpha=0.3)
         
-        # ========== Subplot 2: Partition function X vs ln(ε) ==========
+        # ========== Subplot 2: Partition function X vs ln(epsilon) ==========
         ax2 = plt.subplot(2, 3, 2)
         temp_q_n = max(1, int(len(ql) / 20))  # Select 1 out of every 20 q values
         plotted_count = 0
@@ -137,7 +137,7 @@ def main():
         ax2.set_title('(b) Partition Function', fontsize=12, fontweight='bold')
         ax2.grid(True, alpha=0.3)
         
-        # ========== Subplot 3: Mass exponent τ(q) vs q ==========
+        # ========== Subplot 3: Mass exponent tau(q) vs q ==========
         ax3 = plt.subplot(2, 3, 3)
         ax3.plot(ql, tau_q, 'o-', color='darkgreen', linewidth=2, markersize=4)
         ax3.set_xlabel(r'$q$', fontsize=11)
@@ -145,7 +145,7 @@ def main():
         ax3.set_title('(c) Mass Exponent', fontsize=12, fontweight='bold')
         ax3.grid(True, alpha=0.3)
         
-        # ========== Subplot 4: Hölder exponent α(q) vs q ==========
+        # ========== Subplot 4: Hölder exponent alpha(q) vs q ==========
         ax4 = plt.subplot(2, 3, 4)
         ax4.plot(ql, alpha_q, 's-', color='crimson', linewidth=2, markersize=4)
         ax4.set_xlabel(r'$q$', fontsize=11)
@@ -153,7 +153,7 @@ def main():
         ax4.set_title(r'(d) Hölder Exponent', fontsize=12, fontweight='bold')
         ax4.grid(True, alpha=0.3)
         
-        # ========== Subplot 5: Multifractal spectrum f(α) vs α ==========
+        # ========== Subplot 5: Multifractal spectrum f(alpha) vs alpha ==========
         ax5 = plt.subplot(2, 3, 5)
         ax5.plot(alpha_q, f_alpha, '^-', color='darkorange', linewidth=2, markersize=4)
         ax5.set_xlabel(r'$\alpha$', fontsize=11)

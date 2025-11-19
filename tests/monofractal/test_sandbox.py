@@ -40,7 +40,7 @@ def main():
     # 3. Display results
     print("\n3. Results:")
     print(f"    Fractal dimension D: {D:.4f}")
-    print(f"    Goodness of fit R²: {result['R2']:.4f}")
+    print(f"    Goodness of fit R^2: {result['R2']:.4f}")
     
     # 4. Visualize results
     try:

@@ -13,15 +13,15 @@ Main Features:
 - Generate test data: white noise, fractional Gaussian noise (FGN), binomial cascade
 - Perform MF-DFA analysis on different types of time series
 - Calculate generalized Hurst exponent h(q) and multifractal spectrum
-- Visualize analysis results including F_q(n) scaling, h(q) curve, and f(α) spectrum
+- Visualize analysis results including F_q(n) scaling, h(q) curve, and f(alpha) spectrum
 
 Theoretical Background:
 - MF-DFA extends DFA by analyzing q-order moments of fluctuations
 - Generalized Hurst exponent h(q) describes scaling behavior for different q values
-- Mass exponent τ(q) = qh(q) - 1
-- Hölder exponent α(q) = dτ(q)/dq
-- Multifractal spectrum f(α) describes the distribution of singularities
-- Spectrum width Δα = α_max - α_min indicates the degree of multifractality
+- Mass exponent tau(q) = qh(q) - 1
+- Hölder exponent alpha(q) = dtau(q)/dq
+- Multifractal spectrum f(alpha) describes the distribution of singularities
+- Spectrum width Δalpha = alpha_max - alpha_min indicates the degree of multifractality
 """
 
 import numpy as np
@@ -271,7 +271,7 @@ def main():
                            alpha=0.5, label=f'h(2)={h2:.3f}')
                 ax3.legend(fontsize=8)
             
-            # Subplot 4: f(α) multifractal spectrum
+            # Subplot 4: f(alpha) multifractal spectrum
             ax4 = fig.add_subplot(n_cases, 4, idx*4 + 4)
             spectrum = case['spectrum']
             
@@ -287,7 +287,7 @@ def main():
                 if np.isfinite(spectrum['alpha_0']):
                     ax4.axvline(spectrum['alpha_0'], color='red', 
                                linestyle='--', alpha=0.5, 
-                               label=f"α₀={spectrum['alpha_0']:.3f}")
+                               label=f"alpha₀={spectrum['alpha_0']:.3f}")
                 
                 # Annotate spectrum width
                 alpha_min = np.min(alpha_vals[valid])
@@ -298,8 +298,8 @@ def main():
                         f'width={spectrum["width"]:.3f}',
                         ha='center', fontsize=8, color='blue')
             
-            ax4.set_xlabel('α (Singularity Index)', fontsize=9)
-            ax4.set_ylabel('f(α)', fontsize=9)
+            ax4.set_xlabel('alpha (Singularity Index)', fontsize=9)
+            ax4.set_ylabel('f(alpha)', fontsize=9)
             ax4.set_title('Multifractal Spectrum', fontsize=10)
             ax4.tick_params(labelsize=8)
             ax4.legend(fontsize=8)
@@ -322,13 +322,13 @@ def main():
     print("   - Window sizes: logarithmically spaced")
     print("\n   Calculated Quantities:")
     print("   - h(q): Generalized Hurst exponent")
-    print("   - τ(q): Mass exponent = qh(q) - 1")
-    print("   - α(q): Hölder exponent = dτ(q)/dq")
-    print("   - f(α): Multifractal spectrum")
+    print("   - tau(q): Mass exponent = qh(q) - 1")
+    print("   - alpha(q): Hölder exponent = dtau(q)/dq")
+    print("   - f(alpha): Multifractal spectrum")
     print("\n   Interpretation:")
     print("   - Monofractal: spectrum width < 0.3")
     print("   - Multifractal: h(q) varies significantly with q > 0.5")
-    print("   - Spectrum width = α_max - α_min indicates multifractality strength")
+    print("   - Spectrum width = alpha_max - alpha_min indicates multifractality strength")
     print("\n   Physical Meaning:")
     print("   - q > 0: Emphasizes large fluctuations")
     print("   - q < 0: Emphasizes small fluctuations")

@@ -77,7 +77,7 @@ def test_methods_on_takagi():
                 print(f"测量维数: D = {D_measured:.4f}")
                 print(f"绝对误差: ΔD = {error:.4f}")
                 print(f"相对误差: {rel_error:.2f}%")
-                print(f"拟合优度: R² = {result['R2']:.6f}")
+                print(f"拟合优度: R^2 = {result['R2']:.6f}")
                 
                 results[method_id].append({
                     'theoretical': theo_D,
@@ -157,7 +157,7 @@ def test_methods_on_takagi():
     ax3.grid(True, alpha=0.3)
     ax3.tick_params(labelsize=11)
     
-    # 4. R²拟合优度
+    # 4. R^2拟合优度
     ax4 = axes[1, 1]
     for idx, (method_id, method_name) in enumerate(methods.items()):
         R2_vals = [r['R2'] for r in results[method_id]]
@@ -167,7 +167,7 @@ def test_methods_on_takagi():
                 label=f'{method_name}', alpha=0.8)
     
     ax4.set_xlabel('Theoretical Fractal Dimension', fontsize=13)
-    ax4.set_ylabel('R² (Goodness of Fit)', fontsize=13)
+    ax4.set_ylabel('R^2 (Goodness of Fit)', fontsize=13)
     ax4.set_title('Fitting Quality Comparison', fontsize=14, fontweight='bold')
     ax4.legend(fontsize=9, loc='best')
     ax4.grid(True, alpha=0.3)
@@ -191,7 +191,7 @@ def test_methods_on_takagi():
     
     for method_id, method_name in methods.items():
         print(f"\n{method_name} (Method {method_id}):")
-        print(f"{'理论D':<10} {'测量D':<12} {'绝对误差':<12} {'相对误差(%)':<15} {'R²':<10}")
+        print(f"{'理论D':<10} {'测量D':<12} {'绝对误差':<12} {'相对误差(%)':<15} {'R^2':<10}")
         print("-" * 70)
         for r in results[method_id]:
             print(f"{r['theoretical']:<10.1f} {r['measured']:<12.4f} {r['error']:<12.4f} "

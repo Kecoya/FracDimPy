@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+Monofractal Analysis Module
+===========================
 
-============
+This module provides various methods for calculating monofractal dimensions
+from different types of data. Each method has its own strengths and is suitable
+for different types of fractal patterns.
 
+Available Methods:
+- hurst_dimension: Hurst exponent calculation using R/S analysis
+- structural_function: Structure function method for self-affine curves
+- variogram_method: Variogram method from geostatistics
+- box_counting: Box-counting dimension for various data types
+- sandbox_method: Sandbox method for local scaling analysis
+- information_dimension: Information dimension based on entropy
+- correlation_dimension: Correlation dimension using Grassberger-Procaccia algorithm
+- dfa: Detrended Fluctuation Analysis for non-stationary time series
 
-- Hurst (R/S)
-- 
-- 
--  (Box-counting)
--  (Sandbox)
--  (Information Dimension)
--  (Correlation Dimension)
--  (DFA - Detrended Fluctuation Analysis)
+Each method is optimized for specific data types and analysis scenarios.
 """
 
 from .hurst import hurst_dimension

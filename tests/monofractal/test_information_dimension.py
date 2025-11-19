@@ -12,11 +12,11 @@ the amount of information needed to specify a point in the set. It is
 particularly useful for analyzing chaotic systems and time series data.
 
 Theoretical Background:
-- Uses Shannon entropy: I(ε) = -Σ p_i log(p_i)
+- Uses Shannon entropy: I(epsilon) = -Σ p_i log(p_i)
 - p_i is the probability of finding a point in box i
-- Information dimension D_I is the slope of I(ε) vs log(1/ε)
+- Information dimension D_I is the slope of I(epsilon) vs log(1/epsilon)
 - Key properties:
-  - D_I ≤ D_0 (capacity dimension)
+  - D_I <= D_0 (capacity dimension)
   - D_I = D_0 for uniform distributions
   - D_I < D_0 for non-uniform distributions
 """
@@ -154,7 +154,7 @@ def main():
             'description': 'Chaotic'
         })
         print(f"   Information dimension: {D_logistic:.4f}")
-        print(f"   R²: {result_logistic['r_squared']:.4f}")
+        print(f"   R^2: {result_logistic['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -169,14 +169,14 @@ def main():
             max_boxes=50
         )
         test_cases.append({
-            'name': 'Tent (μ=1.9)',
+            'name': 'Tent (mu=1.9)',
             'data': tent_data,
             'D_measured': D_tent,
             'result': result_tent,
             'description': 'Chaotic'
         })
         print(f"   Information dimension: {D_tent:.4f}")
-        print(f"   R²: {result_tent['r_squared']:.4f}")
+        print(f"   R^2: {result_tent['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -198,7 +198,7 @@ def main():
             'description': 'Chaotic'
         })
         print(f"   Information dimension: {D_henon:.4f}")
-        print(f"   R²: {result_henon['r_squared']:.4f}")
+        print(f"   R^2: {result_henon['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -220,7 +220,7 @@ def main():
             'description': 'Multiplicative cascade'
         })
         print(f"   Information dimension: {D_mf:.4f}")
-        print(f"   R²: {result_mf['r_squared']:.4f}")
+        print(f"   R^2: {result_mf['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -261,9 +261,9 @@ def main():
             ax3.plot(result['log_inv_epsilon'], fit_line, 'r-', 
                     linewidth=2, label=f'D_I = {case["D_measured"]:.4f}')
             
-            ax3.set_xlabel('log(1/ε)', fontsize=9)
-            ax3.set_ylabel('I(ε) (Information)', fontsize=9)
-            ax3.set_title(f'Information Dimension\nR² = {result["r_squared"]:.4f}', fontsize=10)
+            ax3.set_xlabel('log(1/epsilon)', fontsize=9)
+            ax3.set_ylabel('I(epsilon) (Information)', fontsize=9)
+            ax3.set_title(f'Information Dimension\nR^2 = {result["r_squared"]:.4f}', fontsize=10)
             ax3.tick_params(labelsize=8)
             ax3.legend(fontsize=8)
             ax3.grid(True, alpha=0.3)
@@ -279,12 +279,12 @@ def main():
     print("Summary")
     print("="*60)
     print("   Information dimension uses Shannon entropy:")
-    print("   I(ε) = -Σ p_i log(p_i)")
+    print("   I(epsilon) = -Σ p_i log(p_i)")
     print("   where p_i is the probability of finding a point in box i")
     print("   ")
     print("   Key properties:")
     print("   - D_I measures information content")
-    print("   - D_I ≤ D_0 (capacity dimension)")
+    print("   - D_I <= D_0 (capacity dimension)")
     print("   - D_I = D_0 for uniform distributions")
     print("   - D_I < D_0 for non-uniform distributions")
     print("\n   For uniform sets: D_I = D_0")

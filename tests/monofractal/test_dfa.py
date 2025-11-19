@@ -5,15 +5,15 @@ Detrended Fluctuation Analysis (DFA) Test Example
 =================================================
 
 This example demonstrates how to use the Detrended Fluctuation Analysis (DFA)
-method to calculate the scaling exponent α and fractal dimension of time series.
+method to calculate the scaling exponent alpha and fractal dimension of time series.
 
 DFA is a method for determining the statistical self-affinity of a signal.
 It is useful for analyzing time series that may be affected by trends.
 
 Theoretical Background:
-- For FGN (Fractional Gaussian Noise): DFA α = H
-- For FBM (Fractional Brownian Motion): DFA α = H + 1
-- Fractal dimension D = 2 - α (for 1D signals)
+- For FGN (Fractional Gaussian Noise): DFA alpha = H
+- For FBM (Fractional Brownian Motion): DFA alpha = H + 1
+- Fractal dimension D = 2 - alpha (for 1D signals)
 """
 
 import numpy as np
@@ -36,8 +36,8 @@ def generate_fgn(H, n=10000):
     """Generate Fractional Gaussian Noise (FGN) from FBM
     
     Note:
-    - For FGN: DFA α = H
-    - For FBM: DFA α = H + 1
+    - For FGN: DFA alpha = H
+    - For FBM: DFA alpha = H + 1
     """
     try:
         from fbm import FBM
@@ -95,7 +95,7 @@ def main():
     # Initialize test cases list
     test_cases = []
     
-    # 1. White noise (α = 0.5)
+    # 1. White noise (alpha = 0.5)
     print("\n1. Testing white noise...")
     white_noise = generate_white_noise(n=10000)
     alpha_theory_white = 0.5
@@ -114,16 +114,16 @@ def main():
             'alpha_theory': alpha_theory_white,
             'dimension': result_white['dimension'],
             'result': result_white,
-            'description': 'α=0.5'
+            'description': 'alpha=0.5'
         })
-        print(f"   Theoretical α: {alpha_theory_white:.2f}")
-        print(f"   Measured α: {alpha_white:.4f}")
+        print(f"   Theoretical alpha: {alpha_theory_white:.2f}")
+        print(f"   Measured alpha: {alpha_white:.4f}")
         print(f"   Fractal dimension: {result_white['dimension']:.4f}")
-        print(f"   R²: {result_white['r_squared']:.4f}")
+        print(f"   R^2: {result_white['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
-    # 2. Pink noise / 1/f noise (α ≈ 1.0)
+    # 2. Pink noise / 1/f noise (alpha ~= 1.0)
     print("\n2. Testing pink noise (1/f)...")
     pink_noise = generate_pink_noise(n=10000)
     alpha_theory_pink = 1.0
@@ -142,16 +142,16 @@ def main():
             'alpha_theory': alpha_theory_pink,
             'dimension': result_pink['dimension'],
             'result': result_pink,
-            'description': 'α≈1.0'
+            'description': 'alpha~=1.0'
         })
-        print(f"   Theoretical α: ~{alpha_theory_pink:.2f}")
-        print(f"   Measured α: {alpha_pink:.4f}")
+        print(f"   Theoretical alpha: ~{alpha_theory_pink:.2f}")
+        print(f"   Measured alpha: {alpha_pink:.4f}")
         print(f"   Fractal dimension: {result_pink['dimension']:.4f}")
-        print(f"   R²: {result_pink['r_squared']:.4f}")
+        print(f"   R^2: {result_pink['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
-    # 3. Random walk (α ≈ 1.5)
+    # 3. Random walk (alpha ~= 1.5)
     print("\n3. Testing random walk...")
     random_walk = generate_random_walk(n=10000)
     alpha_theory_rw = 1.5
@@ -170,12 +170,12 @@ def main():
             'alpha_theory': alpha_theory_rw,
             'dimension': result_rw['dimension'],
             'result': result_rw,
-            'description': 'α≈1.5'
+            'description': 'alpha~=1.5'
         })
-        print(f"   Theoretical α: ~{alpha_theory_rw:.2f}")
-        print(f"   Measured α: {alpha_rw:.4f}")
+        print(f"   Theoretical alpha: ~{alpha_theory_rw:.2f}")
+        print(f"   Measured alpha: {alpha_rw:.4f}")
         print(f"   Fractal dimension: {result_rw['dimension']:.4f}")
-        print(f"   R²: {result_rw['r_squared']:.4f}")
+        print(f"   R^2: {result_rw['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -200,10 +200,10 @@ def main():
             'result': result_fgn03,
             'description': 'Anti-persistent'
         })
-        print(f"   Theoretical α: {alpha_theory_fgn03:.2f}")
-        print(f"   Measured α: {alpha_fgn03:.4f}")
+        print(f"   Theoretical alpha: {alpha_theory_fgn03:.2f}")
+        print(f"   Measured alpha: {alpha_fgn03:.4f}")
         print(f"   Fractal dimension: {result_fgn03['dimension']:.4f}")
-        print(f"   R²: {result_fgn03['r_squared']:.4f}")
+        print(f"   R^2: {result_fgn03['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -228,10 +228,10 @@ def main():
             'result': result_fgn07,
             'description': 'Persistent'
         })
-        print(f"   Theoretical α: {alpha_theory_fgn07:.2f}")
-        print(f"   Measured α: {alpha_fgn07:.4f}")
+        print(f"   Theoretical alpha: {alpha_theory_fgn07:.2f}")
+        print(f"   Measured alpha: {alpha_fgn07:.4f}")
         print(f"   Fractal dimension: {result_fgn07['dimension']:.4f}")
-        print(f"   R²: {result_fgn07['r_squared']:.4f}")
+        print(f"   R^2: {result_fgn07['r_squared']:.4f}")
     except Exception as e:
         print(f"   Error: {e}")
     
@@ -259,11 +259,11 @@ def main():
             # Draw fitting line
             fit_line = np.polyval(result['coeffs'], result['log_windows'])
             ax2.plot(result['log_windows'], fit_line, 'r-', 
-                    linewidth=2, label=f'α = {case["alpha_measured"]:.4f}')
+                    linewidth=2, label=f'alpha = {case["alpha_measured"]:.4f}')
             
             ax2.set_xlabel('log(n)', fontsize=9)
             ax2.set_ylabel('log(F(n))', fontsize=9)
-            ax2.set_title(f'DFA Analysis\nR² = {result["r_squared"]:.4f}', fontsize=10)
+            ax2.set_title(f'DFA Analysis\nR^2 = {result["r_squared"]:.4f}', fontsize=10)
             ax2.tick_params(labelsize=8)
             ax2.legend(fontsize=8)
             ax2.grid(True, alpha=0.3)
@@ -271,8 +271,8 @@ def main():
             # Right plot: Comparison bar chart
             ax3 = fig.add_subplot(n_cases, 3, idx*3 + 3)
             
-            # Display theoretical α, measured α, and dimension D
-            params = ['α (theory)', 'α (measured)', 'D (dimension)']
+            # Display theoretical alpha, measured alpha, and dimension D
+            params = ['alpha (theory)', 'alpha (measured)', 'D (dimension)']
             values = [case['alpha_theory'], case['alpha_measured'], case['dimension']]
             colors = ['blue', 'orange', 'green']
             bars = ax3.bar(params, values, color=colors, alpha=0.7)
@@ -305,17 +305,17 @@ def main():
     print("Summary")
     print("="*60)
     print("   DFA (Detrended Fluctuation Analysis)")
-    print("   Scaling exponent α is related to Hurst exponent H:")
-    print("   - α < 0.5: Anti-persistent (mean-reverting)")
-    print("   - α = 0.5: Random walk (no memory)")
-    print("   - α > 0.5: Persistent (trend-following)")
-    print("   - α ≈ 1.0: 1/f noise (pink noise)")
-    print("   - α > 1.0: Non-stationary processes")
-    print("\n   Fractal dimension: D = 2 - α (for 1D signals)")
+    print("   Scaling exponent alpha is related to Hurst exponent H:")
+    print("   - alpha < 0.5: Anti-persistent (mean-reverting)")
+    print("   - alpha = 0.5: Random walk (no memory)")
+    print("   - alpha > 0.5: Persistent (trend-following)")
+    print("   - alpha ~= 1.0: 1/f noise (pink noise)")
+    print("   - alpha > 1.0: Non-stationary processes")
+    print("\n   Fractal dimension: D = 2 - alpha (for 1D signals)")
     print("   DFA is robust to trends in the data")
     print("\n   Important relationships:")
-    print("   - FGN: DFA α = H")
-    print("   - FBM: DFA α = H + 1")
+    print("   - FGN: DFA alpha = H")
+    print("   - FBM: DFA alpha = H + 1")
     print("   - FBM = cumsum(FGN), FGN = diff(FBM)")
 
 
