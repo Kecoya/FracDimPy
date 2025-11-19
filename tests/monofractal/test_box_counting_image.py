@@ -184,6 +184,8 @@ class TestBoxCountingImage:
                 n_vals = result['N_values']
 
                 # Sort by epsilon (descending) and check N values
+                eps_vals = np.array(eps_vals)
+                n_vals = np.array(n_vals)
                 sorted_indices = np.argsort(eps_vals)[::-1]
                 sorted_eps = eps_vals[sorted_indices]
                 sorted_n = n_vals[sorted_indices]
