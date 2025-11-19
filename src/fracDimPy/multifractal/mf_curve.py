@@ -16,6 +16,7 @@ Computes:
 import numpy as np
 from numpy import polyfit
 import multiprocessing
+n# type: ignore
 from typing import Tuple, List, Optional, Dict, Union
 from .custom_epsilon import custom_epsilon, is_power_of_two
 

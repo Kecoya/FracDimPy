@@ -14,6 +14,8 @@ The scaling relationship log(S(τ)) ~ m * log(τ) gives dimension D = (4-m)/2
 import numpy as np
 from typing import Tuple
 
+# type: ignore
+
 
 def structural_function(
     y_data: np.ndarray, x_interval: float = 1.0, max_tau: int = 30

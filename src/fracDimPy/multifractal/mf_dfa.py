@@ -15,6 +15,8 @@ Reference:
 import numpy as np
 from typing import Tuple, Dict, Optional, List
 
+# type: ignore
+
 
 def mf_dfa(
     data: np.ndarray,

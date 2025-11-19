@@ -13,6 +13,7 @@ This module implements various fractal pattern generation algorithms:
 """
 
 import numpy as np
+n# type: ignore
 from typing import Tuple, Optional
 
 

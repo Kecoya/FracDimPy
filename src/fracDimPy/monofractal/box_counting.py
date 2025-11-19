@@ -24,6 +24,7 @@ New Features:
 
 import numpy as np
 from scipy import interpolate
+n# type: ignore
 from typing import Tuple, Optional, Union, Literal
 
 

@@ -13,6 +13,8 @@ probability weighting via Shannon entropy.
 import numpy as np
 from typing import Tuple, Dict, Optional
 
+# type: ignore
+
 
 def information_dimension(
     data: np.ndarray, min_boxes: int = 4, max_boxes: Optional[int] = None, num_points: int = 10

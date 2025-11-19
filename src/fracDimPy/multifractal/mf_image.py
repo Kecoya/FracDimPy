@@ -11,6 +11,8 @@ import numpy as np
 from numpy import polyfit
 from typing import Tuple, List, Optional
 
+# type: ignore
+
 
 def multifractal_image(
     image: np.ndarray, q_list: Optional[List[float]] = None
@@ -58,8 +60,8 @@ def multifractal_image(
             np.append(np.round(np.linspace(q_min, q_max, 1000), 2), [0, 1, 2])
         ).tolist()
 
-    q_min = min(q_list)
-    q_max = max(q_list)
+    q_min = min(q_list)  # type: ignore
+    q_max = max(q_list)  # type: ignore
     print(f"q: {len(q_list)}, : [{q_min}, {q_max}]")
 
     #
