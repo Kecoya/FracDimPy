@@ -61,45 +61,6 @@ docs/_templates/
 Thumbs.db
 desktop.ini
 
-# Data files (忽略根目录和临时目录的数据文件)
-/*.npy
-/*.npz
-/*.mat
-/*.h5
-/*.hdf5
-
-# Images (忽略根目录的图片，但保留 examples 中的)
-/*.png
-/*.jpg
-/*.jpeg
-/*.gif
-/*.bmp
-/*.tif
-/*.tiff
-/*.eps
-/*.pdf
-
-# 保留 examples 目录中的所有测试数据和结果
-!examples/**/*.png
-!examples/**/*.jpg
-!examples/**/*.jpeg
-!examples/**/*.gif
-!examples/**/*.tif
-!examples/**/*.tiff
-!examples/**/*.eps
-!examples/**/*.pdf
-!examples/**/*.npy
-!examples/**/*.npz
-!examples/**/*.csv
-!examples/**/*.txt
-!examples/**/*.xlsx
-!examples/**/*.xls
-
-# Excel files (只忽略根目录的)
-/*.xlsx
-/*.xls
-/*.csv
-
 # Temporary files
 *.tmp
 *.bak
