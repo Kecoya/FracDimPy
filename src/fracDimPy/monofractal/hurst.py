@@ -19,56 +19,56 @@ from typing import Tuple
 
 def hurst_dimension(timeseries: np.ndarray, method: str = "rs") -> Tuple[float, dict]:
     """
-    R/SHurst
+    Calculate Hurst exponent using R/S analysis
 
     Parameters
     ----------
     timeseries : np.ndarray
-
+        Input time series data
     method : str, optional
         'rs' - R/S (Rescaled Range)
 
     Returns
     -------
     dimension : float
-         (D = 2 - H)
+        Fractal dimension (D = 2 - H)
     result : dict
-
-        - 'dimension':
-        - 'hurst': Hurst
-        - 'R2': R
-        - 'r_values': r
-        - 'rs_values': R/S
-        - 'coefficients':
+        Detailed results dictionary containing:
+        - 'dimension': Fractal dimension
+        - 'hurst': Hurst exponent
+        - 'R2': R-squared value
+        - 'r_values': Window sizes
+        - 'rs_values': R/S values
+        - 'coefficients': Fit coefficients
 
     Examples
     --------
     >>> import numpy as np
     >>> from fracDimPy import hurst_dimension
-    >>> #
+    >>> # Generate random time series
     >>> t = np.random.randn(1000)
     >>> D, result = hurst_dimension(t)
     >>> print(f"Hurst: {result['hurst']:.4f}")
-    >>> print(f": {D:.4f}")
+    >>> print(f"Dimension: {D:.4f}")
     """
     return _rs_method(timeseries)
 
 
 def _rs_method(mt: np.ndarray) -> Tuple[float, dict]:
     """
-    R/S分析计算Hurst指数
+    Calculate Hurst exponent using R/S analysis
 
     Parameters
     ----------
     mt : np.ndarray
-        时间序列数据
+        Time series data
 
     Returns
     -------
     dimension : float
-        分形维数
+        Fractal dimension
     result : dict
-        包含详细结果的字典
+        Dictionary containing detailed results
     """
     N = mt.shape[0]
     ars = []  # R/S值列表
@@ -125,7 +125,7 @@ def _rs_method(mt: np.ndarray) -> Tuple[float, dict]:
                 rl.append(r)
 
     if len(rl) < 3:
-        raise ValueError("R/S分析失败：有效数据点不足，请提供更长的时间序列")
+        raise ValueError("R/S analysis failed: Insufficient valid data points, please provide a longer time series")
 
     # 在log-log空间进行线性拟合以估计Hurst指数
     x = np.log10(rl)

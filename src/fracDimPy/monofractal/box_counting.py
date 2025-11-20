@@ -37,57 +37,57 @@ def box_counting(
     **kwargs,
 ) -> Tuple[float, dict]:
     """
-    计算分形维数的盒计数方法
+    Box-counting method for calculating fractal dimension
 
     Parameters
     ----------
     data : np.ndarray or tuple
-        输入数据
-        - 'curve': (x, y) 元组或单独的 y 数组
-        - 'image': 2D 灰度图像数组
-        - 'surface': 2D 高程数组
-        - 'scatter': (x, y, z) 元组或散点位置数组
-        - 'porous': 3D 二值数组
+        Input data
+        - 'curve': (x, y) tuple or single y array
+        - 'image': 2D grayscale image array
+        - 'surface': 2D elevation array
+        - 'scatter': (x, y, z) tuple or scatter position array
+        - 'porous': 3D binary array
     data_type : str
-        数据类型: 'curve', 'image', 'surface', 'scatter', 'porous'
+        Data type: 'curve', 'image', 'surface', 'scatter', 'porous'
     boundary_mode : str, optional
-        边界效应处理模式:
-        - 'valid': 仅使用完整盒子（默认）
-        - 'pad': 零填充到完整盒子
-        - 'periodic': 周期性边界条件
-        - 'reflect': 镜像边界条件
+        Boundary effect handling mode:
+        - 'valid': Use only complete boxes (default)
+        - 'pad': Zero padding to complete boxes
+        - 'periodic': Periodic boundary conditions
+        - 'reflect': Mirror boundary conditions
     partition_strategy : str, optional
-        盒子划分策略:
-        - 'fixed': 固定网格（默认）
-        - 'sliding': 滑动窗口，盒子部分重叠
-        - 'random': 随机位置采样（多次平均）
+        Box partitioning strategy:
+        - 'fixed': Fixed grid (default)
+        - 'sliding': Sliding window with partially overlapping boxes
+        - 'random': Random position sampling (averaged multiple times)
     **kwargs : dict
-        其他参数（传递给特定数据类型的处理函数）
-        - n_random: 随机策略的采样次数（默认5）
-        - sliding_step: 滑动步长因子（默认0.5）
+        Other parameters (passed to specific data type processing functions)
+        - n_random: Number of samples for random strategy (default 5)
+        - sliding_step: Sliding step factor (default 0.5)
 
     Returns
     -------
     dimension : float
-        分形维数
+        Fractal dimension
     result : dict
-        详细结果字典
+        Detailed results dictionary
 
     Examples
     --------
     >>> import numpy as np
     >>> from fracDimPy import box_counting
-    >>> # 曲线数据
+    >>> # Curve data
     >>> x = np.linspace(0, 1, 1000)
     >>> y = np.random.randn(1000)
     >>> D, result = box_counting((x, y), data_type='curve')
-    >>> print(f"分形维数: {D:.4f}")
+    >>> print(f"Fractal dimension: {D:.4f}")
     >>>
-    >>> # 使用滑动窗口策略
+    >>> # Using sliding window strategy
     >>> D, result = box_counting((x, y), data_type='curve',
     ...                          partition_strategy='sliding')
     >>>
-    >>> # 使用周期性边界
+    >>> # Using periodic boundaries
     >>> D, result = box_counting((x, y), data_type='curve',
     ...                          boundary_mode='periodic')
     """
@@ -102,28 +102,28 @@ def box_counting(
     elif data_type == "porous":
         return _box_counting_porous(data, boundary_mode, partition_strategy, **kwargs)
     else:
-        raise ValueError(f"不支持的数据类型: {data_type}")
+        raise ValueError(f"Unsupported data type: {data_type}")
 
 
 def _apply_boundary_condition(
     data: np.ndarray, epsilon: int, boundary_mode: str = "valid"
 ) -> np.ndarray:
     """
-    应用边界条件处理
+    Apply boundary condition handling
 
     Parameters
     ----------
     data : np.ndarray
-        输入数组（1D、2D或3D）
+        Input array (1D, 2D, or 3D)
     epsilon : int
-        当前盒子大小
+        Current box size
     boundary_mode : str
-        边界处理模式
+        Boundary handling mode
 
     Returns
     -------
     padded_data : np.ndarray
-        处理后的数组
+        Processed array
     """
     if boundary_mode == "valid":
         # 不做处理，在计数时只使用完整盒子
@@ -195,25 +195,25 @@ def _get_box_positions(
     sliding_step: float = 0.5,
 ) -> list:
     """
-    根据策略获取盒子位置
+    Get box positions based on strategy
 
     Parameters
     ----------
     data_shape : tuple
-        数据形状
+        Data shape
     epsilon : int
-        盒子大小
+        Box size
     strategy : str
-        划分策略
+        Partitioning strategy
     n_random : int
-        随机策略的采样次数
+        Number of samples for random strategy
     sliding_step : float
-        滑动步长因子（相对于epsilon）
+        Sliding step factor (relative to epsilon)
 
     Returns
     -------
     positions : list
-        盒子起始位置列表，每个元素是坐标元组
+        List of box starting positions, each element is a coordinate tuple
     """
     if strategy == "fixed":
         # 固定网格，不重叠
@@ -294,23 +294,23 @@ def _box_counting_curve(
     **kwargs,
 ) -> Tuple[float, dict]:
     """
-    曲线数据的盒计数分形维数
+    Box-counting fractal dimension for curve data
 
     Parameters
     ----------
     data : tuple or np.ndarray
-        (x, y) 元组或单独的 y 数组
+        (x, y) tuple or single y array
     boundary_mode : str
-        边界处理模式
+        Boundary handling mode
     partition_strategy : str
-        盒子划分策略
+        Box partitioning strategy
 
     Returns
     -------
     dimension : float
-        分形维数
+        Fractal dimension
     result : dict
-        详细结果
+        Detailed results
     """
     # 解析数据
     if isinstance(data, tuple):

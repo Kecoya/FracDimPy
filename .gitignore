@@ -130,6 +130,9 @@ temp/
 *.orig
 *.rej
 
+# JOSS directory (Journal of Open Source Science submission)
+JOSS/
+
 # 系统文件
 *.lnk
 
