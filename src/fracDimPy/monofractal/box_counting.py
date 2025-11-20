@@ -24,8 +24,9 @@ New Features:
 
 import numpy as np
 from scipy import interpolate
-n# type: ignore
-from typing import Tuple, Optional, Union, Literal
+
+# type: ignore
+from typing import Tuple, Union
 
 
 def box_counting(

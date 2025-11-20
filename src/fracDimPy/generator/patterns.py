@@ -13,7 +13,8 @@ This module implements various fractal pattern generation algorithms:
 """
 
 import numpy as np
-n# type: ignore
+
+# type: ignore
 from typing import Tuple, Optional
 
 
@@ -355,7 +356,6 @@ def generate_koch_curve(level: int = 4, size: int = 512) -> Tuple[np.ndarray, np
 
         # Calculate peak point (60° outward)
         # Forms an equilateral triangle
-        angle = np.pi / 3  # 60 degrees
         cx = (p1[0] + p2[0]) / 2
         cy = (p1[1] + p2[1]) / 2
 
@@ -1022,7 +1022,6 @@ def generate_dla(
 
         # Random walk
         max_steps = 10000  # Prevent infinite loops
-        stuck = False
 
         for step in range(max_steps):
             # Check if particle escaped
@@ -1038,7 +1037,6 @@ def generate_dla(
             if grid[y - 1, x] or grid[y + 1, x] or grid[y, x - 1] or grid[y, x + 1]:
                 # Stick particle
                 grid[y, x] = True
-                stuck = True
 
                 # Update maximum radius
                 particle_dist = np.sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
@@ -1049,7 +1047,6 @@ def generate_dla(
             # Check 8-connected neighbors (optional, for denser clusters)
             if grid[y - 1, x - 1] or grid[y - 1, x + 1] or grid[y + 1, x - 1] or grid[y + 1, x + 1]:
                 grid[y, x] = True
-                stuck = True
 
                 particle_dist = np.sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
                 if particle_dist > max_radius:

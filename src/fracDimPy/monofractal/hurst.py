@@ -14,7 +14,7 @@ Reference:
 """
 
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple
 
 
 def hurst_dimension(timeseries: np.ndarray, method: str = "rs") -> Tuple[float, dict]:

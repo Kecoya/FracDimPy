@@ -16,8 +16,9 @@ Computes:
 import numpy as np
 from numpy import polyfit
 import multiprocessing
-n# type: ignore
-from typing import Tuple, List, Optional, Dict, Union
+
+# type: ignore
+from typing import Tuple, List, Optional, Union
 from .custom_epsilon import custom_epsilon, is_power_of_two
 
 
@@ -184,7 +185,7 @@ def multifractal_curve(
             pool.join()
             for item_return in result_list:
                 Pill.append(item_return.get())
-        except:
+        except Exception:
             #
             use_multiprocessing = False
 
@@ -259,17 +260,17 @@ def multifractal_curve(
         f"(q=0) - (q={q_max})": [al[q_list.index(0)] - al[q_list.index(q_max)]],
         f"(q={q_min}) - (q={q_max})": [al[q_list.index(q_min)] - al[q_list.index(q_max)]],
         #
-        "": [coeff[0]],
-        "": [coeff[1]],
-        "": [coeff[2]],
+        "quad_coeff": [coeff[0]],
+        "linear_coeff": [coeff[1]],
+        "const_coeff": [coeff[2]],
         "f(q=0)": [fl[q_list.index(0)]],
         "f(q=1)": [fl[q_list.index(1)]],
         "f(q=2)": [fl[q_list.index(2)]],
         f"f(q={q_min})": [fl[q_list.index(q_min)]],
         f"f(q={q_max})": [fl[q_list.index(q_max)]],
-        "": [W_l],
-        "": [W_r],
-        "": [W],
+        "width_left": [W_l],
+        "width_right": [W_r],
+        "width_total": [W],
         #
         "H": [(1 + dl[q_list.index(2)]) / 2],
         " D(0)": [dl[q_list.index(0)]],
@@ -283,8 +284,8 @@ def multifractal_curve(
 
     figure_data = {
         "q": q_list,
-        "(q)": tl,
-        "(q)": al,
+        "tau_q": tl,
+        "alpha_q": al,
         "f()": fl,
         "D(q)": dl,
     }

@@ -12,7 +12,6 @@ This module implements various fractal surface generation algorithms:
 """
 
 import numpy as np
-from typing import Tuple
 
 
 def generate_fbm_surface(dimension: float, size: int = 256, method: str = "fft") -> np.ndarray:

@@ -12,7 +12,8 @@ References:
 """
 
 import numpy as np
-n# type: ignore
+
+# type: ignore
 from typing import Tuple, Dict, Optional
 
 

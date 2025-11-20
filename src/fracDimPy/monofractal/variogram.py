@@ -13,7 +13,7 @@ Dimension: D = 2 - H (for curves) or D = 3 - H (for surfaces)
 """
 
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple
 
 
 def variogram_method(

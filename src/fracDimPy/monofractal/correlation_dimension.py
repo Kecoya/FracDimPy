@@ -12,7 +12,8 @@ References:
 """
 
 import numpy as np
-n# type: ignore
+
+# type: ignore
 from typing import Tuple, Dict, Optional
 
 
@@ -114,7 +115,7 @@ def correlation_dimension(
     N = len(points)
 
     #
-    print(f" {N} ...")
+    print(f"Processing {N} points ...")
 
     #
     # distances[i, j] = ||points[i] - points[j]||
@@ -135,7 +136,7 @@ def correlation_dimension(
 
     correlations = []
 
-    print(f"...")
+    print("Computing correlations...")
     for r in radii:
         # r
         C_r = np.sum(distances < r) / len(distances)

@@ -146,9 +146,9 @@ def multifractal_image(
         f"(q=0) - (q=+{q_max})": [al[q_list.index(0)] - al[q_list.index(q_max)]],
         f"(q={q_min}) - (q=+{q_max})": [al[q_list.index(q_min)] - al[q_list.index(q_max)]],
         #
-        "": [coeff[0]],
-        "": [coeff[1]],
-        "": [coeff[2]],
+        "quad_coeff": [coeff[0]],
+        "linear_coeff": [coeff[1]],
+        "const_coeff": [coeff[2]],
         #
         "f(q=0)": [fl[q_list.index(0)]],
         "f(q=1)": [fl[q_list.index(1)]],
@@ -158,9 +158,9 @@ def multifractal_image(
         "f(q=0)-f(q=1)": [fl[q_list.index(0)] - fl[q_list.index(1)]],
         f"f(q={q_min})-f(q=+{q_max})": [fl[q_list.index(q_min)] - fl[q_list.index(q_max)]],
         #
-        "": [W_l],
-        "": [W_r],
-        "": [W],
+        "width_left": [W_l],
+        "width_right": [W_r],
+        "width_total": [W],
         #
         "H": [(1 + dl[q_list.index(2)]) / 2],
         " D(0)": [dl[q_list.index(0)]],
@@ -175,8 +175,8 @@ def multifractal_image(
     #
     figure_data = {
         "q": q_list,
-        "(q)": tl,
-        "(q)": al,
+        "tau_q": tl,
+        "alpha_q": al,
         "f()": fl,
         "D(q)": dl,
     }

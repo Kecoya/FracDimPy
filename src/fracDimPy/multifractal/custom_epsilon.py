@@ -10,7 +10,8 @@ multifractal analysis.
 
 import numpy as np
 from scipy import interpolate
-n# type: ignore
+
+# type: ignore
 from typing import Tuple, Optional
 
 
@@ -114,13 +115,13 @@ def fill_vacancy(mt: np.ndarray) -> np.ndarray:
     >>> mt_filled = fill_vacancy(mt)
     >>> # -1
     """
-    l = len(mt)
+    length = len(mt)
     # -1
     vacancy_indices = np.argwhere(mt == -1).flatten()
     num_vacancy = len(vacancy_indices)
 
     if num_vacancy > 0:
-        print(f": {num_vacancy}/{l}; : {num_vacancy/l*100:.4f}%")
+        print(f": {num_vacancy}/{length}; : {num_vacancy/length*100:.4f}%")
 
         # -1
         valid_indices = np.argwhere(mt > -1).flatten()

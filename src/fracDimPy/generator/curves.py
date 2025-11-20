@@ -12,7 +12,7 @@ This module implements various fractal curve generation algorithms:
 """
 
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple
 
 
 def generate_fbm_curve(

@@ -9,7 +9,7 @@ Functions for loading and saving data
 
 import numpy as np
 import pandas as pd
-from typing import Union, Dict, Any
+from typing import Dict, Any
 from pathlib import Path
 
 
