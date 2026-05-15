@@ -114,7 +114,7 @@ class TestVariogram:
         data_file_1d, _ = variogram_files
 
         try:
-            data = np.load(data_file_1d)
+            data = np.load(data_file_1d, allow_pickle=True)
             D, result = variogram_method(data)
 
             # Validate results

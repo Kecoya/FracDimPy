@@ -58,7 +58,7 @@ def load_data(file_path: str, data_type: str = "auto") -> np.ndarray:
     elif data_type == "xlsx":
         data = pd.read_excel(file_path).values
     elif data_type == "npy":
-        data = np.load(file_path)
+        data = np.load(file_path, allow_pickle=True)
     else:
         raise ValueError(f"Unknown data type: {data_type}")
 

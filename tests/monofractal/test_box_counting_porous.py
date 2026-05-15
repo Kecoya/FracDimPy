@@ -21,7 +21,7 @@ def load_porous_data():
     """Load and preprocess porous media data."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     data_file = os.path.join(current_dir, "box_counting_porous_data.npy")
-    porous_data = np.load(data_file)
+    porous_data = np.load(data_file, allow_pickle=True)
 
     # Convert to binary if needed
     if porous_data.max() > 1:

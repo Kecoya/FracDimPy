@@ -29,7 +29,7 @@ data_file = os.path.join(current_dir, "hurst_data.npy")
 def test_hurst_basic():
     """Test basic Hurst exponent functionality."""
     # Load test data
-    data = np.load(data_file)
+    data = np.load(data_file, allow_pickle=True)
 
     # Basic data validation
     assert len(data) > 0, "Data should not be empty"
@@ -52,7 +52,7 @@ def test_hurst_basic():
 def test_hurst_theoretical_relationships():
     """Test theoretical relationships between Hurst exponent and fractal dimension."""
     # Load test data
-    data = np.load(data_file)
+    data = np.load(data_file, allow_pickle=True)
 
     # Calculate Hurst exponent and fractal dimension
     D, result = hurst_dimension(data)
@@ -71,7 +71,7 @@ def test_hurst_theoretical_relationships():
 def test_hurst_goodness_of_fit():
     """Test that Hurst analysis provides good fit quality."""
     # Load test data
-    data = np.load(data_file)
+    data = np.load(data_file, allow_pickle=True)
 
     # Calculate Hurst exponent
     D, result = hurst_dimension(data)
@@ -85,7 +85,7 @@ def test_hurst_goodness_of_fit():
 def test_hurst_consistency():
     """Test that Hurst analysis produces consistent results."""
     # Load test data
-    data = np.load(data_file)
+    data = np.load(data_file, allow_pickle=True)
 
     # Calculate Hurst exponent multiple times
     results = []
@@ -115,7 +115,7 @@ def test_hurst_consistency():
 def test_hurst_data_length_sensitivity():
     """Test Hurst analysis with different data lengths."""
     # Load full test data
-    full_data = np.load(data_file)
+    full_data = np.load(data_file, allow_pickle=True)
 
     # Test with different data lengths
     test_lengths = [500, 1000, min(len(full_data), 5000)]
@@ -152,7 +152,7 @@ def test_hurst_data_length_sensitivity():
 def test_hurst_input_validation():
     """Test Hurst analysis with different input validations."""
     # Load test data
-    data = np.load(data_file)
+    data = np.load(data_file, allow_pickle=True)
 
     # Test with different input scenarios
     test_cases = [
