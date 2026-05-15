@@ -47,3 +47,5 @@ FracDimPy integrates seamlessly with the Python scientific ecosystem, enabling r
 # Acknowledgements
 
 This work was prepared under the auspices of the National Key Laboratory of Oil and Gas Reservoir Geology and Exploitation at Southwest Petroleum University, and supported by the National Natural Science Foundation of China (52374044) and the Sichuan Province Science and Technology Planning Projects (2025JDDQ0002). We thank the open-source community for the essential scientific computing tools---NumPy, SciPy, Matplotlib, and pandas---that make this work possible, as well as the developers of Nolds, Fathon, and FracLab for inspiring aspects of this project.
+
+The core algorithms and original implementations of FracDimPy were independently developed by Zhile Han during undergraduate research, without the use of any AI tools. The code was subsequently refactored with the assistance of Claude (Anthropic) to improve modularity, consistency, and packaging as an open-source library. The authors reviewed and edited all AI-generated content and take full responsibility for the publication.

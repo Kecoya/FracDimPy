@@ -4,7 +4,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-0.1.3-green.svg)](https://github.com/songLe/FracDimPy)
+[![Version](https://img.shields.io/badge/version-0.1.4-green.svg)](https://github.com/songLe/FracDimPy)
 
 **一个全面的Python分形维数计算与多重分形分析工具包**
 

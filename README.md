@@ -4,7 +4,8 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-0.1.3-green.svg)](https://github.com/songLe/FracDimPy)
+[![Version](https://img.shields.io/badge/version-0.1.4-green.svg)](https://pypi.org/project/FracDimPy/0.1.4/)
+[![PyPI](https://img.shields.io/pypi/v/FracDimPy.svg)](https://pypi.org/project/FracDimPy/)
 
 **A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis**
 
@@ -348,7 +349,7 @@ If you use FracDimPy in your research, please cite:
   title = {FracDimPy: A Comprehensive Python Package for Fractal Dimension Calculation and Multifractal Analysis},
   year = {2024},
   url = {https://github.com/Kecoya/FracDimPy},
-  version = {0.1.3}
+  version = {0.1.4}
 }
 ```
 
