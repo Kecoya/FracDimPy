@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 REM JOSS论文编译脚本 - Windows版本
 REM 使用方法: 双击compile_paper.bat或在命令行中运行
 

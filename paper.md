@@ -11,10 +11,9 @@ authors:
   - name: Zhile Han
     orcid: 0009-0002-6306-1452
     affiliation: "1"
+    corresponding: true
+    email: 2667032759@qq.com
   - name: Cong Lu
-    affiliation: "1"
-  - name: Shouxin Wang
-    orcid: 0009-0003-1583-4999
     affiliation: "1"
 affiliations:
   - index: 1
@@ -22,85 +21,29 @@ affiliations:
     ror: 05a1rry66
 date: 19 November 2025
 bibliography: paper.bib
-linenumbers: false
-numbersections: false
-header-includes: |
-  \usepackage{lineno}
-  \DisableLinenumbers
 ---
-
 # Summary
 
-FracDimPy is a comprehensive Python package for fractal dimension calculation and multifractal analysis that provides researchers with a unified toolkit for analyzing complex, self-similar patterns in data. Fractal geometry has become essential for understanding irregular structures across numerous scientific disciplines, from geological formations and material surfaces to biological systems and financial markets [@mandelbrotFractalGeometryNature1982]. FracDimPy offers a complete suite of computational tools including eight different monofractal analysis methods, comprehensive multifractal analysis capabilities, and built-in fractal generation tools. The package is designed for both research applications and educational purposes, featuring an intuitive API, extensive documentation, and rich visualization capabilities that make advanced fractal analysis accessible to researchers across disciplines.
+FracDimPy is a comprehensive Python package for fractal dimension calculation and multifractal analysis. Fractal geometry provides powerful tools for characterizing irregular, self-similar structures that appear across scientific disciplines, from geological formations and material surfaces to biological systems and financial markets [@mandelbrotFractalGeometryNature1982; @lopesFractalMultifractalAnalysis2009]. FracDimPy offers a unified toolkit that integrates eight monofractal analysis methods, comprehensive multifractal analysis, and built-in fractal generation tools. The package is designed for both research and educational use, featuring an intuitive API, extensive documentation, and rich visualization capabilities built on NumPy, SciPy, Matplotlib, and pandas [@harrisArrayProgrammingNumPy2020; @virtanenSciPy1.0Fundamental2020; @hunterMatplotlib2D2007; @mckinneyPandasDataAnalysis2010].
+
+The monofractal methods include box-counting with configurable boundary handling and partitioning strategies [@foroutan-pourAdvancesImplementationBoxcounting1999; @liebovitchFastAlgorithmDetermine1989], Hurst exponent via R/S analysis [@hurstLongTermStorageCapacity1951], detrended fluctuation analysis (DFA) [@pengMosaicOrganizationDNA1994], correlation dimension via the Grassberger-Procaccia algorithm [@grassbergerMeasuringStrangenessAttractors1983], information dimension, structural function, variogram, and sandbox methods. The multifractal module provides multifractal DFA (MF-DFA) [@kantelhardtMultifractalDetrendedFluctuation2002], multifractal spectrum computation for 1D curves and 2D images, and custom epsilon sequences for flexible scaling range optimization. The generator module produces deterministic fractals (Sierpinski triangle, Koch curve, Cantor set, Menger sponge) and stochastic fractals (fractional Brownian motion, Weierstrass-Mandelbrot functions) with known theoretical dimensions, enabling algorithm validation and educational demonstrations.
+
+![Multifractal analysis of a test signal using FracDimPy: (a) original curve, (b) partition function, (c) mass exponent, (d) Holder exponent, (e) multifractal spectrum, and (f) generalized dimension.\label{fig:multifractal}](figure_multifractal.png){width=100%}
 
 # Statement of Need
 
-The analysis of fractal patterns has become increasingly critical across scientific research, yet researchers face significant challenges when accessing appropriate computational tools. Existing fractal analysis software often suffers from several limitations: fragmented implementations across multiple packages, restrictive licensing, steep learning curves, or limited methodological coverage. Commercial alternatives can be prohibitively expensive, while many academic tools lack comprehensive documentation or maintenance.
+Fractal and multifractal analysis has become increasingly important across scientific research, yet practitioners face significant challenges in accessing appropriate computational tools. Existing software is often fragmented across multiple packages with limited methodological coverage, or locked behind commercial licenses with steep learning curves [@lopesFractalMultifractalAnalysis2009].
 
-FracDimPy addresses these challenges by providing a unified, open-source solution that combines multiple fractal analysis methodologies within a single, well-documented package. While existing tools like Nolds, Fathon, and FracLab provide excellent implementations of specific methods [@nolds; @fathon; @fraclab], FracDimPy offers a comprehensive suite that integrates both monofractal and multifractal analysis methods with extensive visualization capabilities. The software includes eight different monofractal analysis methods (Hurst exponent, box-counting, information dimension, correlation dimension, structural function, variogram, sandbox, and detrended fluctuation analysis), comprehensive multifractal analysis with partition function and spectrum calculation, and fractal generation tools for testing and educational purposes.
+While tools like Nolds [@nolds], Fathon [@fathon], and FracLab [@fraclab] provide excellent implementations of specific methods, FracDimPy offers a uniquely comprehensive suite that integrates monofractal and multifractal analysis within a single, well-documented package. This unified approach eliminates the need for researchers to learn multiple software environments and ensures consistent data handling across different analysis methods.
 
-The package fills a critical gap in the Python scientific computing ecosystem by offering fractal analysis capabilities that integrate seamlessly with popular libraries like NumPy, SciPy, and Matplotlib [@harrisArrayProgrammingNumPy2020; @virtanenSciPy1.0Fundamental2020; @hunterMatplotlib2D2007]. This integration enables researchers to incorporate fractal analysis into existing data analysis workflows without learning entirely new software environments. FracDimPy has already been applied across diverse fields including geoscience (terrain analysis, seismic data), materials science (surface roughness, porous media), biomedicine (DNA sequences, medical imaging), and financial analysis (market volatility, risk assessment).
+All implementations have been validated against canonical fractals with known theoretical dimensions---Sierpinski triangle ($D = \log 3/\log 2 \approx 1.585$), Koch curve ($D = \log 4/\log 3 \approx 1.262$), and Cantor set ($D = \log 2/\log 3 \approx 0.631$)---with relative errors consistently below 2\%. The package has been applied in geoscience (NMR pore-structure analysis, terrain characterization), materials science (surface roughness quantification), and petroleum engineering (reservoir heterogeneity assessment).
 
-The software's permissive GPL-3.0 license ensures accessibility for both academic and commercial applications, while its active development and comprehensive documentation support long-term research projects and educational initiatives. By providing a complete fractal analysis toolkit, FracDimPy enables researchers to extract meaningful insights from complex data patterns that traditional linear analysis methods might overlook.
+![Box-counting analysis of a fractal surface (D = 2.0315, R² = 0.9999), demonstrating the package's capability for 2D surface data.\label{fig:boxcounting}](figure_box_counting_surface.png){width=48%}
 
-# Methods
+![Box-counting analysis of porous media: the log-log plots confirm power-law scaling with high precision.\label{fig:porous}](figure_box_counting_porous.png){width=48%}
 
-## Monofractal Analysis
-
-FracDimPy implements diverse monofractal methods:
-
-- **Box-Counting Dimension**: Robust implementation with configurable boundary handling and partitioning strategies [@foroutan-pourAdvancesImplementationBoxcounting1999; @liebovitchFastAlgorithmDetermine1989]
-- **Hurst Exponent**: R/S analysis with logarithmic window spacing for improved accuracy [@hurstLongTermStorageCapacity1951]
-- **Detrended Fluctuation Analysis**: Configurable detrending order with two-pass processing [@pengMosaicOrganizationDNA1994]
-- **Correlation Dimension**: Grassberger-Procaccia algorithm with automatic scaling range selection [@grassbergerMeasuringStrangenessAttractors1983]
-
-## Multifractal Analysis
-
-Advanced multifractal techniques include:
-
-- **MF-DFA**: Multifractal Detrended Fluctuation Analysis for non-stationary time series [@kantelhardtMultifractalDetrendedFluctuation2002]
-- **Multifractal Spectrum**: Box-counting based formalism for 1D curves and 2D images
-- **Custom Epsilon Sequences**: Flexible scaling range optimization
-
-## Fractal Generation
-
-The generator module creates synthetic fractals with known dimensions:
-
-- Deterministic fractals: Sierpinski triangle, Koch curve, Cantor set
-- Stochastic fractals: Fractional Brownian motion, Weierstrass function
-- Validation datasets for algorithm testing
-
-# Validation and Applications
-
-## Algorithm Validation
-
-We validated FracDimPy's implementations using canonical fractals with known theoretical dimensions:
-
-- **Sierpinski Triangle**: Box-counting dimension $D = \log(3)/\log(2) \approx 1.585$
-- **Koch Curve**: Box-counting dimension $D = \log(4)/\log(3) \approx 1.262$
-- **Cantor Set**: Box-counting dimension $D = \log(2)/\log(3) \approx 0.631$
-
-Our implementations recover these theoretical values with relative errors less than 2%.
-
-## Case Study 1: NMR Data Analysis
-
-We applied FracDimPy to Nuclear Magnetic Resonance (NMR) data from petroleum engineering research. The multifractal spectrum analysis revealed heterogeneous pore distributions that correlate with rock permeability measurements.
-
-## Case Study 2: Surface Roughness Analysis
-
-Using Takagi surface data, we demonstrated the package's ability to characterize surface roughness through multiple fractal dimensions, providing insights into material properties.
-
-# Performance
-
-FracDimPy is optimized for computational efficiency:
-- Vectorized operations using NumPy
-- Optional parallel processing for large datasets
-- Memory-efficient algorithms for high-dimensional data
-
-Benchmarks show linear scaling with data size up to $10^6$ points.
+FracDimPy integrates seamlessly with the Python scientific ecosystem, enabling researchers to incorporate fractal analysis into existing NumPy/SciPy/Matplotlib workflows without additional dependencies beyond standard scientific Python packages. The GPL-3.0 license ensures broad accessibility for both academic and commercial applications.
 
 # Acknowledgements
 
-We acknowledge the support of Southwest Petroleum University and the State Key Laboratory of Oil and Gas Reservoir Geology and Exploitation. We are grateful to the open source community for providing the essential scientific computing ecosystem that makes this work possible, including NumPy, SciPy, Matplotlib, and the broader Python scientific community. Special thanks to the contributors to existing fractal analysis software packages such as Nolds, Fathon, and FracLab, which have informed and inspired the development of FracDimPy. This work was inspired by the need for accessible fractal analysis tools in petroleum engineering research and aims to contribute back to the scientific computing community.
-
-# References
+This work was prepared under the auspices of the National Key Laboratory of Oil and Gas Reservoir Geology and Exploitation at Southwest Petroleum University, and supported by the National Natural Science Foundation of China (52374044) and the Sichuan Province Science and Technology Planning Projects (2025JDDQ0002). We thank the open-source community for the essential scientific computing tools---NumPy, SciPy, Matplotlib, and pandas---that make this work possible, as well as the developers of Nolds, Fathon, and FracLab for inspiring aspects of this project.
