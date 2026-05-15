@@ -300,6 +300,7 @@ python test_hurst.py
 - Matplotlib >= 3.3.0 - 数据可视化
 - Pandas >= 1.3.0 - 数据处理
 - Pillow >= 9.0.0 - 图像读写
+- openpyxl >= 3.0.0 - Excel文件支持
 
 **所有依赖已自动安装，无需手动安装额外库即可使用全部功能。**
 
