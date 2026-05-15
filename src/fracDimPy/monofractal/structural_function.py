@@ -14,6 +14,8 @@ The scaling relationship log(S(τ)) ~ m * log(τ) gives dimension D = (4-m)/2
 import numpy as np
 from typing import Tuple
 
+from ..utils.fitting import log_log_fit
+
 # type: ignore
 
 
@@ -104,15 +106,9 @@ def structural_function(
     log_tau = np.log(taol)
     log_S = np.log(Sl)
 
-    coefficients = np.polyfit(log_tau, log_S, 1)
-    f = np.poly1d(coefficients)
-
-    #
-    m = coefficients[0]
+    m, intercept, R2 = log_log_fit(log_tau, log_S)
+    coefficients = np.array([m, intercept])
     dimension = (4 - m) / 2
-
-    #
-    R2 = np.corrcoef(log_S, f(log_tau))[0, 1] ** 2
 
     result = {
         "dimension": dimension,

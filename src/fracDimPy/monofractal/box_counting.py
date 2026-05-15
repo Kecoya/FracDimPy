@@ -28,6 +28,11 @@ from scipy import interpolate
 # type: ignore
 from typing import Tuple, Union
 
+from ..utils.fitting import log_log_fit
+from ..utils.scales import power_of_two_scales
+from ..utils.box_counting_core import count_nonempty
+from ..utils.conversion import apply_boundary_padding, coordinate_to_matrix_1d
+
 
 def box_counting(
     data: Union[np.ndarray, Tuple[np.ndarray, np.ndarray]],
@@ -108,83 +113,8 @@ def box_counting(
 def _apply_boundary_condition(
     data: np.ndarray, epsilon: int, boundary_mode: str = "valid"
 ) -> np.ndarray:
-    """
-    Apply boundary condition handling
-
-    Parameters
-    ----------
-    data : np.ndarray
-        Input array (1D, 2D, or 3D)
-    epsilon : int
-        Current box size
-    boundary_mode : str
-        Boundary handling mode
-
-    Returns
-    -------
-    padded_data : np.ndarray
-        Processed array
-    """
-    if boundary_mode == "valid":
-        # 不做处理，在计数时只使用完整盒子
-        return data
-
-    elif boundary_mode == "pad":
-        # 零填充到能被epsilon整除
-        pad_widths = []
-        for dim_size in data.shape:
-            remainder = dim_size % epsilon
-            if remainder != 0:
-                pad_width = epsilon - remainder
-            else:
-                pad_width = 0
-            pad_widths.append((0, pad_width))
-
-        if data.ndim == 1:
-            return np.pad(data, pad_widths[0], mode="constant", constant_values=0)
-        elif data.ndim == 2:
-            return np.pad(data, pad_widths, mode="constant", constant_values=0)
-        elif data.ndim == 3:
-            return np.pad(data, pad_widths, mode="constant", constant_values=0)
-
-    elif boundary_mode == "periodic":
-        # 周期性边界 - 用wrap模式填充
-        pad_widths = []
-        for dim_size in data.shape:
-            remainder = dim_size % epsilon
-            if remainder != 0:
-                pad_width = epsilon - remainder
-            else:
-                pad_width = 0
-            pad_widths.append((0, pad_width))
-
-        if data.ndim == 1:
-            return np.pad(data, pad_widths[0], mode="wrap")
-        elif data.ndim == 2:
-            return np.pad(data, pad_widths, mode="wrap")
-        elif data.ndim == 3:
-            return np.pad(data, pad_widths, mode="wrap")
-
-    elif boundary_mode == "reflect":
-        # 镜像边界
-        pad_widths = []
-        for dim_size in data.shape:
-            remainder = dim_size % epsilon
-            if remainder != 0:
-                pad_width = epsilon - remainder
-            else:
-                pad_width = 0
-            pad_widths.append((0, pad_width))
-
-        if data.ndim == 1:
-            return np.pad(data, pad_widths[0], mode="reflect")
-        elif data.ndim == 2:
-            return np.pad(data, pad_widths, mode="reflect")
-        elif data.ndim == 3:
-            return np.pad(data, pad_widths, mode="reflect")
-
-    else:
-        raise ValueError(f"不支持的边界模式: {boundary_mode}")
+    """Apply boundary condition handling (delegates to shared utility)."""
+    return apply_boundary_padding(data, epsilon, boundary_mode)
 
 
 def _get_box_positions(
@@ -362,11 +292,8 @@ def _box_counting_curve(
     x_fit = np.log(np.array([1 / epsilon for epsilon in epsilonl]))
     y_fit = np.log(Nl)
 
-    coefficients = np.polyfit(x_fit, y_fit, 1)
-    f = np.poly1d(coefficients)
-
-    dimension = coefficients[0]
-    R2 = np.corrcoef(y_fit, f(x_fit))[0, 1] ** 2
+    dimension, intercept, R2 = log_log_fit(x_fit, y_fit)
+    coefficients = np.array([dimension, intercept])
 
     result = {
         "dimension": dimension,
@@ -411,28 +338,8 @@ def _curve_to_matrix(x: np.ndarray, y: np.ndarray, epsilon: float) -> np.ndarray
 
 
 def _count_boxes_2d(MT: np.ndarray, EPSILON: int) -> int:
-    """
-    2D盒计数（固定网格）
-
-    Parameters
-    ----------
-    MT : np.ndarray
-        二维矩阵
-    EPSILON : int
-        盒子大小
-
-    Returns
-    -------
-    count : int
-        有效盒子数量
-    """
-    # 沿第0轴合并EPSILON个单元
-    MT_BOX_0 = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
-    # 沿第1轴合并EPSILON个单元
-    MT_BOX_1 = np.add.reduceat(MT_BOX_0, np.arange(0, MT.shape[1], EPSILON), axis=1)
-
-    # 计数非空盒子
-    return len(np.where((MT_BOX_1 > 0) & (MT_BOX_1 <= EPSILON**2 * 1))[0])
+    """2D盒计数（固定网格）"""
+    return count_nonempty(MT, EPSILON, max_fill=EPSILON ** 2)
 
 
 def _count_boxes_2d_advanced(
@@ -577,13 +484,9 @@ def _box_counting_image(
     x_fit = np.log(np.array([1 / epsilon for epsilon in epsilonl]))
     y_fit = np.log(Nl)
 
-    coefficients = np.polyfit(x_fit, y_fit, 1)
-    f = np.poly1d(coefficients)
+    dimension, intercept, R2 = log_log_fit(x_fit, y_fit)
+    coefficients = np.array([dimension, intercept])
 
-    dimension = coefficients[0]
-    R2 = np.corrcoef(y_fit, f(x_fit))[0, 1] ** 2
-
-    print(f"拟合函数: {f}")
     print(f"拟合度 R²: {R2:.6f}")
 
     result = {
@@ -604,27 +507,8 @@ def _box_counting_image(
 
 
 def _count_boxes_image(MT: np.ndarray, EPSILON: int) -> int:
-    """
-    图像盒计数（固定网格）
-
-    Parameters
-    ----------
-    MT : np.ndarray
-        图像矩阵
-    EPSILON : int
-        盒子大小
-
-    Returns
-    -------
-    count : int
-        有效盒子数量
-    """
-    # 沿第0轴合并EPSILON个单元
-    MT_BOX_0 = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
-    # 沿第1轴合并EPSILON个单元
-    MT_BOX_1 = np.add.reduceat(MT_BOX_0, np.arange(0, MT.shape[1], EPSILON), axis=1)
-    # 计数非空盒子
-    return len(np.where((MT_BOX_1 > 0) & (MT_BOX_1 <= EPSILON**2 * 255))[0])
+    """图像盒计数（固定网格）"""
+    return count_nonempty(MT, EPSILON, max_fill=EPSILON ** 2 * 255)
 
 
 def _count_boxes_image_advanced(
@@ -789,13 +673,9 @@ def _box_counting_surface(
     x_fit = np.log(np.array([1 / epsilon for epsilon in epsilon_list]))
     y_fit = np.log(N_list)
 
-    coefficients = np.polyfit(x_fit, y_fit, 1)
-    f = np.poly1d(coefficients)
+    dimension, intercept, R2 = log_log_fit(x_fit, y_fit)
+    coefficients = np.array([dimension, intercept])
 
-    dimension = coefficients[0]
-    R2 = np.corrcoef(y_fit, f(x_fit))[0, 1] ** 2
-
-    print(f"拟合函数: {f}")
     print(f"拟合度 R²: {R2:.6f}")
 
     result = {
@@ -1007,7 +887,7 @@ def _box_counting_scatter(
     # 转换为二值矩阵
     if not np.all(np.isin(scatter, [0, 1])):
         # 坐标数据，转换为二值矩阵
-        mt, mt_epsilon = _coordinate_to_matrix(scatter)
+        mt, mt_epsilon = coordinate_to_matrix_1d(scatter)
     else:
         # 已经是二值数据
         mt = scatter.astype(np.int8)
@@ -1049,13 +929,9 @@ def _box_counting_scatter(
     x_fit = np.log(np.array([1 / epsilon for epsilon in epsilonl]))
     y_fit = np.log(Nl)
 
-    coefficients = np.polyfit(x_fit, y_fit, 1)
-    f = np.poly1d(coefficients)
+    dimension, intercept, R2 = log_log_fit(x_fit, y_fit)
+    coefficients = np.array([dimension, intercept])
 
-    dimension = coefficients[0]
-    R2 = np.corrcoef(y_fit, f(x_fit))[0, 1] ** 2
-
-    print(f"拟合函数: {f}")
     print(f"拟合度 R²: {R2:.6f}")
 
     result = {
@@ -1077,57 +953,9 @@ def _box_counting_scatter(
     return dimension, result
 
 
-def _coordinate_to_matrix(x: np.ndarray) -> Tuple[np.ndarray, float]:
-    """
-
-
-    Parameters
-    ----------
-    x : np.ndarray
-
-
-    Returns
-    -------
-    matrix : np.ndarray
-        0/1
-    epsilon : float
-
-    """
-    #
-    x_range = np.max(x) - np.min(x)
-    num = 2 ** (int(np.log2(len(x))) + 1)
-    epsilon = x_range / num
-
-    #
-    x_indices = np.round((x - np.min(x)) / epsilon).astype(int)
-
-    #
-    matrix = np.zeros(np.max(x_indices) + 1, dtype=np.int8)
-    matrix[x_indices] = 1
-
-    return matrix, epsilon
-
-
 def _count_boxes_1d(MT: np.ndarray, EPSILON: int) -> int:
-    """
-    1D盒计数（固定网格）
-
-    Parameters
-    ----------
-    MT : np.ndarray
-        一维数组
-    EPSILON : int
-        盒子大小
-
-    Returns
-    -------
-    count : int
-        有效盒子数量
-    """
-    # 沿第0轴合并EPSILON个单元
-    MT_BOX = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
-    # 计数非空盒子: 0 < 值 <= EPSILON
-    return len(np.where((MT_BOX > 0) & (MT_BOX <= EPSILON * 1))[0])
+    """1D盒计数（固定网格）"""
+    return count_nonempty(MT, EPSILON, max_fill=EPSILON)
 
 
 def _count_boxes_1d_advanced(
@@ -1271,13 +1099,9 @@ def _box_counting_porous(
     x_fit = np.log(np.array([1 / epsilon for epsilon in epsilonl]))
     y_fit = np.log(Nl)
 
-    coefficients = np.polyfit(x_fit, y_fit, 1)
-    f = np.poly1d(coefficients)
+    dimension, intercept, R2 = log_log_fit(x_fit, y_fit)
+    coefficients = np.array([dimension, intercept])
 
-    dimension = coefficients[0]
-    R2 = np.corrcoef(y_fit, f(x_fit))[0, 1] ** 2
-
-    print(f"拟合函数: {f}")
     print(f"拟合度 R²: {R2:.6f}")
 
     result = {
@@ -1298,29 +1122,8 @@ def _box_counting_porous(
 
 
 def _count_boxes_3d(MT: np.ndarray, EPSILON: int) -> int:
-    """
-    3D盒计数（固定网格）
-
-    Parameters
-    ----------
-    MT : np.ndarray
-        三维数组
-    EPSILON : int
-        盒子大小
-
-    Returns
-    -------
-    count : int
-        有效盒子数量
-    """
-    # 沿第0轴合并EPSILON个单元
-    MT_BOX_0 = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
-    # 沿第1轴合并EPSILON个单元
-    MT_BOX_1 = np.add.reduceat(MT_BOX_0, np.arange(0, MT.shape[1], EPSILON), axis=1)
-    # 沿第2轴合并EPSILON个单元
-    MT_BOX_2 = np.add.reduceat(MT_BOX_1, np.arange(0, MT.shape[2], EPSILON), axis=2)
-    # 计数非空盒子: 值 > 0 且 <= EPSILON^3
-    return len(np.where((MT_BOX_2 > 0) & (MT_BOX_2 <= EPSILON**3))[0])
+    """3D盒计数（固定网格）"""
+    return count_nonempty(MT, EPSILON, max_fill=EPSILON ** 3)
 
 
 def _count_boxes_3d_advanced(

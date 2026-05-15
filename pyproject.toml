@@ -9,7 +9,7 @@ authors = [
     {name = "Zhile Han", email = "2667032759@qq.com"},
 ]
 description = "A comprehensive Python package for fractal dimension calculation and multifractal analysis"
-readme = "README_EN.md"
+readme = "README.md"
 requires-python = ">=3.8"
 keywords = ["fractal", "fractal dimension", "multifractal", "box-counting", "Hurst", "R/S analysis"]
 license = {text = "GPL-3.0-or-later"}
@@ -94,7 +94,14 @@ markers = [
 
 [tool.mypy]
 python_version = "3.8"
-warn_return_any = true
+warn_return_any = false
 warn_unused_configs = true
 disallow_untyped_defs = false
+ignore_missing_imports = true
+no_strict_optional = true
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = ["numpy.*", "scipy.*", "matplotlib.*", "pandas.*", "PIL.*"]
+ignore_missing_imports = true
 

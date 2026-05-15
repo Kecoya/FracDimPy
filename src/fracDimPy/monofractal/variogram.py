@@ -15,6 +15,8 @@ Dimension: D = 2 - H (for curves) or D = 3 - H (for surfaces)
 import numpy as np
 from typing import Tuple
 
+from ..utils.fitting import log_log_fit
+
 
 def variogram_method(
     data: np.ndarray, rate: float = 0.05, dimension_type: str = "1d"
@@ -85,14 +87,14 @@ def variogram_method(
     log_x = np.log(x)
     log_y = np.log(y)
 
-    coefficients = np.polyfit(log_x, log_y, 1)
-    f = np.poly1d(coefficients)
+    slope, intercept, R2 = log_log_fit(log_x, log_y)
+    coefficients = np.array([slope, intercept])
 
     # Hurst
     # log((h)) = log(C) + 2H*log(h)
     #  = 2H
     # H = /2
-    hurst_exponent = coefficients[0] / 2
+    hurst_exponent = slope / 2
 
     # Variogram_method_1d_meansquare.py
     # D = 2 - H
@@ -101,9 +103,6 @@ def variogram_method(
         dimension = 2 - hurst_exponent
     else:  # surface
         dimension = 3 - hurst_exponent
-
-    #
-    R2 = np.corrcoef(log_y, f(log_x))[0, 1] ** 2
 
     result = {
         "dimension": dimension,

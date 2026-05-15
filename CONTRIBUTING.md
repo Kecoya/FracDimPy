@@ -6,17 +6,18 @@ Thank you for your interest in contributing to FracDimPy! This document provides
 
 1. **Fork the repository** and clone your fork locally
 2. **Create a virtual environment**:
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
 3. **Install in development mode**:
+
    ```bash
    pip install -e .[dev]
    ```
-
 4. **Run tests** to ensure everything is working:
+
    ```bash
    pytest
    ```
@@ -24,21 +25,25 @@ Thank you for your interest in contributing to FracDimPy! This document provides
 ## Running Tests
 
 Run all tests:
+
 ```bash
 pytest
 ```
 
 Run tests with coverage:
+
 ```bash
 pytest --cov=src/fracdimpy --cov-report=term-missing
 ```
 
 Run specific test files:
+
 ```bash
-pytest tests/test_monofractal/test_box_counting.py
+pytest tests/monofractal/test_box_counting_curve.py
 ```
 
 Run performance benchmarks:
+
 ```bash
 pytest tests/benchmarks/ --benchmark-only
 ```
@@ -52,16 +57,19 @@ We use the following tools to maintain code quality:
 - **MyPy** for type checking
 
 Format your code:
+
 ```bash
 black src/ tests/
 ```
 
 Run linting:
+
 ```bash
 flake8 src/
 ```
 
 Run type checking:
+
 ```bash
 mypy src/
 ```
@@ -90,15 +98,14 @@ Aim for >80% test coverage.
 ## Submitting Pull Requests
 
 1. **Create a feature branch**:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
-
 2. **Make your changes** and commit them with descriptive messages
-
 3. **Push to your fork** and create a pull request
-
 4. **Fill out the pull request template** with:
+
    - Description of changes
    - Testing performed
    - Any breaking changes
@@ -106,6 +113,7 @@ Aim for >80% test coverage.
 ## Issue Reporting
 
 When reporting bugs, please include:
+
 - Python version
 - FracDimPy version
 - Operating system

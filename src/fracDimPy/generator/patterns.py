@@ -17,6 +17,58 @@ import numpy as np
 # type: ignore
 from typing import Tuple, Optional
 
+from ..utils.image_drawing import bresenham_line, normalize_to_pixel_coords
+
+
+def _koch_segment(p1, p2, level):
+    """Recursively generate Koch curve segment.
+
+    Parameters
+    ----------
+    p1 : array-like
+        Start point (x, y).
+    p2 : array-like
+        End point (x, y).
+    level : int
+        Recursion depth.
+
+    Returns
+    -------
+    points : list
+        List of (x, y) point arrays forming the Koch segment.
+    """
+    if level == 0:
+        return [p1, p2]
+
+    # Calculate direction vector
+    dx = p2[0] - p1[0]
+    dy = p2[1] - p1[1]
+
+    # Calculate trisection points
+    p1_3 = np.array([p1[0] + dx / 3, p1[1] + dy / 3])
+    p2_3 = np.array([p1[0] + 2 * dx / 3, p1[1] + 2 * dy / 3])
+
+    # Calculate peak point (60° outward)
+    # Forms an equilateral triangle
+    cx = (p1[0] + p2[0]) / 2
+    cy = (p1[1] + p2[1]) / 2
+
+    # Rotate vector to peak by 90 degrees
+    vx = p1_3[0] - cx
+    vy = p1_3[1] - cy
+
+    # Perpendicular vector (rotated 90 degrees)
+    peak = np.array([cx - vy * np.sqrt(3), cy + vx * np.sqrt(3)])
+
+    # Recursively generate four segments
+    points = []
+    points.extend(_koch_segment(p1, p1_3, level - 1)[:-1])
+    points.extend(_koch_segment(p1_3, peak, level - 1)[:-1])
+    points.extend(_koch_segment(peak, p2_3, level - 1)[:-1])
+    points.extend(_koch_segment(p2_3, p2, level - 1))
+
+    return points
+
 
 def generate_cantor_set(level: int = 5, length: int = 3**5) -> np.ndarray:
     """
@@ -341,92 +393,23 @@ def generate_koch_curve(level: int = 4, size: int = 512) -> Tuple[np.ndarray, np
     The Koch curve has fractal dimension log(4)/log(3) ≈ 1.2619
     """
 
-    def koch_segment(p1, p2, level):
-        """Recursively generate Koch curve segment"""
-        if level == 0:
-            return [p1, p2]
-
-        # Calculate direction vector
-        dx = p2[0] - p1[0]
-        dy = p2[1] - p1[1]
-
-        # Calculate trisection points
-        p1_3 = np.array([p1[0] + dx / 3, p1[1] + dy / 3])
-        p2_3 = np.array([p1[0] + 2 * dx / 3, p1[1] + 2 * dy / 3])
-
-        # Calculate peak point (60° outward)
-        # Forms an equilateral triangle
-        cx = (p1[0] + p2[0]) / 2
-        cy = (p1[1] + p2[1]) / 2
-
-        # Rotate vector to peak by 90 degrees
-        vx = p1_3[0] - cx
-        vy = p1_3[1] - cy
-
-        # Perpendicular vector (rotated 90 degrees)
-        peak = np.array([cx - vy * np.sqrt(3), cy + vx * np.sqrt(3)])
-
-        # Recursively generate four segments
-        points = []
-        points.extend(koch_segment(p1, p1_3, level - 1)[:-1])
-        points.extend(koch_segment(p1_3, peak, level - 1)[:-1])
-        points.extend(koch_segment(peak, p2_3, level - 1)[:-1])
-        points.extend(koch_segment(p2_3, p2, level - 1))
-
-        return points
-
     # Define initial line segment
     start = np.array([0.0, 0.0])
     end = np.array([1.0, 0.0])
 
     # Generate Koch curve
-    points = koch_segment(start, end, level)
+    points = _koch_segment(start, end, level)
     points = np.array(points)
 
     # Create image
     image = np.zeros((size, size), dtype=np.uint8)
 
-    # Normalize coordinates
-    points_scaled = points.copy()
-    points_scaled[:, 0] = (points_scaled[:, 0] - points_scaled[:, 0].min()) / (
-        points_scaled[:, 0].max() - points_scaled[:, 0].min()
-    )
-    points_scaled[:, 1] = (points_scaled[:, 1] - points_scaled[:, 1].min()) / (
-        points_scaled[:, 1].max() - points_scaled[:, 1].min()
-    )
-
-    # Convert to pixel coordinates
-    points_img = np.zeros_like(points_scaled)
-    margin = 50
-    points_img[:, 0] = margin + points_scaled[:, 0] * (size - 2 * margin)
-    points_img[:, 1] = size - margin - points_scaled[:, 1] * (size - 2 * margin)
+    # Normalize coordinates to pixel space
+    x_img, y_img = normalize_to_pixel_coords(points, size, margin=50)
 
     # Draw lines using Bresenham's algorithm
-    for i in range(len(points_img) - 1):
-        x0, y0 = int(points_img[i, 0]), int(points_img[i, 1])
-        x1, y1 = int(points_img[i + 1, 0]), int(points_img[i + 1, 1])
-
-        # Bresenham's line algorithm
-        dx = abs(x1 - x0)
-        dy = abs(y1 - y0)
-        sx = 1 if x0 < x1 else -1
-        sy = 1 if y0 < y1 else -1
-        err = dx - dy
-
-        while True:
-            if 0 <= x0 < size and 0 <= y0 < size:
-                image[y0, x0] = 1
-
-            if x0 == x1 and y0 == y1:
-                break
-
-            e2 = 2 * err
-            if e2 > -dy:
-                err -= dy
-                x0 += sx
-            if e2 < dx:
-                err += dx
-                y0 += sy
+    for i in range(len(x_img) - 1):
+        bresenham_line(image, x_img[i], y_img[i], x_img[i + 1], y_img[i + 1], increment=0)
 
     return points, image
 
@@ -462,33 +445,6 @@ def generate_koch_snowflake(level: int = 4, size: int = 512) -> np.ndarray:
     It has the same fractal dimension as the Koch curve: log(4)/log(3) ≈ 1.2619
     """
 
-    def koch_segment(p1, p2, level):
-        """Recursively generate Koch curve segment"""
-        if level == 0:
-            return [p1, p2]
-
-        dx = p2[0] - p1[0]
-        dy = p2[1] - p1[1]
-
-        p1_3 = np.array([p1[0] + dx / 3, p1[1] + dy / 3])
-        p2_3 = np.array([p1[0] + 2 * dx / 3, p1[1] + 2 * dy / 3])
-
-        # Calculate peak point
-        cx = (p1[0] + p2[0]) / 2
-        cy = (p1[1] + p2[1]) / 2
-        vx = p1_3[0] - cx
-        vy = p1_3[1] - cy
-
-        peak = np.array([cx - vy * np.sqrt(3), cy + vx * np.sqrt(3)])
-
-        points = []
-        points.extend(koch_segment(p1, p1_3, level - 1)[:-1])
-        points.extend(koch_segment(p1_3, peak, level - 1)[:-1])
-        points.extend(koch_segment(peak, p2_3, level - 1)[:-1])
-        points.extend(koch_segment(p2_3, p2, level - 1))
-
-        return points
-
     # Define initial equilateral triangle
     height = np.sqrt(3) / 2
     triangle = [np.array([0.0, 0.0]), np.array([1.0, 0.0]), np.array([0.5, height])]
@@ -498,7 +454,7 @@ def generate_koch_snowflake(level: int = 4, size: int = 512) -> np.ndarray:
     for i in range(3):
         p1 = triangle[i]
         p2 = triangle[(i + 1) % 3]
-        segment_points = koch_segment(p1, p2, level)[:-1]  # Exclude last point to avoid duplication
+        segment_points = _koch_segment(p1, p2, level)[:-1]  # Exclude last point to avoid duplication
         all_points.extend(segment_points)
 
     points = np.array(all_points)
@@ -506,49 +462,14 @@ def generate_koch_snowflake(level: int = 4, size: int = 512) -> np.ndarray:
     # Create image
     image = np.zeros((size, size), dtype=np.uint8)
 
-    # Normalize coordinates
-    points_scaled = points.copy()
-    points_scaled[:, 0] = (points_scaled[:, 0] - points_scaled[:, 0].min()) / (
-        points_scaled[:, 0].max() - points_scaled[:, 0].min()
-    )
-    points_scaled[:, 1] = (points_scaled[:, 1] - points_scaled[:, 1].min()) / (
-        points_scaled[:, 1].max() - points_scaled[:, 1].min()
-    )
-
-    # Convert to pixel coordinates
-    margin = 50
-    points_img = np.zeros_like(points_scaled)
-    points_img[:, 0] = margin + points_scaled[:, 0] * (size - 2 * margin)
-    points_img[:, 1] = size - margin - points_scaled[:, 1] * (size - 2 * margin)
+    # Normalize coordinates to pixel space
+    x_img, y_img = normalize_to_pixel_coords(points, size, margin=50)
 
     # Draw lines
-    for i in range(len(points_img)):
-        x0, y0 = int(points_img[i, 0]), int(points_img[i, 1])
-        x1, y1 = int(points_img[(i + 1) % len(points_img), 0]), int(
-            points_img[(i + 1) % len(points_img), 1]
-        )
-
-        # Bresenham's line algorithm
-        dx = abs(x1 - x0)
-        dy = abs(y1 - y0)
-        sx = 1 if x0 < x1 else -1
-        sy = 1 if y0 < y1 else -1
-        err = dx - dy
-
-        while True:
-            if 0 <= x0 < size and 0 <= y0 < size:
-                image[y0, x0] = 1
-
-            if x0 == x1 and y0 == y1:
-                break
-
-            e2 = 2 * err
-            if e2 > -dy:
-                err -= dy
-                x0 += sx
-            if e2 < dx:
-                err += dx
-                y0 += sy
+    for i in range(len(x_img)):
+        x1 = x_img[(i + 1) % len(x_img)]
+        y1 = y_img[(i + 1) % len(y_img)]
+        bresenham_line(image, x_img[i], y_img[i], x1, y1, increment=0)
 
     return image
 
@@ -616,56 +537,20 @@ def generate_brownian_motion(
     # Create image
     image = np.zeros((size, size), dtype=np.uint8)
 
-    # Find global bounds
-    all_x = paths[:, :, 0].flatten()
-    all_y = paths[:, :, 1].flatten()
+    # Normalize all paths together using global bounds
+    all_points = paths.reshape(-1, 2)
+    x_all, y_all = normalize_to_pixel_coords(all_points, size, margin=50)
 
-    x_min, x_max = all_x.min(), all_x.max()
-    y_min, y_max = all_y.min(), all_y.max()
-
-    # Convert to pixel coordinates
-    margin = 50
+    idx = 0
     for path in paths:
-        # Normalize coordinates
-        x_norm = (
-            (path[:, 0] - x_min) / (x_max - x_min) if x_max > x_min else np.zeros_like(path[:, 0])
-        )
-        y_norm = (
-            (path[:, 1] - y_min) / (y_max - y_min) if y_max > y_min else np.zeros_like(path[:, 1])
-        )
-
-        # Scale to image
-        x_img = (margin + x_norm * (size - 2 * margin)).astype(int)
-        y_img = (size - margin - y_norm * (size - 2 * margin)).astype(int)
+        n = len(path)
+        x_img = x_all[idx : idx + n]
+        y_img = y_all[idx : idx + n]
+        idx += n
 
         # Draw path
         for i in range(len(x_img) - 1):
-            x0, y0 = x_img[i], y_img[i]
-            x1, y1 = x_img[i + 1], y_img[i + 1]
-
-            # Bresenham's line algorithm
-            dx = abs(x1 - x0)
-            dy = abs(y1 - y0)
-            sx = 1 if x0 < x1 else -1
-            sy = 1 if y0 < y1 else -1
-            err = dx - dy
-
-            while True:
-                if 0 <= x0 < size and 0 <= y0 < size:
-                    # Accumulate intensity
-                    if image[y0, x0] < 255:
-                        image[y0, x0] = min(255, image[y0, x0] + 5)
-
-                if x0 == x1 and y0 == y1:
-                    break
-
-                e2 = 2 * err
-                if e2 > -dy:
-                    err -= dy
-                    x0 += sx
-                if e2 < dx:
-                    err += dx
-                    y0 += sy
+            bresenham_line(image, x_img[i], y_img[i], x_img[i + 1], y_img[i + 1], increment=5)
 
     return paths, image
 
@@ -755,49 +640,19 @@ def generate_levy_flight(
     # Create image
     image = np.zeros((size, size), dtype=np.uint8)
 
-    all_x = paths[:, :, 0].flatten()
-    all_y = paths[:, :, 1].flatten()
+    # Normalize all paths together using global bounds
+    all_points = paths.reshape(-1, 2)
+    x_all, y_all = normalize_to_pixel_coords(all_points, size, margin=50)
 
-    x_min, x_max = all_x.min(), all_x.max()
-    y_min, y_max = all_y.min(), all_y.max()
-
-    margin = 50
+    idx = 0
     for path in paths:
-        x_norm = (
-            (path[:, 0] - x_min) / (x_max - x_min) if x_max > x_min else np.zeros_like(path[:, 0])
-        )
-        y_norm = (
-            (path[:, 1] - y_min) / (y_max - y_min) if y_max > y_min else np.zeros_like(path[:, 1])
-        )
-
-        x_img = (margin + x_norm * (size - 2 * margin)).astype(int)
-        y_img = (size - margin - y_norm * (size - 2 * margin)).astype(int)
+        n = len(path)
+        x_img = x_all[idx : idx + n]
+        y_img = y_all[idx : idx + n]
+        idx += n
 
         for i in range(len(x_img) - 1):
-            x0, y0 = x_img[i], y_img[i]
-            x1, y1 = x_img[i + 1], y_img[i + 1]
-
-            dx = abs(x1 - x0)
-            dy = abs(y1 - y0)
-            sx = 1 if x0 < x1 else -1
-            sy = 1 if y0 < y1 else -1
-            err = dx - dy
-
-            while True:
-                if 0 <= x0 < size and 0 <= y0 < size:
-                    if image[y0, x0] < 255:
-                        image[y0, x0] = min(255, image[y0, x0] + 5)
-
-                if x0 == x1 and y0 == y1:
-                    break
-
-                e2 = 2 * err
-                if e2 > -dy:
-                    err -= dy
-                    x0 += sx
-                if e2 < dx:
-                    err += dx
-                    y0 += sy
+            bresenham_line(image, x_img[i], y_img[i], x_img[i + 1], y_img[i + 1], increment=5)
 
     return paths, image
 
@@ -900,56 +755,20 @@ def generate_self_avoiding_walk(
     # Create image
     image = np.zeros((size, size), dtype=np.uint8)
 
-    # Find global bounds
-    all_paths = np.vstack(successful_paths)
-    x_min, x_max = all_paths[:, 0].min(), all_paths[:, 0].max()
-    y_min, y_max = all_paths[:, 1].min(), all_paths[:, 1].max()
+    # Normalize all paths together using global bounds
+    all_points = np.vstack(successful_paths)
+    x_all, y_all = normalize_to_pixel_coords(all_points, size, margin=50)
 
-    # Convert to pixel coordinates
-    margin = 50
+    idx = 0
     for path in successful_paths:
-        # Normalize
-        if x_max > x_min:
-            x_norm = (path[:, 0] - x_min) / (x_max - x_min)
-        else:
-            x_norm = np.zeros(len(path))
-
-        if y_max > y_min:
-            y_norm = (path[:, 1] - y_min) / (y_max - y_min)
-        else:
-            y_norm = np.zeros(len(path))
-
-        # Scale to image
-        x_img = (margin + x_norm * (size - 2 * margin)).astype(int)
-        y_img = (size - margin - y_norm * (size - 2 * margin)).astype(int)
+        n = len(path)
+        x_img = x_all[idx : idx + n]
+        y_img = y_all[idx : idx + n]
+        idx += n
 
         # Draw path
         for i in range(len(x_img) - 1):
-            x0, y0 = x_img[i], y_img[i]
-            x1, y1 = x_img[i + 1], y_img[i + 1]
-
-            # Bresenham's line algorithm
-            dx = abs(x1 - x0)
-            dy = abs(y1 - y0)
-            sx = 1 if x0 < x1 else -1
-            sy = 1 if y0 < y1 else -1
-            err = dx - dy
-
-            while True:
-                if 0 <= x0 < size and 0 <= y0 < size:
-                    if image[y0, x0] < 255:
-                        image[y0, x0] = min(255, image[y0, x0] + 10)
-
-                if x0 == x1 and y0 == y1:
-                    break
-
-                e2 = 2 * err
-                if e2 > -dy:
-                    err -= dy
-                    x0 += sx
-                if e2 < dx:
-                    err += dx
-                    y0 += sy
+            bresenham_line(image, x_img[i], y_img[i], x_img[i + 1], y_img[i + 1], increment=10)
 
     return successful_paths, image
 

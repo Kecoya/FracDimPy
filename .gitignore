@@ -97,3 +97,9 @@ JOSS/
 # 系统文件
 *.lnk
 
+# Claude Code
+.claude/
+
+# Bandit
+.bandit
+

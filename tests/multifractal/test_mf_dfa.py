@@ -100,7 +100,8 @@ class TestMultifractalDFA:
         h_q = hq_result["h_q"]
 
         # Find h(2)
-        idx_2 = np.where(q_list == 2)[0]
+        q_arr = np.array(q_list)
+        idx_2 = np.where(np.abs(q_arr - 2) < 1e-10)[0]
         if len(idx_2) > 0:
             h2 = h_q[idx_2[0]]
             assert abs(h2 - 0.5) < 0.2, f"White noise h(2) should be ~0.5, got {h2}"
@@ -136,7 +137,8 @@ class TestMultifractalDFA:
         h_q = hq_result["h_q"]
 
         # Find h(2)
-        idx_2 = np.where(q_list == 2)[0]
+        q_arr = np.array(q_list)
+        idx_2 = np.where(np.abs(q_arr - 2) < 1e-10)[0]
         if len(idx_2) > 0:
             h2 = h_q[idx_2[0]]
             # Allow some tolerance due to finite sample effects

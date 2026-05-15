@@ -16,6 +16,10 @@ from PIL import Image
 from PIL.Image import Image as PILImage
 from typing import Tuple, Optional
 
+from ..utils.conversion import rgb_to_grayscale
+from ..utils.fitting import log_log_fit
+from ..utils.scales import power_of_two_scales
+
 
 def sandbox_method(
     data=None,
@@ -125,15 +129,13 @@ def sandbox_method(
             if len(img_array.shape) == 3:
                 # RGB
                 if img_array.shape[2] == 3:
-                    r, g, b = img_array[:, :, 0], img_array[:, :, 1], img_array[:, :, 2]
-                    img_array = 0.2989 * r + 0.5870 * g + 0.1140 * b
+                    img_array = rgb_to_grayscale(img_array)
     else:
         raise ValueError("image_pathimage_array")
 
     #
     if len(img_array.shape) == 3:
-        r, g, b = img_array[:, :, 0], img_array[:, :, 1], img_array[:, :, 2]
-        img_array = 255 - (0.2989 * r + 0.5870 * g + 0.1140 * b)
+        img_array = rgb_to_grayscale(img_array, invert=True)
     else:
         img_array = 255 - img_array
 
@@ -166,8 +168,7 @@ def sandbox_method(
     rl = []  #
 
     # 2
-    for i in range(1, int(np.log(minimum_length) / np.log(2))):
-        r = 2**i
+    for r in power_of_two_scales(minimum_length):
 
         if hang == 1:
             #
@@ -205,11 +206,7 @@ def sandbox_method(
     x = np.log(rl)
     y = np.log(Nl)
 
-    coefficients = np.polyfit(x, y, 1)
-    f = np.poly1d(coefficients)
-
-    dimension = coefficients[0]
-    R2 = np.corrcoef(y, f(x))[0, 1] ** 2
+    dimension, intercept, R2 = log_log_fit(x, y)
 
     result = {
         "dimension": dimension,
@@ -218,7 +215,7 @@ def sandbox_method(
         "log_r": x,
         "log_N": y,
         "R2": R2,
-        "coefficients": coefficients,
+        "coefficients": [dimension, intercept],
         "method": "Sandbox",
         "threshold": threshold,
         "image_shape": (height, width),

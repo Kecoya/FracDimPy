@@ -1,3 +1,0 @@
-[bandit]
-exclude_dirs = ["tests", "build", "dist"]
-skips = ["B101", "B601"]

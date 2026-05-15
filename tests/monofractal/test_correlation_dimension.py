@@ -220,6 +220,8 @@ def test_correlation_dimension_input_validation():
         base_traj * 2 + np.array([0.5, -0.5]),
     ]
 
+    all_results = []
+
     for i, test_data in enumerate(test_cases):
         D, result = correlation_dimension(test_data, num_points=15, max_samples=1500)
 
@@ -229,9 +231,11 @@ def test_correlation_dimension_input_validation():
         assert 0 < D < 3, f"Test case {i}: Correlation dimension {D} should be between 0 and 3"
         assert result["r_squared"] > 0.5, f"Test case {i}: R² should be reasonable"
 
+        all_results.append(D)
+
         # The correlation dimension should be invariant under scaling/translation
         if i > 0:
-            D_diff = abs(D - results[0])
+            D_diff = abs(D - all_results[0])
             assert (
                 D_diff < 0.3
             ), f"Correlation dimension should be invariant under scaling/translation"

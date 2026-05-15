@@ -13,6 +13,10 @@ from typing import Tuple, List, Optional
 
 # type: ignore
 
+from ..utils.multifractal_common import default_q_list, compute_partition, build_figure_data
+from ..utils.scales import power_of_two_scales
+from ..utils.box_counting_core import count_boxes_fixed
+
 
 def multifractal_image(
     image: np.ndarray, q_list: Optional[List[float]] = None
@@ -55,10 +59,7 @@ def multifractal_image(
     if q_list is None:
         q_min = -10
         q_max = 10
-        # 10000,1,2
-        q_list = np.unique(
-            np.append(np.round(np.linspace(q_min, q_max, 1000), 2), [0, 1, 2])
-        ).tolist()
+        q_list = default_q_list(q_min, q_max)
 
     q_min = min(q_list)  # type: ignore
     q_max = max(q_list)  # type: ignore
@@ -74,7 +75,7 @@ def multifractal_image(
 
     #
     M = min(height, width)
-    epsilonl = [2**i for i in range(1, int(np.log(M) / np.log(2)) + 1)]
+    epsilonl = power_of_two_scales(M)
     print(f"{epsilonl}")
 
     #
@@ -82,43 +83,7 @@ def multifractal_image(
         Pill.append(_compute_probability_image(mt, epsilon))
 
     # q
-    for q in q_list:
-        xl_t = []  #
-        xl_a = []  #
-        xl_d = []  # q=1
-
-        for Pil in Pill:
-            temp = np.power(Pil, q)
-            X_t = np.sum(temp)
-            xl_t.append(X_t)
-            xl_a.append(np.sum(temp / X_t * np.log(Pil)))
-
-            if q == 1:
-                xl_d.append(np.sum(Pil * np.log(Pil)))
-
-        #  (q)
-        t = polyfit(np.log(epsilonl), np.log(xl_t), 1)[0]
-
-        #
-        X = [np.log(epsilonl), np.log(xl_t), q]
-
-        #  (q) = d/dq
-        a = polyfit(np.log(epsilonl), xl_a, 1)[0]
-
-        #  f() = q -
-        f = q * a - t
-
-        #  D(q) = /(q-1), q1; D(1)
-        if q == 1:
-            D = polyfit(np.log(epsilonl), xl_d, 1)[0]
-        else:
-            D = t / (q - 1)
-
-        tl.append(t)
-        xl.append(X)
-        al.append(a)
-        fl.append(f)
-        dl.append(D)
+    tl, al, fl, dl, xl = compute_partition(q_list, Pill, epsilonl)
 
     al = list(al)
     q_list = list(q_list)
@@ -173,28 +138,10 @@ def multifractal_image(
     }
 
     #
-    figure_data = {
-        "q": q_list,
-        "tau_q": tl,
-        "alpha_q": al,
-        "f()": fl,
-        "D(q)": dl,
-    }
+    figure_data = build_figure_data(q_list, tl, al, fl, dl, xl)
 
-    # 20q
-    temp_q_n = max(1, int(len(q_list) / 20))
-    for i, item in enumerate(q_list):
-        if i != 0 and i % temp_q_n == 0:
-            figure_data.update(
-                {
-                    f"q={item}_X": list(xl[i][1]),
-                    f"q={item}_r": list(xl[i][0]),
-                }
-            )
-
-    #
     print("\n:")
-    for key in [" D(0)", " D(1)", " D(2)", "H", "", "", ""]:
+    for key in [" D(0)", " D(1)", " D(2)", "H", "width_total", "width_left", "width_right"]:
         print(f"  {key}: {metrics[key][0]:.4f}")
 
     return metrics, figure_data
@@ -228,24 +175,5 @@ def _compute_probability_image(mt: np.ndarray, epsilon: int) -> np.ndarray:
 
 
 def _box_counting_2d(MT: np.ndarray, EPSILON: int) -> np.ndarray:
-    """
-
-
-    Parameters
-    ----------
-    MT : np.ndarray
-
-    EPSILON : int
-
-
-    Returns
-    -------
-    boxes : np.ndarray
-
-    """
-    # EPSILON
-    MT_BOX_0 = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
-    # EPSILON
-    MT_BOX_1 = np.add.reduceat(MT_BOX_0, np.arange(0, MT.shape[1], EPSILON), axis=1)
-
-    return MT_BOX_1
+    """Box counting for 2D data using shared utility."""
+    return count_boxes_fixed(MT, EPSILON)

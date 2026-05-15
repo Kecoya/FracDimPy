@@ -16,6 +16,8 @@ import numpy as np
 # type: ignore
 from typing import Tuple, Dict, Optional
 
+from ..utils.fitting import linear_fit
+
 
 def correlation_dimension(
     data: np.ndarray,
@@ -168,11 +170,8 @@ def correlation_dimension(
     min_fit_points = max(5, len(log_r) // 2)  #
     for start in range(len(log_r) - min_fit_points + 1):
         for end in range(start + min_fit_points, len(log_r) + 1):
+            _, _, r2_temp = linear_fit(log_r[start:end], log_C[start:end])
             coeffs_temp = np.polyfit(log_r[start:end], log_C[start:end], 1)
-            fit_vals = np.polyval(coeffs_temp, log_r[start:end])
-            ss_res = np.sum((log_C[start:end] - fit_vals) ** 2)
-            ss_tot = np.sum((log_C[start:end] - np.mean(log_C[start:end])) ** 2)
-            r2_temp = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
 
             if r2_temp > best_r2:
                 best_r2 = r2_temp

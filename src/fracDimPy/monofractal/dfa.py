@@ -16,6 +16,8 @@ import numpy as np
 # type: ignore
 from typing import Tuple, Dict, Optional
 
+from ..utils.fitting import linear_fit
+
 
 def dfa(
     data: np.ndarray,
@@ -193,14 +195,8 @@ def dfa(
     log_F = np.log10(fluctuations)
 
     # log(F) =  * log(n) + const
-    coeffs = np.polyfit(log_n, log_F, 1)
-    alpha = coeffs[0]  # Hurst
-
-    #
-    fit_values = np.polyval(coeffs, log_n)
-    ss_res = np.sum((log_F - fit_values) ** 2)
-    ss_tot = np.sum((log_F - np.mean(log_F)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+    alpha, coeffs_intercept, r_squared = linear_fit(log_n, log_F)
+    coeffs = np.array([alpha, coeffs_intercept])
 
     #
     # 1DD = 2 -

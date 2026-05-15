@@ -16,6 +16,8 @@ Reference:
 import numpy as np
 from typing import Tuple
 
+from ..utils.fitting import linear_fit
+
 
 def hurst_dimension(timeseries: np.ndarray, method: str = "rs") -> Tuple[float, dict]:
     """
@@ -130,17 +132,9 @@ def _rs_method(mt: np.ndarray) -> Tuple[float, dict]:
     # 在log-log空间进行线性拟合以估计Hurst指数
     x = np.log10(rl)
     y = np.log10(ars)
-    coeff = np.polyfit(x, y, 1)
-    f = np.poly1d(coeff)
-
-    hurst_exponent = coeff[0]
+    hurst_exponent, coeff_intercept, R2 = linear_fit(x, y)
+    coeff = np.array([hurst_exponent, coeff_intercept])
     dimension = 2 - hurst_exponent
-
-    # 计算拟合优度
-    y_fit = f(x)
-    ss_res = np.sum((y - y_fit) ** 2)
-    ss_tot = np.sum((y - np.mean(y)) ** 2)
-    R2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
 
     result = {
         "dimension": dimension,

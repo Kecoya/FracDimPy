@@ -20,6 +20,9 @@ import multiprocessing
 # type: ignore
 from typing import Tuple, List, Optional, Union
 from .custom_epsilon import custom_epsilon, is_power_of_two
+from ..utils.multifractal_common import default_q_list, compute_partition, build_figure_data
+from ..utils.scales import power_of_two_scales
+from ..utils.box_counting_core import count_boxes_fixed
 
 
 def multifractal_curve(
@@ -143,18 +146,15 @@ def multifractal_curve(
     if q_list is None:
         q_min = -10
         q_max = 10
-        # 10000,1,2
-        q_list = np.unique(np.append(np.round(np.linspace(q_min, q_max, 1000), 2), [0, 1, 2]))
-        q_list = q_list.tolist()
+        q_list = default_q_list(q_min, q_max)
 
     # Run_CustomEpsilon.pyepsilonl_grid
     if epsilon_grid is None:
-        # epsilon_grid = [2 ** i for i in range(1, int(np.log(len(mt)) / np.log(2)) + 1)]
-        epsilon_grid = [2**i for i in range(1, int(np.log2(len(mt))) + 1)]
+        epsilon_grid = power_of_two_scales(len(mt))
 
     # epsilon_grid
     if epsilonl is None and data_type == "dual":
-        epsilonl = [2**i * epsilon_physical for i in range(1, int(np.log2(len(mt))) + 1)]
+        epsilonl = [e * epsilon_physical for e in power_of_two_scales(len(mt))]
     elif epsilonl is None:
         epsilonl = epsilon_grid
 
@@ -195,42 +195,7 @@ def multifractal_curve(
             Pill.append(_compute_probability(PACK))
 
     # q
-    for q in q_list:
-        xl_t = []
-        xl_a = []
-        xl_d = []
-
-        for Pil in Pill:
-            #
-            temp = np.power(Pil, q)
-            X_t = np.sum(temp)
-            xl_t.append(X_t)
-            xl_a.append(np.sum(temp / X_t * np.log(Pil)))
-
-            if q == 1:
-                xl_d.append(np.sum(Pil * np.log(Pil)))
-
-        #  (q)MF_BC1D.py
-        t = polyfit(np.log(epsilonl), np.log(xl_t), 1)[0]
-        X = [np.log(epsilonl), np.log(xl_t), q]
-
-        #  (q)
-        a = polyfit(np.log(epsilonl), xl_a, 1)[0]
-
-        #  f()
-        f = q * a - t
-
-        #  D(q)
-        if q == 1:
-            D = polyfit(np.log(epsilonl), xl_d, 1)[0]
-        else:
-            D = t / (q - 1)
-
-        tl.append(t)
-        xl.append(X)
-        al.append(a)
-        fl.append(f)
-        dl.append(D)
+    tl, al, fl, dl, xl = compute_partition(q_list, Pill, epsilonl)
 
     #
     al = list(al)
@@ -282,24 +247,7 @@ def multifractal_curve(
         f"D({q_min})-D({q_max})": [dl[q_list.index(q_min)] - dl[q_list.index(q_max)]],
     }
 
-    figure_data = {
-        "q": q_list,
-        "tau_q": tl,
-        "alpha_q": al,
-        "f()": fl,
-        "D(q)": dl,
-    }
-
-    #
-    temp_q_n = max(1, int(len(q_list) / 20))
-    for i, item in enumerate(q_list):
-        if i != 0 and i % temp_q_n == 0:
-            figure_data.update(
-                {
-                    f"q={item}_X": list(xl[i][1]),
-                    f"q={item}_r": list(xl[i][0]),
-                }
-            )
+    figure_data = build_figure_data(q_list, tl, al, fl, dl, xl)
 
     return metrics, figure_data
 
@@ -334,20 +282,5 @@ def _compute_probability(PACK: Tuple) -> np.ndarray:
 
 
 def _box_counting_1d(MT: np.ndarray, EPSILON: int) -> np.ndarray:
-    """
-
-
-    Parameters
-    ----------
-    MT : np.ndarray
-
-    EPSILON : int
-
-
-    Returns
-    -------
-    boxes : np.ndarray
-
-    """
-    MT_BOX_0 = np.add.reduceat(MT, np.arange(0, MT.shape[0], EPSILON), axis=0)
-    return MT_BOX_0
+    """Box counting for 1D data using shared utility."""
+    return count_boxes_fixed(MT, EPSILON)

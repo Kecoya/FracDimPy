@@ -15,6 +15,8 @@ from typing import Tuple, Dict, Optional
 
 # type: ignore
 
+from ..utils.fitting import linear_fit
+
 
 def information_dimension(
     data: np.ndarray, min_boxes: int = 4, max_boxes: Optional[int] = None, num_points: int = 10
@@ -158,14 +160,8 @@ def information_dimension(
 
     # : I() = D_I * log(1/) + const
     #
-    coeffs = np.polyfit(log_inv_epsilon, informations, 1)
-    D_info = coeffs[0]  #
-
-    #
-    fit_values = np.polyval(coeffs, log_inv_epsilon)
-    ss_res = np.sum((informations - fit_values) ** 2)
-    ss_tot = np.sum((informations - np.mean(informations)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+    D_info, coeffs_intercept, r_squared = linear_fit(log_inv_epsilon, informations)
+    coeffs = np.array([D_info, coeffs_intercept])
 
     result = {
         "dimension": D_info,

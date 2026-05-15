@@ -1,5 +1,4 @@
 include README.md
-include README_EN.md
 include LICENSE
 include pyproject.toml
 recursive-include src *.py

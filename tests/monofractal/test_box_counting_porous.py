@@ -142,8 +142,8 @@ class TestBoxCountingPorous:
             # For porous media, N should generally increase with decreasing epsilon
             # (monotonic relationship)
             if len(result["epsilon_values"]) > 1:
-                eps_vals = result["epsilon_values"]
-                n_vals = result["N_values"]
+                eps_vals = np.array(result["epsilon_values"])
+                n_vals = np.array(result["N_values"])
 
                 # Sort by epsilon (descending) and check N values (ascending)
                 sorted_indices = np.argsort(eps_vals)[::-1]

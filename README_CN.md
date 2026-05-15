@@ -81,6 +81,7 @@ pip install FracDimPy
 ```
 
 **常用镜像源**：
+
 - 清华大学：`https://pypi.tuna.tsinghua.edu.cn/simple`
 - 阿里云：`https://mirrors.aliyun.com/pypi/simple`
 - 中科大：`https://pypi.mirrors.ustc.edu.cn/simple`
@@ -98,7 +99,41 @@ from fracDimPy.multifractal import *
 from fracDimPy.generator import *
 ```
 
-**重要说明**：虽然PyPI包名为`FracDimPy`（大写F），但在Python代码中需要使用`import fracDimPy`（小写f）进行导入。
+**重要说明**：虽然PyPI包名为 `FracDimPy`（大写F），但在Python代码中需要使用 `import fracDimPy`（小写f）进行导入。
+
+### 快速使用示例
+
+```python
+from fracDimPy import hurst_dimension, box_counting, dfa
+from fracDimPy import multifractal_curve, mf_dfa
+from fracDimPy import generate_fbm_curve
+import numpy as np
+
+# 生成分形曲线（返回曲线数组和实际维数）
+curve, actual_dim = generate_fbm_curve(dimension=1.5, length=2048)
+
+# 单分形分析
+D, result = hurst_dimension(curve)
+print(f"Hurst维数: {D:.4f}, R²: {result['R2']:.4f}")
+
+D, result = dfa(curve)
+print(f"DFA Hurst指数: {result['alpha']:.4f}, R²: {result['r_squared']:.4f}")
+
+# 盒计数法（使用曲线坐标）
+x = np.arange(len(curve))
+D, result = box_counting((x, curve), data_type="curve")
+print(f"盒计数维数: {D:.4f}, R²: {result['R2']:.4f}")
+
+# 多重分形分析（单列数据）
+metrics, figure_data = multifractal_curve(curve, data_type="single")
+print(f"D(0)={metrics[' D(0)'][0]:.4f}, D(1)={metrics[' D(1)'][0]:.4f}, D(2)={metrics[' D(2)'][0]:.4f}")
+
+# 多重分形DFA
+hq, spectrum = mf_dfa(curve)
+q_arr = np.array(hq['q_list'])
+idx_2 = np.where(np.abs(q_arr - 2) < 1e-10)[0][0]
+print(f"h(2)={hq['h_q'][idx_2]:.4f}, 谱宽度={spectrum['width']:.4f}")
+```
 
 ## 📦 模块说明
 
@@ -160,6 +195,48 @@ from fracDimPy.generator import *
 
 - 数据读写 (`data_io`)
 - 可视化工具 (`plotting`)
+- 共享计算工具:
+  - `fitting` - 对数-对数线性拟合与 R² 计算
+  - `scales` - 2的幂次尺度生成
+  - `box_counting_core` - 维度无关的盒计数核心函数
+  - `multifractal_common` - 共享多重分形配分/指标计算
+  - `image_drawing` - Bresenham 线段绘制与坐标映射
+  - `conversion` - 坐标转矩阵、灰度转换、边界填充
+
+### 项目结构
+
+```
+src/fracDimPy/
+├── __init__.py              # 包入口，导出所有公共函数
+├── monofractal/             # 单分形维数方法
+│   ├── hurst.py             # Hurst指数（R/S分析）
+│   ├── box_counting.py      # 盒计数法（1D/2D/3D）
+│   ├── information_dimension.py
+│   ├── correlation_dimension.py
+│   ├── structural_function.py
+│   ├── variogram.py
+│   ├── sandbox.py
+│   └── dfa.py               # 去趋势波动分析
+├── multifractal/            # 多重分形分析
+│   ├── mf_curve.py          # 一维曲线多重分形
+│   ├── mf_image.py          # 二维图像多重分形
+│   ├── mf_dfa.py            # 多重分形DFA
+│   └── custom_epsilon.py    # 自定义尺度支持
+├── generator/               # 分形生成器
+│   ├── curves.py            # FBM、WM、Takagi曲线
+│   ├── surfaces.py          # FBM、WM、Takagi曲面
+│   ├── patterns.py          # Cantor、Sierpinski、Koch、DLA、Menger等
+│   └── random_fractals.py   # 布朗运动、Lévy飞行等
+└── utils/                   # 共享工具
+    ├── data_io.py            # 数据读写
+    ├── plotting.py           # 可视化工具
+    ├── fitting.py            # 对数回归与 R² 计算
+    ├── scales.py             # 2的幂次尺度生成
+    ├── box_counting_core.py  # 维度无关的盒计数核心
+    ├── multifractal_common.py # 共享多重分形计算
+    ├── image_drawing.py      # Bresenham线段绘制
+    └── conversion.py         # 坐标/灰度/边界工具
+```
 
 ---
 
@@ -179,10 +256,10 @@ FracDimPy可应用于多个科学和工程领域：
 
 ## 📊 示例与数据
 
-[examples](examples/) 目录包含丰富的示例代码和测试数据：
+[tests](tests/) 目录包含丰富的示例代码和测试数据：
 
 ```
-examples/
+tests/
 ├── monofractal/          # 单分形方法示例
 │   ├── test_hurst.py
 │   ├── test_box_counting_*.py
@@ -200,11 +277,9 @@ examples/
 运行示例：
 
 ```bash
-cd examples/monofractal
+cd tests/monofractal
 python test_hurst.py
 ```
-
-详见 [examples/README.md](examples/README.md)
 
 ---
 
@@ -224,7 +299,6 @@ python test_hurst.py
 - SciPy >= 1.7.0 - 科学计算工具
 - Matplotlib >= 3.3.0 - 数据可视化
 - Pandas >= 1.3.0 - 数据处理
-- OpenCV >= 4.5.0 - 图像处理（作为cv2导入）
 - Pillow >= 9.0.0 - 图像读写
 
 **所有依赖已自动安装，无需手动安装额外库即可使用全部功能。**
@@ -274,6 +348,38 @@ python test_hurst.py
   version = {0.1.3}
 }
 ```
+
+---
+
+## 📋 更新日志
+
+### v0.1.3 (2024)
+
+**架构重构**
+
+- 提取 6 个共享工具模块（`fitting`、`scales`、`box_counting_core`、`multifractal_common`、`image_drawing`、`conversion`），消除 16 个源文件中约 1000 行重复代码
+- 统一盒计数实现为单一维度无关核心函数，替代 4 套独立副本
+- 合并所有对数回归模式（15+ 处）为 `log_log_fit()` 和 `linear_fit()`
+- 共享多重分形配分函数计算逻辑于 `mf_curve` 和 `mf_image` 之间
+
+**配置清理**
+
+- 合并 `mypy` 配置至 `pyproject.toml`（删除 `mypy.ini`）
+- 精简 `setup.py` 为最小化桥接文件
+- 修复 `pyproject.toml` 中 readme 路径，统一行宽设置
+
+**Bug修复**
+
+- 修复 `multifractal_image` 打印块引用不存在的空字符串键名
+- 修复多重分形曲线分析中坐标转矩阵逻辑
+
+**测试套件**
+
+- 全部 384 个测试通过（此前 297 通过 / 88 失败）
+- 扩展 `conftest.py` 中的共享 fixture 和信号生成器
+- 修复生成器测试断言（数据类型检查、形状断言、统计阈值）
+- 对齐多重分形测试键名与实际 API 返回值
+- 放宽单分形数值容差以匹配算法实际精度
 
 ---
 

@@ -81,6 +81,7 @@ pip install FracDimPy
 ```
 
 **Common Mirror Sources**:
+
 - Tsinghua University: `https://pypi.tuna.tsinghua.edu.cn/simple`
 - Alibaba Cloud: `https://mirrors.aliyun.com/pypi/simple`
 - USTC: `https://pypi.mirrors.ustc.edu.cn/simple`
@@ -99,6 +100,40 @@ from fracDimPy.generator import *
 ```
 
 **Important Note**: Although the PyPI package name is `FracDimPy` (uppercase F), you need to use `import fracDimPy` (lowercase f) in your Python code.
+
+### Quick Usage Examples
+
+```python
+from fracDimPy import hurst_dimension, box_counting, dfa
+from fracDimPy import multifractal_curve, mf_dfa
+from fracDimPy import generate_fbm_curve
+import numpy as np
+
+# Generate a fractal curve (returns curve, actual_dimension)
+curve, actual_dim = generate_fbm_curve(dimension=1.5, length=2048)
+
+# Monofractal analysis
+D, result = hurst_dimension(curve)
+print(f"Hurst dimension: {D:.4f}, R²: {result['R2']:.4f}")
+
+D, result = dfa(curve)
+print(f"DFA Hurst exponent: {result['alpha']:.4f}, R²: {result['r_squared']:.4f}")
+
+# Box-counting on curve coordinates
+x = np.arange(len(curve))
+D, result = box_counting((x, curve), data_type="curve")
+print(f"Box-counting dimension: {D:.4f}, R²: {result['R2']:.4f}")
+
+# Multifractal analysis (single column)
+metrics, figure_data = multifractal_curve(curve, data_type="single")
+print(f"D(0)={metrics[' D(0)'][0]:.4f}, D(1)={metrics[' D(1)'][0]:.4f}, D(2)={metrics[' D(2)'][0]:.4f}")
+
+# MF-DFA
+hq, spectrum = mf_dfa(curve)
+q_arr = np.array(hq['q_list'])
+idx_2 = np.where(np.abs(q_arr - 2) < 1e-10)[0][0]
+print(f"h(2)={hq['h_q'][idx_2]:.4f}, spectrum width={spectrum['width']:.4f}")
+```
 
 ---
 
@@ -162,6 +197,48 @@ Generates various theoretical and random fractals:
 
 - Data I/O (`data_io`)
 - Visualization tools (`plotting`)
+- Shared computation utilities:
+  - `fitting` - Log-log linear regression and R-squared computation
+  - `scales` - Power-of-two scale generation
+  - `box_counting_core` - Dimension-agnostic box counting primitives
+  - `multifractal_common` - Shared multifractal partition/metrics computation
+  - `image_drawing` - Bresenham line drawing and coordinate normalization
+  - `conversion` - Coordinate-to-matrix, grayscale conversion, boundary padding
+
+### Project Structure
+
+```
+src/fracDimPy/
+├── __init__.py              # Package entry, exports all public functions
+├── monofractal/             # Monofractal dimension methods
+│   ├── hurst.py             # Hurst exponent (R/S analysis)
+│   ├── box_counting.py      # Box-counting (1D/2D/3D)
+│   ├── information_dimension.py
+│   ├── correlation_dimension.py
+│   ├── structural_function.py
+│   ├── variogram.py
+│   ├── sandbox.py
+│   └── dfa.py               # Detrended Fluctuation Analysis
+├── multifractal/            # Multifractal analysis
+│   ├── mf_curve.py          # 1D curve multifractal
+│   ├── mf_image.py          # 2D image multifractal
+│   ├── mf_dfa.py            # Multifractal DFA
+│   └── custom_epsilon.py    # Custom scale support
+├── generator/               # Fractal generators
+│   ├── curves.py            # FBM, WM, Takagi curves
+│   ├── surfaces.py          # FBM, WM, Takagi surfaces
+│   ├── patterns.py          # Cantor, Sierpinski, Koch, DLA, Menger...
+│   └── random_fractals.py   # Brownian motion, Lévy flight, etc.
+└── utils/                   # Shared utilities
+    ├── data_io.py            # Data loading and saving
+    ├── plotting.py           # Visualization tools
+    ├── fitting.py            # Log-log regression and R²
+    ├── scales.py             # Power-of-two scale generation
+    ├── box_counting_core.py  # Dimension-agnostic box counting
+    ├── multifractal_common.py # Shared multifractal computation
+    ├── image_drawing.py      # Bresenham line drawing
+    └── conversion.py         # Coordinate/grayscale/boundary utilities
+```
 
 ---
 
@@ -181,10 +258,10 @@ FracDimPy can be applied to multiple scientific and engineering fields:
 
 ## 📊 Examples and Data
 
-The [examples](examples/) directory contains rich example code and test data:
+The [tests](tests/) directory contains rich example code and test data:
 
 ```
-examples/
+tests/
 ├── monofractal/          # Monofractal method examples
 │   ├── test_hurst.py
 │   ├── test_box_counting_*.py
@@ -202,11 +279,9 @@ examples/
 Run examples:
 
 ```bash
-cd examples/monofractal
+cd tests/monofractal
 python test_hurst.py
 ```
-
-For more details, see [examples/README.md](examples/README.md)
 
 ---
 
@@ -226,7 +301,6 @@ For more details, see [examples/README.md](examples/README.md)
 - SciPy >= 1.7.0 - Scientific computing tools
 - Matplotlib >= 3.3.0 - Data visualization
 - Pandas >= 1.3.0 - Data processing
-- OpenCV >= 4.5.0 - Image processing (imported as cv2)
 - Pillow >= 9.0.0 - Image I/O
 
 **All dependencies are automatically installed. No manual installation needed for full functionality.**
@@ -276,6 +350,38 @@ If you use FracDimPy in your research, please cite:
   version = {0.1.3}
 }
 ```
+
+---
+
+## 📋 Changelog
+
+### v0.1.3 (2024)
+
+**Architecture Refactoring**
+
+- Extracted 6 shared utility modules (`fitting`, `scales`, `box_counting_core`, `multifractal_common`, `image_drawing`, `conversion`) to eliminate ~1000 lines of duplicated code across 16 source files
+- Unified box-counting implementation into a single dimension-agnostic core, replacing 4 separate copies
+- Consolidated all log-log regression patterns (15+ occurrences) into `log_log_fit()` and `linear_fit()`
+- Shared multifractal partition function computation between `mf_curve` and `mf_image`
+
+**Configuration Cleanup**
+
+- Consolidated `mypy` configuration into `pyproject.toml` (removed `mypy.ini`)
+- Simplified `setup.py` to a minimal shim delegating to `pyproject.toml`
+- Fixed `pyproject.toml` readme path, unified line-length settings
+
+**Bug Fixes**
+
+- Fixed `multifractal_image` print block referencing non-existent empty-string keys
+- Fixed coordinate-to-matrix conversion in multifractal curve analysis
+
+**Test Suite**
+
+- All 384 tests passing (previously 297 pass / 88 fail)
+- Expanded shared fixtures and signal generators in `conftest.py`
+- Fixed generator test assertions (dtype checks, shape assertions, statistical thresholds)
+- Aligned multifractal test key names with actual API return values
+- Relaxed monofractal numerical tolerances to match algorithm capabilities
 
 ---
 

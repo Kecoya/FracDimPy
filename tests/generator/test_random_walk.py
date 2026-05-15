@@ -43,7 +43,7 @@ def test_brownian_motion_basic_generation():
 
     # Test basic properties
     assert paths.shape[0] == num_paths, f"Should have {num_paths} paths"
-    assert paths.shape[1] == steps, f"Should have {steps} steps"
+    assert paths.shape[1] == steps + 1, f"Should have {steps + 1} points (steps + starting point)"
     assert paths.shape[2] == 2, "Paths should be 2D coordinates"
     assert image.shape == (size, size), f"Image should be {size}x{size}"
     assert np.all(np.isfinite(paths)), "All path coordinates should be finite"
@@ -101,7 +101,7 @@ def test_levy_flight_basic_generation():
 
     # Test basic properties
     assert paths.shape[0] == num_paths, f"Should have {num_paths} paths"
-    assert paths.shape[1] == steps, f"Should have {steps} steps"
+    assert paths.shape[1] == steps + 1, f"Should have {steps + 1} points (steps + starting point)"
     assert paths.shape[2] == 2, "Paths should be 2D coordinates"
     assert image.shape == (size, size), f"Image should be {size}x{size}"
     assert np.all(np.isfinite(paths)), "All path coordinates should be finite"
@@ -130,7 +130,7 @@ def test_levy_flight_different_alphas():
         paths, image = generate_levy_flight(steps=steps, size=size, alpha=alpha, num_paths=3)
 
         # Test basic properties
-        assert paths.shape[1] == steps, f"Alpha {alpha}: Should have {steps} steps"
+        assert paths.shape[1] == steps + 1, f"Alpha {alpha}: Should have {steps + 1} points (steps + starting point)"
         assert image.shape == (size, size), f"Alpha {alpha}: Incorrect image size"
 
         # Calculate step lengths
@@ -205,7 +205,7 @@ def test_self_avoiding_walk_basic_generation():
         assert len(unique_positions) == len(path), "Path should not revisit positions"
 
         # Test that path has correct length
-        assert path.shape[0] == steps, f"Path should have {steps} steps"
+        assert path.shape[0] == steps + 1, f"Path should have {steps + 1} points (steps + starting point)"
         assert path.shape[1] == 2, "Path should be 2D coordinates"
 
     # Test image has non-zero values
@@ -253,14 +253,14 @@ def test_random_walk_edge_cases():
 
     # Brownian motion with minimal parameters
     paths_bm, image_bm = generate_brownian_motion(steps=steps, size=size, num_paths=num_paths)
-    assert paths_bm.shape == (1, steps, 2), "Small Brownian motion should work"
+    assert paths_bm.shape == (1, steps + 1, 2), "Small Brownian motion should work"
     assert image_bm.shape == (size, size), "Small image should work"
 
     # Lévy flight with minimal parameters
     paths_levy, image_levy = generate_levy_flight(
         steps=steps, size=size, alpha=1.5, num_paths=num_paths
     )
-    assert paths_levy.shape == (1, steps, 2), "Small Lévy flight should work"
+    assert paths_levy.shape == (1, steps + 1, 2), "Small Lévy flight should work"
     assert image_levy.shape == (size, size), "Small image should work"
 
 
@@ -274,7 +274,7 @@ def test_brownian_motion_steps_parameter(steps):
 
     paths, image = generate_brownian_motion(steps=steps, size=size, num_paths=num_paths)
 
-    assert paths.shape == (num_paths, steps, 2), f"Steps {steps}: Correct path shape"
+    assert paths.shape == (num_paths, steps + 1, 2), f"Steps {steps}: Correct path shape"
     assert image.shape == (size, size), f"Steps {steps}: Correct image size"
     assert np.all(np.isfinite(paths)), f"Steps {steps}: All paths should be finite"
 
@@ -290,7 +290,7 @@ def test_levy_flight_alpha_parameter(alpha):
 
     paths, image = generate_levy_flight(steps=steps, size=size, alpha=alpha, num_paths=num_paths)
 
-    assert paths.shape == (num_paths, steps, 2), f"Alpha {alpha}: Correct path shape"
+    assert paths.shape == (num_paths, steps + 1, 2), f"Alpha {alpha}: Correct path shape"
     assert image.shape == (size, size), f"Alpha {alpha}: Correct image size"
     assert np.all(np.isfinite(paths)), f"Alpha {alpha}: All paths should be finite"
 

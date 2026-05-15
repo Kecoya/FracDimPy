@@ -17,6 +17,8 @@ from typing import Tuple, Dict, Optional, List
 
 # type: ignore
 
+from ..utils.multifractal_common import default_q_list
+
 
 def mf_dfa(
     data: np.ndarray,
@@ -113,10 +115,7 @@ def mf_dfa(
 
     # qmf_curve.py
     if q_list is None:
-        q_min = -10
-        q_max = 10
-        # 10000,1,2
-        q_list = np.unique(np.append(np.round(np.linspace(q_min, q_max, 1000), 2), [0, 1, 2]))
+        q_list = default_q_list()
     else:
         q_list = np.array(q_list)
 
