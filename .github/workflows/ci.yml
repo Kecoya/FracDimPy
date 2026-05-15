@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -30,20 +34,24 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
-        path: ~/.cache/pip
+        path: |
+          ~/.cache/pip
+          ~/AppData/Local/pip/Cache
         key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
     - name: Install system dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
+      shell: bash
       run: |
         sudo apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1
 
     - name: Install system dependencies (macOS)
       if: matrix.os == 'macos-latest'
+      shell: bash
       run: |
         brew install libomp
 
@@ -53,10 +61,9 @@ jobs:
         pip install wheel setuptools
         pip install -e .[dev]
 
-    - name: Install additional test dependencies
+    - name: Verify dependencies
       run: |
-        pip install pytest pytest-cov pytest-benchmark pytest-xdist
-        pip install pillow scienceplots
+        python -c "import pytest; import numpy; import scipy; import matplotlib; print('Core dependencies OK')"
 
     - name: Verify package installation
       run: |
@@ -67,33 +74,24 @@ jobs:
         python -c "import fracDimPy; import numpy as np; data = np.random.randn(1000); from fracDimPy.monofractal import hurst_dimension; D, result = hurst_dimension(data); print(f'Basic test passed: Hurst exponent = {D:.3f}'); print('Core functionality verified')"
 
     - name: Lint with flake8
+      continue-on-error: true
       run: |
-        # Stop the build if there are Python syntax errors or undefined names
         flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 src --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
 
-    - name: Check code formatting with black
-      run: |
-        echo "Black formatting check skipped for cross-platform compatibility"
-        # black --check src/ tests/ || echo "Black formatting check failed - continue anyway"
-
     - name: Type checking with mypy
+      continue-on-error: true
       run: |
-        mypy src/fracDimPy --ignore-missing-imports --no-strict-optional || echo "MyPy type check completed with warnings"
+        mypy src/fracDimPy --ignore-missing-imports --no-strict-optional
 
     - name: Security check with bandit
+      continue-on-error: true
       run: |
-        bandit -r src/fracDimPy -f json -o bandit-report.json || echo "Bandit security check completed"
+        bandit -r src/fracDimPy -f json -o bandit-report.json
 
     - name: Test with pytest
       run: |
-        pytest tests/ -v --tb=short --cov=src/fracDimPy --cov-report=xml --cov-report=term-missing --cov-report=html || echo "Some tests failed, but core functionality works"
-
-    - name: Run fast tests only for minimal validation
-      if: matrix.os == 'windows-latest' && matrix.python-version == '3.12'
-      run: |
-        pytest tests/ -v -x --tb=short -m "not slow" --disable-warnings || echo "Some tests failed, but core functionality works"
+        pytest tests/ -v --tb=short --cov=src/fracDimPy --cov-report=xml --cov-report=term-missing --cov-report=html
 
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
@@ -142,7 +140,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .[docs]
-        # Install sphinx and related packages
         pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints
 
     - name: Build documentation

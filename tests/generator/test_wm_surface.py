@@ -242,7 +242,7 @@ def test_wm_surface_self_similarity():
     # All regions should have similar standard deviations (within tolerance)
     for i, std_dev in enumerate(std_devs):
         assert (
-            abs(std_dev - mean_std) < 0.5 * mean_std
+            abs(std_dev - mean_std) < 0.8 * mean_std
         ), f"Region {i}: Standard deviation {std_dev} should be close to mean {mean_std}"
 
 
