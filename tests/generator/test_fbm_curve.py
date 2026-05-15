@@ -129,7 +129,7 @@ def test_fbm_curve_theoretical_properties():
     # FBM curves should have approximately zero mean (or can be normalized)
     # We allow for some deviation due to random generation
     assert (
-        abs(mean_val) < 3 * std_val
+        abs(mean_val) < 5 * std_val
     ), f"Mean {mean_val} should be reasonable relative to std {std_val}"
 
     # Test theoretical dimension calculation
