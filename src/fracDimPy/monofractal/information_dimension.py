@@ -143,11 +143,11 @@ def information_dimension(
         box_sizes.append(box_size)
         informations.append(information)
 
-    box_sizes = np.array(box_sizes)
-    informations = np.array(informations)
+    box_sizes = np.array(box_sizes)  # type: ignore[assignment]
+    informations = np.array(informations)  # type: ignore[assignment]
 
     #
-    valid = (informations > 0) & (box_sizes > 0)
+    valid = (informations > 0) & (box_sizes > 0)  # type: ignore[operator]
     box_sizes = box_sizes[valid]
     informations = informations[valid]
 

@@ -144,12 +144,12 @@ def correlation_dimension(
         C_r = np.sum(distances < r) / len(distances)
         correlations.append(C_r)
 
-    radii = np.array(radii)
-    correlations = np.array(correlations)
+    radii = np.array(radii)  # type: ignore[assignment]
+    correlations = np.array(correlations)  # type: ignore[assignment]
 
     # log(0)
     #
-    valid = (correlations > 1e-5) & (correlations < 0.8)
+    valid = (correlations > 1e-5) & (correlations < 0.8)  # type: ignore[operator]
     radii = radii[valid]
     correlations = correlations[valid]
 

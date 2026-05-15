@@ -99,13 +99,13 @@ def box_counting(
     if data_type == "curve":
         return _box_counting_curve(data, boundary_mode, partition_strategy, **kwargs)
     elif data_type == "image":
-        return _box_counting_image(data, boundary_mode, partition_strategy, **kwargs)
+        return _box_counting_image(data, boundary_mode, partition_strategy, **kwargs)  # type: ignore[arg-type]
     elif data_type == "surface":
-        return _box_counting_surface(data, boundary_mode, partition_strategy, **kwargs)
+        return _box_counting_surface(data, boundary_mode, partition_strategy, **kwargs)  # type: ignore[arg-type]
     elif data_type == "scatter":
         return _box_counting_scatter(data, boundary_mode, partition_strategy, **kwargs)
     elif data_type == "porous":
-        return _box_counting_porous(data, boundary_mode, partition_strategy, **kwargs)
+        return _box_counting_porous(data, boundary_mode, partition_strategy, **kwargs)  # type: ignore[arg-type]
     else:
         raise ValueError(f"Unsupported data type: {data_type}")
 
@@ -145,6 +145,7 @@ def _get_box_positions(
     positions : list
         List of box starting positions, each element is a coordinate tuple
     """
+    positions: list = []
     if strategy == "fixed":
         # 固定网格，不重叠
         if len(data_shape) == 1:
@@ -1024,7 +1025,7 @@ def _count_boxes_1d_advanced(
             total_boxes_possible = len(MT) // EPSILON
             counts.append(count * total_boxes_possible)
 
-        return np.mean(counts)
+        return float(np.mean(counts))
 
     else:
         return _count_boxes_1d(MT, EPSILON)

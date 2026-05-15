@@ -139,7 +139,7 @@ def multifractal_curve(
         else:
             raise ValueError(" (x, y) ")
     else:
-        mt = data
+        mt = data  # type: ignore[assignment]
         epsilon_physical = 1.0
 
     # qMF_BC1D.py
@@ -156,13 +156,13 @@ def multifractal_curve(
     if epsilonl is None and data_type == "dual":
         epsilonl = [e * epsilon_physical for e in power_of_two_scales(len(mt))]
     elif epsilonl is None:
-        epsilonl = epsilon_grid
+        epsilonl = epsilon_grid  # type: ignore[assignment]
 
     print(f"{epsilon_grid}")
     print(f"q: {q_list}")
 
-    q_min = min(q_list)
-    q_max = max(q_list)
+    q_min = min(q_list)  # type: ignore[assignment]
+    q_max = max(q_list)  # type: ignore[assignment]
 
     #
     xl = []  #

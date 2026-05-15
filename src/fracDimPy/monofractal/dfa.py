@@ -180,10 +180,10 @@ def dfa(
         else:
             fluctuations.append(np.nan)
 
-    fluctuations = np.array(fluctuations)
+    fluctuations = np.array(fluctuations)  # type: ignore[assignment]
 
     #
-    valid = np.isfinite(fluctuations) & (fluctuations > 0)
+    valid = np.isfinite(fluctuations) & (fluctuations > 0)  # type: ignore[operator]
     window_sizes = window_sizes[valid]
     fluctuations = fluctuations[valid]
 

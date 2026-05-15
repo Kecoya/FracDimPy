@@ -92,11 +92,11 @@ def structural_function(
 
     #
     # numpy
-    taol = np.array(taol)
-    Sl = np.array(Sl)
+    taol = np.array(taol)  # type: ignore[assignment]
+    Sl = np.array(Sl)  # type: ignore[assignment]
 
     #
-    valid_mask = (taol > 0) & (Sl > 0)
+    valid_mask = (taol > 0) & (Sl > 0)  # type: ignore[operator]
     taol = taol[valid_mask]
     Sl = Sl[valid_mask]
 
@@ -112,8 +112,8 @@ def structural_function(
 
     result = {
         "dimension": dimension,
-        "tau_values": taol.tolist() if isinstance(taol, np.ndarray) else taol,
-        "S_values": Sl.tolist() if isinstance(Sl, np.ndarray) else Sl,
+        "tau_values": taol.tolist(),  # type: ignore[union-attr]
+        "S_values": Sl.tolist(),  # type: ignore[union-attr]
         "log_tau": log_tau,
         "log_S": log_S,
         "slope": m,

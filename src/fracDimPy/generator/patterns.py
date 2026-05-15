@@ -760,7 +760,7 @@ def generate_self_avoiding_walk(
     x_all, y_all = normalize_to_pixel_coords(all_points, size, margin=50)
 
     idx = 0
-    for path in successful_paths:
+    for path in successful_paths:  # type: ignore[assignment]
         n = len(path)
         x_img = x_all[idx : idx + n]
         y_img = y_all[idx : idx + n]
@@ -770,7 +770,7 @@ def generate_self_avoiding_walk(
         for i in range(len(x_img) - 1):
             bresenham_line(image, x_img[i], y_img[i], x_img[i + 1], y_img[i + 1], increment=10)
 
-    return successful_paths, image
+    return successful_paths, image  # type: ignore[return-value]
 
 
 def generate_dla(

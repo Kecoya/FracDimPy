@@ -117,7 +117,7 @@ def mf_dfa(
     if q_list is None:
         q_list = default_q_list()
     else:
-        q_list = np.array(q_list)
+        q_list = np.array(q_list)  # type: ignore[assignment]
 
     # 1
     mean = np.mean(data)
@@ -185,14 +185,14 @@ def mf_dfa(
                     variance = np.mean(detrended**2)
                     F2_segments.append(variance)
 
-        F2_segments = np.array(F2_segments)
+        F2_segments = np.array(F2_segments)  # type: ignore[assignment]
 
         # 4q
         for i_q, q in enumerate(q_list):
             if q == 0:
                 # q=0:
                 # F_0(n) = exp{(1/N_s)  ln[F()]}
-                log_F = np.log(F2_segments + 1e-10) / 2  # F = sqrt(F)
+                log_F = np.log(F2_segments + 1e-10) / 2  # type: ignore[operator]  # F = sqrt(F)
                 Fq = np.exp(np.mean(log_F))
             else:
                 # q0:
@@ -225,7 +225,7 @@ def mf_dfa(
         h_q[i_q] = coeffs[0]
 
     # 6(q)
-    tau_q = q_list * h_q - 1
+    tau_q = q_list * h_q - 1  # type: ignore[operator]
 
     # 7 f()
     #
@@ -248,7 +248,7 @@ def mf_dfa(
         alpha[i] = h_q[i] + q_list[i] * dh_dq
 
         # f() = q *  - (q) = q *  - (q*h(q) - 1)
-        f_alpha[i] = q_list[i] * alpha[i] - tau_q[i]
+        f_alpha[i] = q_list[i] * alpha[i] - tau_q[i]  # type: ignore[index]
 
     #
     valid_spectrum = np.isfinite(alpha) & np.isfinite(f_alpha)
